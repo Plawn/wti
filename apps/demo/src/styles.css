@@ -1,0 +1,5 @@
+@import "../../../packages/ui/src/styles/global.css";
+
+@source "../../../packages/ui/src/**/*.tsx";
+@source "../../../packages/core/src/**/*.ts";
+@source "./index.tsx";

@@ -1,5 +1,5 @@
 import { WTI } from '@wti/ui';
-import '@wti/ui/style.css';
+import './styles.css';
 /* @refresh reload */
 import { render } from 'solid-js/web';
 

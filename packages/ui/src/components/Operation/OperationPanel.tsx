@@ -1,4 +1,4 @@
-import type { Operation, Parameter, Server } from '@wti/core';
+import type { Operation, Parameter, Schema, Server } from '@wti/core';
 import {
   type RequestValues,
   type ResponseData,
@@ -7,8 +7,9 @@ import {
   getDefaultValues,
   getPreferredContentType,
 } from '@wti/core';
-import { type Component, For, type JSX, Show, createMemo, createSignal } from 'solid-js';
+import { type Component, For, type JSX, Show, createEffect, createMemo, createSignal } from 'solid-js';
 import { useI18n } from '../../i18n';
+import { Button, Checkbox, Input, Select, Textarea } from '../shared';
 import { OperationHeader } from './OperationHeader';
 
 interface OperationPanelProps {
@@ -18,17 +19,27 @@ interface OperationPanelProps {
 
 export const OperationPanel: Component<OperationPanelProps> = (props) => {
   const { t } = useI18n();
-
+  console.log('yay');
   // Form state
   const [pathParams, setPathParams] = createSignal<Record<string, string>>({});
   const [queryParams, setQueryParams] = createSignal<Record<string, string>>({});
   const [headerParams, setHeaderParams] = createSignal<Record<string, string>>({});
   const [body, setBody] = createSignal<string>('');
+  const [bodyMode, setBodyMode] = createSignal<'json' | 'form'>('json');
+  const [bodyFormData, setBodyFormData] = createSignal<Record<string, unknown>>({});
 
   // Response state
   const [loading, setLoading] = createSignal(false);
   const [response, setResponse] = createSignal<ResponseData | null>(null);
   const [error, setError] = createSignal<string | null>(null);
+  const [copied, setCopied] = createSignal(false);
+
+  const copyResponse = async (res: ResponseData) => {
+    const text = typeof res.body === 'object' ? JSON.stringify(res.body, null, 2) : res.bodyText;
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   // Group parameters by location
   const paramsByLocation = createMemo(() => {
@@ -49,6 +60,63 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
 
   const contentType = createMemo(() => getPreferredContentType(props.operation));
 
+  // Get request body schema
+  const bodySchema = createMemo(() => {
+    const ct = contentType();
+    if (!ct || !props.operation.requestBody?.content[ct]?.schema) {
+      return null;
+    }
+    return props.operation.requestBody.content[ct].schema;
+  });
+
+  createEffect(() => {
+    console.log('bodySchema:', bodySchema(), 'hasRequestBody:', hasRequestBody(), 'contentType:', contentType());
+  });
+
+
+  // Check if schema is suitable for form mode (has a schema with properties)
+  const canUseFormMode = createMemo(() => {
+    const schema = bodySchema();
+    console.log('bodySchema:', schema, 'hasRequestBody:', hasRequestBody(), 'contentType:', contentType());
+    if (!schema) {
+      return false;
+    }
+    // Show form mode if schema has properties (even without explicit type: object)
+    if (schema.properties && Object.keys(schema.properties).length > 0) return true;
+    // Also show for explicit object type
+    if (schema.type === 'object') {
+      return true;
+    }
+    return false;
+  });
+
+  // Switch to JSON mode and sync from form data
+  const switchToJsonMode = () => {
+    if (bodyMode() === 'form') {
+      setBody(JSON.stringify(bodyFormData(), null, 2));
+    }
+    setBodyMode('json');
+  };
+
+  // Switch to form mode and sync from JSON
+  const switchToFormMode = () => {
+    if (bodyMode() === 'json') {
+      try {
+        const parsed = body() ? JSON.parse(body()) : {};
+        setBodyFormData(parsed);
+      } catch {
+        // If JSON is invalid, start with empty form
+        setBodyFormData({});
+      }
+    }
+    setBodyMode('form');
+  };
+
+  // Update a single form field
+  const updateFormField = (key: string, value: unknown) => {
+    setBodyFormData((prev) => ({ ...prev, [key]: value }));
+  };
+
   // Initialize default values
   const initDefaults = () => {
     const defaults = getDefaultValues(props.operation);
@@ -59,12 +127,18 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
     const ct = contentType();
     if (hasRequestBody() && ct) {
       const mediaType = props.operation.requestBody?.content[ct];
+      let exampleData: unknown = null;
+
       if (mediaType?.example) {
-        setBody(JSON.stringify(mediaType.example, null, 2));
+        exampleData = mediaType.example;
       } else if (mediaType?.schema) {
-        const example = generateSchemaExample(mediaType.schema);
-        if (example) {
-          setBody(JSON.stringify(example, null, 2));
+        exampleData = generateSchemaExample(mediaType.schema);
+      }
+
+      if (exampleData) {
+        setBody(JSON.stringify(exampleData, null, 2));
+        if (typeof exampleData === 'object' && exampleData !== null) {
+          setBodyFormData(exampleData as Record<string, unknown>);
         }
       }
     }
@@ -78,11 +152,19 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
     setResponse(null);
 
     try {
+      // Get body based on current mode
+      let bodyData: unknown;
+      if (bodyMode() === 'form') {
+        bodyData = bodyFormData();
+      } else {
+        bodyData = body() ? JSON.parse(body()) : undefined;
+      }
+
       const values: RequestValues = {
         path: pathParams(),
         query: queryParams(),
         headers: headerParams(),
-        body: body() ? JSON.parse(body()) : undefined,
+        body: bodyData,
         contentType: contentType(),
       };
 
@@ -114,13 +196,13 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
   };
 
   return (
-    <div class="p-8 max-w-4xl">
+    <div class="p-8 max-w-4xl mx-auto">
       <OperationHeader operation={props.operation} />
 
       {/* Parameters Section */}
       <Show when={props.operation.parameters.length > 0}>
         <Section title={t('operations.parameters')}>
-          <div class="space-y-3">
+          <div class="space-y-5">
             <For each={paramsByLocation().path}>
               {(param) => (
                 <ParameterInput
@@ -155,84 +237,91 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
       {/* Request Body Section */}
       <Show when={hasRequestBody()}>
         <Section title={t('operations.requestBody')}>
-          <div class="relative">
-            <textarea
-              class="w-full h-56 p-4 font-mono text-sm bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl text-gray-800 dark:text-gray-200 resize-y focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-200"
-              value={body()}
-              onInput={(e) => setBody(e.currentTarget.value)}
-              placeholder="{}"
-            />
-            <div class="absolute top-3 right-3">
-              <span class="text-[10px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-                JSON
-              </span>
+          {/* Mode Toggle */}
+          <Show when={canUseFormMode()}>
+            <div class="flex gap-1 mb-4 p-1 glass-input rounded-xl w-fit">
+              <button
+                type="button"
+                onClick={switchToJsonMode}
+                class={`px-4 py-1.5 text-xs font-medium rounded-lg transition-all ${bodyMode() === 'json'
+                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                  }`}
+              >
+                {t('operations.jsonMode')}
+              </button>
+              <button
+                type="button"
+                onClick={switchToFormMode}
+                class={`px-4 py-1.5 text-xs font-medium rounded-lg transition-all ${bodyMode() === 'form'
+                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                  }`}
+              >
+                {t('operations.formMode')}
+              </button>
             </div>
-          </div>
+          </Show>
+
+          {/* JSON Editor */}
+          <Show when={bodyMode() === 'json'}>
+            <div class="relative">
+              <Textarea value={body()} onInput={setBody} placeholder="{}" class="h-56 font-mono" />
+              <div class="absolute top-3 right-3">
+                <span class="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                  JSON
+                </span>
+              </div>
+            </div>
+          </Show>
+
+          {/* Form Editor */}
+          <Show when={bodyMode() === 'form' && bodySchema()}>
+            <div class="space-y-4">
+              <For each={Object.entries(bodySchema()?.properties || {})}>
+                {([key, propSchema]) => (
+                  <BodyFormField
+                    name={key}
+                    schema={propSchema as Schema}
+                    value={bodyFormData()[key]}
+                    required={bodySchema()?.required?.includes(key) || false}
+                    onChange={(value) => updateFormField(key, value)}
+                  />
+                )}
+              </For>
+            </div>
+          </Show>
         </Section>
       </Show>
 
       {/* Send Button */}
-      <div class="mt-8">
-        <button
-          type="button"
-          class="group relative inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 disabled:from-blue-400 disabled:to-indigo-500 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
-          onClick={handleSend}
-          disabled={loading()}
-        >
-          {loading() ? (
-            <>
-              <svg
-                class="animate-spin h-5 w-5"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <circle
-                  class="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                />
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-              {t('common.loading')}
-            </>
-          ) : (
-            <>
-              <svg
-                class="w-5 h-5 transition-transform group-hover:translate-x-0.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M14 5l7 7m0 0l-7 7m7-7H3"
-                />
-              </svg>
-              {t('common.send')}
-            </>
-          )}
-        </button>
+      <div class="mt-10">
+        <Button onClick={handleSend} loading={loading()} class="px-7 py-3">
+          {t('common.send')}
+          <svg
+            class="w-[18px] h-[18px]"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2.5"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+            />
+          </svg>
+        </Button>
       </div>
 
       {/* Error Display */}
       <Show when={error()}>
-        <div class="mt-8 p-5 glass border border-red-200/50 dark:border-red-800/50 rounded-xl">
-          <div class="flex items-start gap-3">
-            <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+        <div class="mt-10 p-6 glass-card rounded-2xl border-red-200/30 dark:border-red-800/20">
+          <div class="flex items-start gap-4">
+            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-red-500/15 dark:bg-red-500/20 flex items-center justify-center">
               <svg
-                class="w-4 h-4 text-red-600 dark:text-red-400"
+                class="w-5 h-5 text-red-600 dark:text-red-400"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -247,8 +336,8 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
               </svg>
             </div>
             <div>
-              <h4 class="font-medium text-red-800 dark:text-red-200">Request Failed</h4>
-              <p class="text-sm text-red-600 dark:text-red-400 mt-1">{error()}</p>
+              <h4 class="font-semibold text-red-800 dark:text-red-200">Request Failed</h4>
+              <p class="text-sm text-red-600 dark:text-red-400 mt-1.5">{error()}</p>
             </div>
           </div>
         </div>
@@ -259,39 +348,83 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
         {(res) => {
           const statusConfig = getStatusConfig(res.status);
           return (
-            <div class="mt-8 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm">
+            <div class="mt-10 glass-card rounded-2xl overflow-hidden">
               {/* Response header */}
-              <div class="flex items-center justify-between px-5 py-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+              <div class="flex items-center justify-between px-6 py-4 border-b border-white/10 dark:border-white/5">
                 <div class="flex items-center gap-3">
                   <span
-                    class={`px-3 py-1.5 rounded-lg text-sm font-semibold ${statusConfig.bg} ${statusConfig.text}`}
+                    class={`px-3.5 py-1.5 rounded-xl text-sm font-bold ${statusConfig.bg} ${statusConfig.text}`}
                   >
                     {res.status} {res.statusText}
                   </span>
-                  <span class="text-sm text-gray-500 dark:text-gray-400">
+                  <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">
                     {res.headers['content-type']}
                   </span>
                 </div>
-                <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                  <svg
-                    class="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    aria-hidden="true"
+                <div class="flex items-center gap-4">
+                  <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 font-medium">
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    {Math.round(res.timing.duration)}ms
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => copyResponse(res)}
+                    class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white bg-gray-100/50 dark:bg-white/5 hover:bg-gray-200/50 dark:hover:bg-white/10 rounded-lg transition-colors"
                   >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  {Math.round(res.timing.duration)}ms
+                    <Show
+                      when={copied()}
+                      fallback={
+                        <>
+                          <svg
+                            class="w-3.5 h-3.5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            aria-hidden="true"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                            />
+                          </svg>
+                          {t('common.copy')}
+                        </>
+                      }
+                    >
+                      <svg
+                        class="w-3.5 h-3.5 text-emerald-500"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        aria-hidden="true"
+                      >
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span class="text-emerald-600 dark:text-emerald-400">
+                        {t('common.copied')}
+                      </span>
+                    </Show>
+                  </button>
                 </div>
               </div>
               {/* Response body */}
-              <pre class="p-5 text-sm font-mono text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-950 overflow-x-auto max-h-[500px] scrollbar-thin">
+              <pre class="p-6 text-sm font-mono text-gray-800 dark:text-gray-200 overflow-x-auto max-h-[500px] scrollbar-thin">
                 {typeof res.body === 'object' ? JSON.stringify(res.body, null, 2) : res.bodyText}
               </pre>
             </div>
@@ -305,14 +438,83 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
 // Section component for consistent styling
 const Section: Component<{ title: string; children: JSX.Element }> = (props) => {
   return (
-    <div class="mt-8">
-      <h3 class="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-4">
-        {props.title}
-      </h3>
+    <div class="mt-10">
+      <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-4">{props.title}</h3>
       {props.children}
     </div>
   );
 };
+
+/**
+ * Validate a value against a schema and return error messages
+ */
+function validateValue(value: string, schema: Schema, required: boolean): string[] {
+  const errors: string[] = [];
+
+  // Skip validation if empty and not required
+  if (!value && !required) {
+    return errors;
+  }
+
+  // Required validation
+  if (required && !value) {
+    errors.push('This field is required');
+    return errors;
+  }
+
+  const type = schema.type || 'string';
+
+  // String validations
+  if (type === 'string') {
+    if (schema.minLength !== undefined && value.length < schema.minLength) {
+      errors.push(`Minimum length is ${schema.minLength}`);
+    }
+    if (schema.maxLength !== undefined && value.length > schema.maxLength) {
+      errors.push(`Maximum length is ${schema.maxLength}`);
+    }
+    if (schema.pattern) {
+      try {
+        const regex = new RegExp(schema.pattern);
+        if (!regex.test(value)) {
+          errors.push(`Must match pattern: ${schema.pattern}`);
+        }
+      } catch {
+        // Invalid regex pattern in schema
+      }
+    }
+  }
+
+  // Number validations
+  if (type === 'number' || type === 'integer') {
+    const num = Number(value);
+    if (value && Number.isNaN(num)) {
+      errors.push('Must be a valid number');
+      return errors;
+    }
+
+    if (type === 'integer' && !Number.isInteger(num)) {
+      errors.push('Must be an integer');
+    }
+
+    if (schema.minimum !== undefined && num < schema.minimum) {
+      errors.push(`Minimum value is ${schema.minimum}`);
+    }
+    if (schema.maximum !== undefined && num > schema.maximum) {
+      errors.push(`Maximum value is ${schema.maximum}`);
+    }
+    if (schema.exclusiveMinimum !== undefined && num <= schema.exclusiveMinimum) {
+      errors.push(`Must be greater than ${schema.exclusiveMinimum}`);
+    }
+    if (schema.exclusiveMaximum !== undefined && num >= schema.exclusiveMaximum) {
+      errors.push(`Must be less than ${schema.exclusiveMaximum}`);
+    }
+    if (schema.multipleOf !== undefined && num % schema.multipleOf !== 0) {
+      errors.push(`Must be a multiple of ${schema.multipleOf}`);
+    }
+  }
+
+  return errors;
+}
 
 interface ParameterInputProps {
   param: Parameter;
@@ -324,58 +526,246 @@ const ParameterInput: Component<ParameterInputProps> = (props) => {
   const { t } = useI18n();
 
   const locationConfig: Record<string, { label: string; color: string }> = {
-    path: {
-      label: t('operations.path'),
-      color: 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300',
-    },
-    query: {
-      label: t('operations.query'),
-      color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
-    },
-    header: {
-      label: t('operations.headers'),
-      color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
-    },
-    cookie: {
-      label: t('operations.cookie'),
-      color: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300',
-    },
+    path: { label: t('operations.path'), color: 'text-violet-600 dark:text-violet-400' },
+    query: { label: t('operations.query'), color: 'text-blue-600 dark:text-blue-400' },
+    header: { label: t('operations.headers'), color: 'text-amber-600 dark:text-amber-400' },
+    cookie: { label: t('operations.cookie'), color: 'text-gray-500 dark:text-gray-400' },
   };
 
   const config = () => locationConfig[props.param.in] || locationConfig.cookie;
+  const schemaType = () => props.param.schema.type || 'string';
+  const hasEnum = () => props.param.schema.enum && props.param.schema.enum.length > 0;
+
+  // Validation errors
+  const validationErrors = createMemo(() =>
+    validateValue(props.value, props.param.schema, props.param.required),
+  );
+  const hasErrors = () => validationErrors().length > 0;
+  const errorClass = () => (hasErrors() ? 'border-rose-400 dark:border-rose-500' : '');
+
+  const renderInput = () => {
+    // Enum values - use Select dropdown
+    if (hasEnum()) {
+      return (
+        <Select value={props.value} onChange={props.onChange} class={errorClass()}>
+          <option value="">-- Select --</option>
+          <For each={props.param.schema.enum as unknown[]}>
+            {(enumValue) => <option value={String(enumValue)}>{String(enumValue)}</option>}
+          </For>
+        </Select>
+      );
+    }
+
+    // Boolean - use Checkbox
+    if (schemaType() === 'boolean') {
+      return (
+        <div class="flex items-center">
+          <Checkbox
+            checked={props.value === 'true'}
+            onChange={(checked) => props.onChange(checked ? 'true' : 'false')}
+            label={props.value === 'true' ? 'true' : 'false'}
+          />
+        </div>
+      );
+    }
+
+    // Number/Integer - use number input
+    if (schemaType() === 'number' || schemaType() === 'integer') {
+      return (
+        <Input
+          type="number"
+          value={props.value}
+          onInput={props.onChange}
+          placeholder={props.param.schema.default?.toString() || '0'}
+          class={errorClass()}
+        />
+      );
+    }
+
+    // Default: string input
+    return (
+      <Input
+        value={props.value}
+        onInput={props.onChange}
+        placeholder={props.param.schema.default?.toString() || props.param.name}
+        class={errorClass()}
+      />
+    );
+  };
+
+  // Show constraints hint
+  const constraintsHint = createMemo(() => {
+    const hints: string[] = [];
+    const s = props.param.schema;
+
+    if (s.minLength !== undefined) hints.push(`min: ${s.minLength}`);
+    if (s.maxLength !== undefined) hints.push(`max: ${s.maxLength}`);
+    if (s.minimum !== undefined) hints.push(`>= ${s.minimum}`);
+    if (s.maximum !== undefined) hints.push(`<= ${s.maximum}`);
+    if (s.pattern) hints.push('pattern');
+
+    return hints.length > 0 ? hints.join(', ') : null;
+  });
 
   return (
-    <div class="flex flex-col sm:flex-row sm:items-start gap-4 p-4 bg-gray-50/50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800/50">
+    <div class="flex flex-col sm:flex-row sm:items-start gap-3">
       <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="font-mono text-sm font-semibold text-gray-900 dark:text-white">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="font-mono text-sm font-medium text-gray-900 dark:text-white">
             {props.param.name}
           </span>
           <Show when={props.param.required}>
-            <span class="text-rose-500 text-sm">*</span>
+            <span class="text-rose-500 text-xs font-semibold">required</span>
           </Show>
         </div>
         <div class="flex items-center gap-2 text-xs">
-          <span class={`px-2 py-0.5 rounded-md font-medium ${config().color}`}>
-            {config().label}
-          </span>
-          <span class="text-gray-400 dark:text-gray-500">
-            {props.param.schema.type || 'string'}
-          </span>
+          <span class={`font-medium ${config().color}`}>{config().label}</span>
+          <span class="text-gray-400 dark:text-gray-500">{schemaType()}</span>
+          <Show when={hasEnum()}>
+            <span class="text-gray-400 dark:text-gray-500">(enum)</span>
+          </Show>
+          <Show when={constraintsHint()}>
+            <span class="text-gray-400 dark:text-gray-500">[{constraintsHint()}]</span>
+          </Show>
         </div>
         <Show when={props.param.description}>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
+          <p class="text-xs text-gray-400 dark:text-gray-500 mt-1.5 leading-relaxed">
             {props.param.description}
           </p>
         </Show>
       </div>
-      <input
-        type="text"
-        class="w-full sm:w-72 px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-200"
-        value={props.value}
-        onInput={(e) => props.onChange(e.currentTarget.value)}
-        placeholder={props.param.schema.default?.toString() || `Enter ${props.param.name}`}
+      <div class="sm:w-64">
+        {renderInput()}
+        <Show when={hasErrors()}>
+          <div class="mt-1.5">
+            <For each={validationErrors()}>
+              {(error) => <p class="text-xs text-rose-500 dark:text-rose-400">{error}</p>}
+            </For>
+          </div>
+        </Show>
+      </div>
+    </div>
+  );
+};
+
+// Form field for request body
+interface BodyFormFieldProps {
+  name: string;
+  schema: Schema;
+  value: unknown;
+  required: boolean;
+  onChange: (value: unknown) => void;
+}
+
+const BodyFormField: Component<BodyFormFieldProps> = (props) => {
+  const schemaType = () => props.schema.type || 'string';
+  const hasEnum = () => props.schema.enum && props.schema.enum.length > 0;
+
+  const stringValue = () => {
+    if (props.value === undefined || props.value === null) return '';
+    if (typeof props.value === 'object') return JSON.stringify(props.value);
+    return String(props.value);
+  };
+
+  const handleChange = (strValue: string) => {
+    const type = schemaType();
+    if (type === 'number' || type === 'integer') {
+      props.onChange(strValue === '' ? undefined : Number(strValue));
+    } else if (type === 'boolean') {
+      props.onChange(strValue === 'true');
+    } else {
+      props.onChange(strValue || undefined);
+    }
+  };
+
+  const renderInput = () => {
+    // Enum - Select dropdown
+    if (hasEnum()) {
+      return (
+        <Select value={stringValue()} onChange={handleChange}>
+          <option value="">-- Select --</option>
+          <For each={props.schema.enum as unknown[]}>
+            {(enumValue) => <option value={String(enumValue)}>{String(enumValue)}</option>}
+          </For>
+        </Select>
+      );
+    }
+
+    // Boolean - Checkbox
+    if (schemaType() === 'boolean') {
+      return (
+        <Checkbox
+          checked={props.value === true}
+          onChange={(checked) => props.onChange(checked)}
+          label={props.value === true ? 'true' : 'false'}
+        />
+      );
+    }
+
+    // Number/Integer
+    if (schemaType() === 'number' || schemaType() === 'integer') {
+      return (
+        <Input
+          type="number"
+          value={stringValue()}
+          onInput={handleChange}
+          placeholder={props.schema.default?.toString() || '0'}
+        />
+      );
+    }
+
+    // Object/Array - JSON textarea
+    if (schemaType() === 'object' || schemaType() === 'array') {
+      return (
+        <Textarea
+          value={stringValue()}
+          onInput={(v) => {
+            try {
+              props.onChange(v ? JSON.parse(v) : undefined);
+            } catch {
+              // Keep as string if invalid JSON
+            }
+          }}
+          placeholder={schemaType() === 'array' ? '[]' : '{}'}
+          class="h-24 font-mono text-sm"
+        />
+      );
+    }
+
+    // Default: string input
+    return (
+      <Input
+        value={stringValue()}
+        onInput={handleChange}
+        placeholder={props.schema.default?.toString() || props.name}
       />
+    );
+  };
+
+  return (
+    <div class="flex flex-col sm:flex-row sm:items-start gap-3">
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="font-mono text-sm font-medium text-gray-900 dark:text-white">
+            {props.name}
+          </span>
+          <Show when={props.required}>
+            <span class="text-rose-500 text-xs font-semibold">required</span>
+          </Show>
+        </div>
+        <div class="flex items-center gap-2 text-xs">
+          <span class="text-gray-400 dark:text-gray-500">{schemaType()}</span>
+          <Show when={hasEnum()}>
+            <span class="text-gray-400 dark:text-gray-500">(enum)</span>
+          </Show>
+        </div>
+        <Show when={props.schema.description}>
+          <p class="text-xs text-gray-400 dark:text-gray-500 mt-1.5 leading-relaxed">
+            {props.schema.description}
+          </p>
+        </Show>
+      </div>
+      <div class="sm:w-64">{renderInput()}</div>
     </div>
   );
 };

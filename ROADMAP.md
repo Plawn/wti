@@ -5,8 +5,8 @@
 | Phase | Nom | Statut | Description |
 |-------|-----|--------|-------------|
 | 1 | Foundation | ✅ Done | Setup monorepo, types, themes, i18n |
-| 2 | OpenAPI Core | 🔲 Todo | Parser OpenAPI + UI de base |
-| 3 | UI Components | 🔲 Todo | Composants complets + polish |
+| 2 | OpenAPI Core | ✅ Done | Parser OpenAPI + UI de base |
+| 3 | UI Components | 🔄 In Progress | Composants complets + polish |
 | 4 | Auth System | 🔲 Todo | Authentification modulaire |
 | 5 | gRPC Support | 🔲 Todo | gRPC Reflection + client |
 | 6 | Distribution | 🔲 Todo | Build lib + Web Component |
@@ -29,11 +29,11 @@
 | `index.ts` | Exports publics |
 
 **Taches**:
-- [ ] Parser OpenAPI 3.0 et 3.1
-- [ ] Resoudre les references `$ref` internes
-- [ ] Extraire operations, parametres, schemas
-- [ ] Gerer les `servers` et variables
-- [ ] Extraire les security schemes
+- [x] Parser OpenAPI 3.0 et 3.1
+- [x] Resoudre les references `$ref` internes
+- [x] Extraire operations, parametres, schemas
+- [x] Gerer les `servers` et variables
+- [x] Extraire les security schemes
 
 ### 2.2 HTTP Client (`packages/core/src/http/`)
 
@@ -44,11 +44,11 @@
 | `index.ts` | Exports publics |
 
 **Taches**:
-- [ ] Fetch wrapper avec timeout
-- [ ] Construction URL avec path/query params
-- [ ] Gestion headers
-- [ ] Mesure du timing (duration)
-- [ ] Parsing reponse (JSON, text, blob)
+- [x] Fetch wrapper avec timeout
+- [x] Construction URL avec path/query params
+- [x] Gestion headers
+- [x] Mesure du timing (duration)
+- [x] Parsing reponse (JSON, text, blob)
 
 ### 2.3 Composants UI Sidebar (`packages/ui/src/components/`)
 
@@ -62,12 +62,12 @@
 | `Sidebar/index.ts` | Exports |
 
 **Taches**:
-- [ ] Afficher titre API + version
-- [ ] Liste operations groupees par tag
-- [ ] Badge colore par methode HTTP (GET=vert, POST=bleu, etc.)
-- [ ] Recherche filtrant operations
-- [ ] Selection serveur actif
-- [ ] Expand/collapse des tags
+- [x] Afficher titre API + version
+- [x] Liste operations groupees par tag
+- [x] Badge colore par methode HTTP (GET=vert, POST=bleu, etc.)
+- [x] Recherche filtrant operations
+- [x] Selection serveur actif
+- [x] Expand/collapse des tags
 
 ### 2.4 Composants UI Main Panel (`packages/ui/src/components/`)
 
@@ -78,10 +78,10 @@
 | `Operation/index.ts` | Exports |
 
 **Taches**:
-- [ ] Afficher methode + path + summary
+- [x] Afficher methode + path + summary
 - [ ] Description avec markdown basique
-- [ ] Tags de l'operation
-- [ ] Indicateur deprecated
+- [x] Tags de l'operation
+- [x] Indicateur deprecated
 
 ---
 
@@ -98,14 +98,14 @@
 | `ParamGroup.tsx` | Groupe par location (path/query/header) |
 
 **Taches**:
-- [ ] Grouper params par location
-- [ ] Input text pour string
-- [ ] Input number pour integer/number
-- [ ] Checkbox pour boolean
-- [ ] Select pour enum
-- [ ] Indicateur required/optional
-- [ ] Validation selon schema (min, max, pattern)
-- [ ] Valeurs par defaut
+- [x] Grouper params par location
+- [x] Input text pour string
+- [x] Input number pour integer/number
+- [x] Checkbox pour boolean
+- [x] Select pour enum
+- [x] Indicateur required/optional
+- [x] Validation selon schema (min, max, pattern)
+- [x] Valeurs par defaut
 
 ### 3.2 Editeur Request Body (`packages/ui/src/components/RequestBody/`)
 
@@ -116,12 +116,12 @@
 | `FormEditor.tsx` | Formulaire genere depuis schema |
 
 **Taches**:
-- [ ] Toggle JSON brut / formulaire
-- [ ] Editeur JSON avec validation
+- [x] Toggle JSON brut / formulaire
+- [x] Editeur JSON avec validation
 - [ ] Syntax highlighting basique
-- [ ] Generation formulaire depuis schema
-- [ ] Support nested objects
-- [ ] Support arrays
+- [x] Generation formulaire depuis schema
+- [x] Support nested objects
+- [x] Support arrays
 
 ### 3.3 Affichage Response (`packages/ui/src/components/Response/`)
 
@@ -134,28 +134,26 @@
 | `TimingInfo.tsx` | Duree, taille |
 
 **Taches**:
-- [ ] Badge status (2xx=vert, 4xx=orange, 5xx=rouge)
+- [x] Badge status (2xx=vert, 4xx=orange, 5xx=rouge)
 - [ ] Affichage headers en table
 - [ ] JSON viewer avec collapse/expand
-- [ ] Formatage automatique JSON
-- [ ] Copier response
-- [ ] Affichage timing + taille
+- [x] Formatage automatique JSON
+- [x] Copier response
+- [x] Affichage timing + taille
 
-### 3.4 Composants Primitifs (`packages/ui/src/components/primitives/`)
+### 3.4 Composants Primitifs (`packages/ui/src/components/shared/`)
 
-| Fichier | Description |
-|---------|-------------|
-| `Button.tsx` | Bouton avec variants |
-| `Input.tsx` | Input text style |
-| `Select.tsx` | Select dropdown |
-| `Checkbox.tsx` | Checkbox |
-| `Badge.tsx` | Badge/tag |
-| `Tabs.tsx` | Composant tabs |
-| `Accordion.tsx` | Accordion expand/collapse |
-| `Toast.tsx` | Notifications toast |
-| `Modal.tsx` | Modal dialog |
-| `Drawer.tsx` | Drawer lateral |
-| `Tooltip.tsx` | Tooltip hover |
+| Fichier | Statut | Description |
+|---------|--------|-------------|
+| `Button.tsx` | ✅ | Bouton avec variants (primary/secondary/tertiary) |
+| `Input.tsx` | ✅ | Input text, Textarea, Select, Checkbox |
+| `Badge.tsx` | 🔲 | Badge/tag |
+| `Tabs.tsx` | 🔲 | Composant tabs |
+| `Accordion.tsx` | 🔲 | Accordion expand/collapse |
+| `Toast.tsx` | 🔲 | Notifications toast |
+| `Modal.tsx` | 🔲 | Modal dialog |
+| `Drawer.tsx` | 🔲 | Drawer lateral |
+| `Tooltip.tsx` | 🔲 | Tooltip hover |
 
 ---
 

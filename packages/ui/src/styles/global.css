@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Modern design tokens */
+/* iOS 26 Glassmorphism Design Tokens */
 @theme {
   --color-surface-50: oklch(0.99 0.002 240);
   --color-surface-100: oklch(0.97 0.004 240);
@@ -19,10 +19,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - iOS style */
 .scrollbar-thin::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
@@ -30,63 +30,350 @@
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: oklch(0.7 0.01 250 / 0.3);
+  background: oklch(0.6 0.01 250 / 0.2);
   border-radius: 999px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.6 0.02 250 / 0.5);
+  background: oklch(0.5 0.02 250 / 0.35);
 }
 
 .dark .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: oklch(0.4 0.02 250 / 0.4);
+  background: oklch(0.5 0.02 250 / 0.25);
 }
 
 .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.5 0.02 250 / 0.5);
+  background: oklch(0.55 0.02 250 / 0.4);
 }
 
-/* Glass effect utilities */
+/* iOS 26 Glass Effect - Primary */
 .glass {
-  background: oklch(1 0 0 / 0.7);
-  backdrop-filter: blur(12px) saturate(180%);
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  background: oklch(1 0 0 / 0.55);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid oklch(1 0 0 / 0.3);
 }
 
 .dark .glass {
-  background: oklch(0.2 0.02 260 / 0.7);
+  background: oklch(0.15 0.02 260 / 0.6);
+  border-color: oklch(1 0 0 / 0.08);
 }
 
-/* Subtle pattern for depth */
+/* iOS 26 Glass - Thick (more opaque) */
+.glass-thick {
+  background: oklch(1 0 0 / 0.72);
+  backdrop-filter: blur(50px) saturate(200%);
+  -webkit-backdrop-filter: blur(50px) saturate(200%);
+  border: 1px solid oklch(1 0 0 / 0.35);
+}
+
+.dark .glass-thick {
+  background: oklch(0.12 0.02 260 / 0.75);
+  border-color: oklch(1 0 0 / 0.1);
+}
+
+/* iOS 26 Glass - Thin (more transparent) */
+.glass-thin {
+  background: oklch(1 0 0 / 0.35);
+  backdrop-filter: blur(30px) saturate(150%);
+  -webkit-backdrop-filter: blur(30px) saturate(150%);
+  border: 1px solid oklch(1 0 0 / 0.2);
+}
+
+.dark .glass-thin {
+  background: oklch(0.18 0.02 260 / 0.45);
+  border-color: oklch(1 0 0 / 0.06);
+}
+
+/* iOS 26 Glass - Ultra (very transparent, for overlays) */
+.glass-ultra {
+  background: oklch(1 0 0 / 0.2);
+  backdrop-filter: blur(60px) saturate(200%);
+  -webkit-backdrop-filter: blur(60px) saturate(200%);
+  border: 1px solid oklch(1 0 0 / 0.15);
+}
+
+.dark .glass-ultra {
+  background: oklch(0.1 0.02 260 / 0.35);
+  border-color: oklch(1 0 0 / 0.05);
+}
+
+/* iOS 26 Glass - Sidebar specific */
+.glass-sidebar {
+  background: oklch(0.98 0.005 250 / 0.75);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+}
+
+.dark .glass-sidebar {
+  background: oklch(0.13 0.015 260 / 0.85);
+  backdrop-filter: blur(40px) saturate(150%);
+  -webkit-backdrop-filter: blur(40px) saturate(150%);
+}
+
+/* iOS 26 Glass - Card/Surface */
+.glass-card {
+  background: oklch(1 0 0 / 0.6);
+  backdrop-filter: blur(40px) saturate(170%);
+  -webkit-backdrop-filter: blur(40px) saturate(170%);
+  border: 1px solid oklch(1 0 0 / 0.25);
+  box-shadow: 0 2px 8px -2px oklch(0.3 0.02 250 / 0.08), 0 8px 24px -4px oklch(0.3 0.02 250 / 0.06),
+    inset 0 1px 1px oklch(1 0 0 / 0.4);
+}
+
+.dark .glass-card {
+  background: oklch(0.15 0.02 260 / 0.55);
+  border-color: oklch(1 0 0 / 0.08);
+  box-shadow: 0 2px 8px -2px oklch(0 0 0 / 0.3), 0 8px 24px -4px oklch(0 0 0 / 0.25), inset 0 1px
+    1px oklch(1 0 0 / 0.05);
+}
+
+/* iOS 26 Input fields */
+.glass-input {
+  background: oklch(0 0 0 / 0.04);
+  border: 1px solid oklch(0 0 0 / 0.08);
+  border-radius: 8px;
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.dark .glass-input {
+  background: oklch(1 0 0 / 0.08);
+  border-color: oklch(1 0 0 / 0.12);
+}
+
+.glass-input:hover {
+  background: oklch(0 0 0 / 0.06);
+  border-color: oklch(0 0 0 / 0.12);
+}
+
+.dark .glass-input:hover {
+  background: oklch(1 0 0 / 0.12);
+  border-color: oklch(1 0 0 / 0.18);
+}
+
+.glass-input:focus {
+  background: oklch(1 0 0 / 1);
+  border-color: oklch(0.55 0.2 260);
+  box-shadow: 0 0 0 3px oklch(0.55 0.2 260 / 0.2);
+}
+
+.dark .glass-input:focus {
+  background: oklch(0.2 0.02 260 / 0.8);
+  border-color: oklch(0.6 0.2 260);
+  box-shadow: 0 0 0 3px oklch(0.55 0.2 260 / 0.25);
+}
+
+.glass-input::placeholder {
+  color: oklch(0.5 0.01 250 / 0.6);
+}
+
+.dark .glass-input::placeholder {
+  color: oklch(0.7 0.01 250 / 0.5);
+}
+
+/* iOS 26 Glass - Small UI elements (badges, kbd, tags) */
+.glass-button {
+  background: oklch(0.5 0.02 250 / 0.08);
+  border: none;
+  box-shadow: none;
+}
+
+.dark .glass-button {
+  background: oklch(1 0 0 / 0.08);
+}
+
+.glass-button:hover {
+  background: oklch(0.5 0.02 250 / 0.12);
+}
+
+.dark .glass-button:hover {
+  background: oklch(1 0 0 / 0.12);
+}
+
+/* iOS 26 Primary Button - Filled style */
+.btn-primary {
+  background: oklch(0.55 0.2 260);
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 24px;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  box-shadow: 0 2px 4px oklch(0.55 0.2 260 / 0.3), 0 8px 16px -4px oklch(0.55 0.2 260 / 0.25), inset
+    0 1px 1px oklch(1 0 0 / 0.15);
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.btn-primary:hover {
+  background: oklch(0.5 0.22 260);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px oklch(0.55 0.2 260 / 0.35), 0 12px 24px -4px oklch(0.55 0.2 260 / 0.3),
+    inset 0 1px 1px oklch(1 0 0 / 0.2);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px oklch(0.55 0.2 260 / 0.3), 0 4px 8px -2px oklch(0.55 0.2 260 / 0.2), inset 0
+    1px 1px oklch(1 0 0 / 0.1);
+}
+
+.btn-primary:disabled {
+  background: oklch(0.7 0.08 260);
+  box-shadow: none;
+  transform: none;
+  cursor: not-allowed;
+}
+
+/* iOS 26 Secondary Button - Tinted style */
+.btn-secondary {
+  background: oklch(0.55 0.2 260 / 0.12);
+  color: oklch(0.5 0.2 260);
+  font-weight: 600;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 24px;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.dark .btn-secondary {
+  background: oklch(0.55 0.2 260 / 0.2);
+  color: oklch(0.7 0.18 260);
+}
+
+.btn-secondary:hover {
+  background: oklch(0.55 0.2 260 / 0.18);
+}
+
+.dark .btn-secondary:hover {
+  background: oklch(0.55 0.2 260 / 0.28);
+}
+
+.btn-secondary:active {
+  background: oklch(0.55 0.2 260 / 0.25);
+}
+
+/* iOS 26 Tertiary Button - Plain style */
+.btn-tertiary {
+  background: transparent;
+  color: oklch(0.5 0.2 260);
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  transition: all 0.15s ease;
+}
+
+.dark .btn-tertiary {
+  color: oklch(0.7 0.18 260);
+}
+
+.btn-tertiary:hover {
+  background: oklch(0.55 0.2 260 / 0.1);
+}
+
+.dark .btn-tertiary:hover {
+  background: oklch(0.55 0.2 260 / 0.15);
+}
+
+/* iOS 26 Glass - Selected/Active state */
+.glass-active {
+  background: oklch(0.6 0.18 250 / 0.15);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid oklch(0.6 0.18 250 / 0.25);
+  box-shadow: 0 2px 8px -2px oklch(0.6 0.18 250 / 0.2), inset 0 1px 1px oklch(1 0 0 / 0.3);
+}
+
+.dark .glass-active {
+  background: oklch(0.5 0.15 250 / 0.2);
+  border-color: oklch(0.6 0.18 250 / 0.3);
+  box-shadow: 0 2px 8px -2px oklch(0.5 0.18 250 / 0.25), inset 0 1px 1px oklch(1 0 0 / 0.08);
+}
+
+/* Subtle mesh gradient background for iOS feel */
+.bg-mesh {
+  background: radial-gradient(ellipse at 20% 0%, oklch(0.85 0.08 280 / 0.25) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, oklch(0.85 0.1 200 / 0.2) 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 50%, oklch(0.9 0.05 250 / 0.15) 0%, transparent 40%),
+    linear-gradient(to bottom, oklch(0.98 0.01 250) 0%, oklch(0.95 0.015 240) 100%);
+}
+
+.dark .bg-mesh {
+  background: radial-gradient(ellipse at 20% 0%, oklch(0.4 0.15 280 / 0.5) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, oklch(0.35 0.15 200 / 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 50%, oklch(0.3 0.1 250 / 0.3) 0%, transparent 40%),
+    linear-gradient(to bottom, oklch(0.1 0.02 260) 0%, oklch(0.06 0.025 250) 100%);
+}
+
+/* Subtle noise texture overlay */
+.noise-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.025;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+.dark .noise-overlay::before {
+  opacity: 0.04;
+}
+
+/* Subtle pattern for depth - iOS style */
 .pattern-dots {
-  background-image: radial-gradient(oklch(0.5 0.02 250 / 0.08) 1px, transparent 1px);
-  background-size: 20px 20px;
+  background-image: radial-gradient(oklch(0.5 0.02 250 / 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 .dark .pattern-dots {
-  background-image: radial-gradient(oklch(0.6 0.02 250 / 0.06) 1px, transparent 1px);
+  background-image: radial-gradient(oklch(0.6 0.02 250 / 0.03) 1px, transparent 1px);
 }
 
-/* Focus ring utility */
+/* Focus ring utility - iOS style */
 .focus-ring {
   outline: none;
 }
 
 .focus-ring:focus-visible {
-  outline: 2px solid oklch(0.65 0.2 250);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: 0 0 0 3px oklch(0.6 0.18 250 / 0.3);
 }
 
-/* Smooth transitions */
+/* Smooth transitions - iOS spring-like */
 .transition-smooth {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* Glow effects */
+.transition-spring {
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* iOS-style glow effects */
 .glow-sm {
-  box-shadow: 0 0 15px -3px oklch(0.65 0.2 250 / 0.3);
+  box-shadow: 0 0 20px -5px oklch(0.6 0.18 250 / 0.25);
 }
 
 .glow-md {
-  box-shadow: 0 0 25px -5px oklch(0.65 0.2 250 / 0.4);
+  box-shadow: 0 0 35px -8px oklch(0.6 0.18 250 / 0.35);
+}
+
+/* iOS 26 Pill button style */
+.pill {
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+}
+
+/* iOS 26 Divider */
+.divider-glass {
+  height: 1px;
+  background: linear-gradient(to right, transparent, oklch(0.5 0.02 250 / 0.15), transparent);
+}
+
+.dark .divider-glass {
+  background: linear-gradient(to right, transparent, oklch(0.5 0.02 250 / 0.1), transparent);
 }

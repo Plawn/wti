@@ -27,6 +27,8 @@ export const en: Translations = {
     cookie: 'Cookie',
     noParameters: 'No parameters',
     noRequestBody: 'No request body',
+    jsonMode: 'JSON',
+    formMode: 'Form',
   },
   response: {
     status: 'Status',

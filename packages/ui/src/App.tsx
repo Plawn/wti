@@ -31,8 +31,8 @@ export function WTI(props: WTIProps) {
       <div
         class={`${themeClass()} font-sans text-sm text-gray-800 dark:text-gray-100 min-h-screen w-full ${props.className ?? ''}`}
       >
-        {/* Gradient background */}
-        <div class="fixed inset-0 bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-950 dark:via-gray-900 dark:to-slate-900 -z-10" />
+        {/* iOS 26 Mesh gradient background */}
+        <div class="fixed inset-0 bg-mesh -z-10" />
         <div class="fixed inset-0 pattern-dots -z-10" />
 
         <Show when={store.state.loading}>
@@ -54,12 +54,12 @@ export function WTI(props: WTIProps) {
 function LoadingScreen() {
   return (
     <div class="flex items-center justify-center h-screen">
-      <div class="flex flex-col items-center gap-4">
+      <div class="glass-card rounded-3xl p-8 flex flex-col items-center gap-5">
         <div class="relative">
-          <div class="w-12 h-12 rounded-full border-4 border-blue-100 dark:border-blue-900" />
-          <div class="absolute inset-0 w-12 h-12 rounded-full border-4 border-transparent border-t-blue-500 animate-spin" />
+          <div class="w-14 h-14 rounded-full border-4 border-blue-200/50 dark:border-blue-800/30" />
+          <div class="absolute inset-0 w-14 h-14 rounded-full border-4 border-transparent border-t-blue-500 animate-spin" />
         </div>
-        <p class="text-gray-500 dark:text-gray-400 font-medium">Loading API specification...</p>
+        <p class="text-gray-600 dark:text-gray-300 font-medium">Loading API specification...</p>
       </div>
     </div>
   );
@@ -68,11 +68,11 @@ function LoadingScreen() {
 function ErrorScreen(props: { error: string | null }) {
   return (
     <div class="flex items-center justify-center h-screen p-6">
-      <div class="glass border border-red-200/50 dark:border-red-800/50 rounded-2xl p-8 max-w-lg shadow-xl">
+      <div class="glass-card rounded-3xl p-8 max-w-lg border-red-200/30 dark:border-red-800/20">
         <div class="flex items-start gap-4">
-          <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/25">
+          <div class="flex-shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/20">
             <svg
-              class="w-6 h-6 text-white"
+              class="w-7 h-7 text-white"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -88,7 +88,7 @@ function ErrorScreen(props: { error: string | null }) {
           </div>
           <div class="flex-1 min-w-0">
             <h3 class="font-semibold text-lg text-gray-900 dark:text-white">Failed to load API</h3>
-            <p class="text-gray-600 dark:text-gray-400 mt-1 leading-relaxed">{props.error}</p>
+            <p class="text-gray-600 dark:text-gray-400 mt-2 leading-relaxed">{props.error}</p>
           </div>
         </div>
       </div>
@@ -110,10 +110,12 @@ function Layout(props: LayoutProps) {
     return null;
   };
 
+  console.log('daa');
+
   return (
     <div class="flex min-h-screen">
-      {/* Sidebar */}
-      <aside class="w-80 flex-shrink-0 border-r border-gray-200/60 dark:border-gray-800/60 bg-white/50 dark:bg-gray-900/50 backdrop-blur-xl">
+      {/* iOS 26 Glass Sidebar */}
+      <aside class="w-80 flex-shrink-0 glass-sidebar border-r border-white/20 dark:border-white/5">
         <Sidebar store={props.store} />
       </aside>
 
@@ -130,12 +132,12 @@ function Layout(props: LayoutProps) {
 function WelcomeScreen() {
   return (
     <div class="flex flex-col items-center justify-center h-full min-h-screen text-center p-8">
-      <div class="max-w-md">
+      <div class="glass-card rounded-[2rem] p-10 max-w-md">
         {/* Logo */}
         <div class="relative inline-flex mb-8">
-          <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl shadow-indigo-500/30 transform hover:scale-105 transition-transform duration-300">
+          <div class="w-24 h-24 rounded-3xl bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl shadow-indigo-500/25 transform hover:scale-105 transition-spring">
             <svg
-              class="w-10 h-10 text-white"
+              class="w-12 h-12 text-white"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -149,21 +151,17 @@ function WelcomeScreen() {
               />
             </svg>
           </div>
-          <div class="absolute -inset-1 rounded-2xl bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 opacity-20 blur-xl -z-10" />
+          <div class="absolute -inset-2 rounded-3xl bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 opacity-15 blur-2xl -z-10" />
         </div>
 
         {/* Title */}
-        <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-white dark:via-gray-100 dark:to-white bg-clip-text text-transparent mb-3">
+        <h1 class="text-4xl font-bold bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 dark:from-white dark:via-gray-200 dark:to-white bg-clip-text text-transparent mb-3">
           WTI
         </h1>
-        <p class="text-lg text-gray-500 dark:text-gray-400 mb-6">What The Interface</p>
+        <p class="text-lg text-gray-500 dark:text-gray-400 mb-6 font-medium">What The Interface</p>
 
         {/* Divider */}
-        <div class="flex items-center gap-4 my-8">
-          <div class="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent" />
-          <div class="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-700" />
-          <div class="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent" />
-        </div>
+        <div class="divider-glass my-8" />
 
         {/* Instructions */}
         <p class="text-gray-500 dark:text-gray-400 leading-relaxed">
@@ -171,8 +169,8 @@ function WelcomeScreen() {
         </p>
 
         {/* Keyboard hint */}
-        <div class="mt-8 inline-flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
-          <kbd class="px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 font-mono">
+        <div class="mt-8 inline-flex items-center gap-2.5 text-xs text-gray-400 dark:text-gray-500">
+          <kbd class="px-2.5 py-1.5 rounded-lg glass-button font-mono text-gray-600 dark:text-gray-300">
             /
           </kbd>
           <span>to search</span>

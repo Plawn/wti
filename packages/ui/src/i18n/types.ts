@@ -25,6 +25,8 @@ export interface Translations {
     cookie: string;
     noParameters: string;
     noRequestBody: string;
+    jsonMode: string;
+    formMode: string;
   };
   response: {
     status: string;

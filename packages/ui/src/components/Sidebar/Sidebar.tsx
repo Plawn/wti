@@ -18,11 +18,11 @@ export const Sidebar: Component<SidebarProps> = (props) => {
   return (
     <div class="flex flex-col h-screen">
       {/* Header */}
-      <header class="flex-shrink-0 px-5 py-4 border-b border-gray-200/60 dark:border-gray-800/60">
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+      <header class="flex-shrink-0 px-5 py-5">
+        <div class="flex items-center gap-3.5">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
             <svg
-              class="w-5 h-5 text-white"
+              class="w-6 h-6 text-white"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -37,16 +37,21 @@ export const Sidebar: Component<SidebarProps> = (props) => {
             </svg>
           </div>
           <div class="flex-1 min-w-0">
-            <h1 class="font-semibold text-gray-900 dark:text-white truncate leading-tight">
+            <h1 class="font-semibold text-gray-900 dark:text-white truncate leading-tight text-base">
               {spec().info.title}
             </h1>
-            <span class="text-xs text-gray-500 dark:text-gray-400">v{spec().info.version}</span>
+            <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">
+              v{spec().info.version}
+            </span>
           </div>
         </div>
       </header>
 
+      {/* Divider */}
+      <div class="mx-5 divider-glass" />
+
       {/* Controls */}
-      <div class="flex-shrink-0 p-4 space-y-3 border-b border-gray-200/60 dark:border-gray-800/60">
+      <div class="flex-shrink-0 px-5 py-4 space-y-4">
         <ServerSelector
           servers={spec().servers}
           selectedUrl={props.store.state.selectedServer?.url || null}
@@ -57,6 +62,9 @@ export const Sidebar: Component<SidebarProps> = (props) => {
           onInput={props.store.actions.setSearchQuery}
         />
       </div>
+
+      {/* Divider */}
+      <div class="mx-5 divider-glass" />
 
       {/* Operations list */}
       <div class="flex-1 overflow-hidden">

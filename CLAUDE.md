@@ -32,20 +32,20 @@ bun run typecheck                  # TypeScript check all packages
 
 ### Monorepo Structure
 
-- `packages/core` (@wti/core) - Framework-agnostic core logic: OpenAPI/gRPC parsing, HTTP client, type definitions, code generation
-- `packages/ui` (@wti/ui) - SolidJS UI components with Vanilla Extract CSS
+- `packages/core` (@wti/core) - Framework-agnostic core logic: OpenAPI parsing, HTTP client, type definitions
+- `packages/ui` (@wti/ui) - SolidJS UI components with Tailwind CSS v4
 - `packages/web-component` (@wti/element) - Web Component wrapper using solid-element for framework-agnostic usage
 - `apps/demo` (@wti/demo) - Demo application
 
 ### Key Architectural Decisions
 
-**Unified Type System** (`packages/core/src/types/api.ts`): Both OpenAPI and gRPC specs are normalized to a unified `ApiSpec` type. This allows UI components to work with either protocol without conditional logic.
+**Unified Type System** (`packages/core/src/types/api.ts`): OpenAPI specs are normalized to a unified `ApiSpec` type. This allows UI components to work with the API spec without protocol-specific logic.
 
-**Theming** (`packages/ui/src/themes/`): Uses Vanilla Extract's `createThemeContract` for type-safe CSS variables. Theme files (`light.css.ts`, `dark.css.ts`) implement the contract defined in `contract.css.ts`.
+**Styling** (`packages/ui/src/styles/global.css`): Uses Tailwind CSS v4 with custom iOS 26-inspired glassmorphism utilities (`.glass`, `.glass-card`, `.glass-input`, etc.). Use these utility classes rather than custom CSS.
 
-**i18n** (`packages/ui/src/i18n/`): Type-safe translations with `Translations` interface. Supports `en` and `fr` locales. Uses SolidJS context for locale management.
+**i18n** (`packages/ui/src/i18n/`): Type-safe translations with `Translations` interface. Supports `en` and `fr` locales. Use `useI18n()` hook which returns `{ t, locale }`.
 
-**State Management** (`packages/ui/src/stores/`): Uses SolidJS stores (`createStore`). The `specStore` manages API spec state, selected operation, search, and tag expansion.
+**State Management** (`packages/ui/src/stores/spec.ts`): Uses SolidJS stores (`createStore`). The `createSpecStore()` factory manages API spec state, selected operation, server selection, search, and tag expansion.
 
 ### Package Dependencies
 ```
@@ -58,33 +58,27 @@ bun run typecheck                  # TypeScript check all packages
 ### Component Pattern (SolidJS)
 ```typescript
 import { Component } from 'solid-js';
-import * as styles from './Component.css';
 
 interface ComponentProps {
   value: string;
 }
 
 export const Component: Component<ComponentProps> = (props) => {
-  return <div class={styles.root}>{props.value}</div>;
+  return <div class="glass-card p-4">{props.value}</div>;
 };
 ```
 
-### Styling (Vanilla Extract)
-```typescript
-// Component.css.ts
-import { style } from '@vanilla-extract/css';
-import { vars } from '../../themes/contract.css';
-
-export const root = style({
-  padding: vars.spacing[4],
-  backgroundColor: vars.colors.bg,
-});
-```
+### Styling (Tailwind CSS v4)
+Use Tailwind utility classes combined with custom glass utilities from `global.css`:
+- Glass effects: `glass`, `glass-card`, `glass-thick`, `glass-thin`, `glass-sidebar`
+- Inputs: `glass-input`
+- Buttons: `btn-primary`, `btn-secondary`, `btn-tertiary`, `glass-button`
+- Active states: `glass-active`
+- Background: `bg-mesh`
 
 ### Naming
 - Components: PascalCase (`OperationTree.tsx`)
-- CSS files: `Component.css.ts`
-- Stores: camelCase (`specStore.ts`)
+- Stores: camelCase (`spec.ts`)
 - Types/interfaces: PascalCase
 
 ### Code Style (Biome)
@@ -107,16 +101,18 @@ export const root = style({
 ### Existing Utilities — DO NOT REWRITE
 ```
 packages/core/src/
-├── parsers/openapi.ts      → parseOpenApiSpec()
-├── parsers/grpc.ts         → parseGrpcSpec()
-├── http/client.ts          → executeRequest(), buildRequestConfig()
+├── openapi/parser.ts       → parseOpenApi(), parseOpenApiFromString()
+├── openapi/converter.ts    → convertOpenApiToSpec()
+├── http/client.ts          → executeRequest()
+├── http/builder.ts         → buildRequestConfig()
 ├── types/api.ts            → All API types (ApiSpec, Operation, Parameter, etc.)
-└── utils/                  → Check here before creating any helper
+├── types/request.ts        → RequestConfig, ResponseData types
+└── types/auth.ts           → Authentication types
 
 packages/ui/src/
-├── stores/specStore.ts     → All spec state management
-├── i18n/                   → useTranslation(), t()
-├── themes/contract.css.ts  → vars (use this, never hardcode colors/spacing)
+├── stores/spec.ts          → createSpecStore() - all spec state management
+├── i18n/                   → useI18n() hook returns { t, locale }
+├── styles/global.css       → Glass utilities, button styles (use these classes)
 └── components/shared/      → Reusable UI components
 ```
 
@@ -126,9 +122,9 @@ packages/ui/src/
 |------|-----|-----|
 | HTTP requests | `packages/core/src/http/client.ts` | raw fetch |
 | State | SolidJS `createStore`, `createSignal` | external state libs |
-| Styling | Vanilla Extract + `vars` from contract | inline styles, raw CSS |
+| Styling | Tailwind classes + glass utilities from `global.css` | inline styles, custom CSS files |
 | Icons | existing icon components | new icon libraries |
-| Translations | `useTranslation()` hook | hardcoded strings |
+| Translations | `useI18n()` hook | hardcoded strings |
 
 ### Prefer Well-Known Libraries
 
@@ -136,12 +132,10 @@ Before implementing any non-trivial logic, search for established npm packages. 
 
 | Task | Preferred Library |
 |------|-------------------|
-| OpenAPI parsing | `@readme/openapi-parser`, `swagger-parser` |
 | JSON Schema validation | `ajv` |
-| $ref resolution | `json-refs`, `@apidevtools/json-schema-ref-parser` |
 | Date/time formatting | `date-fns` |
 | Deep object merge | `deepmerge` |
-| URL manipulation | `url-parse`, native `URL` API |
+| URL manipulation | native `URL` API |
 | Markdown rendering | `marked`, `markdown-it` |
 | Code syntax highlighting | `prism-js`, `highlight.js` |
 | Copy to clipboard | `clipboard-copy` |
@@ -153,11 +147,11 @@ Before implementing any non-trivial logic, search for established npm packages. 
 
 - ❌ Reimplement logic that exists in popular npm packages
 - ❌ Create new utility functions without checking existing ones
-- ❌ Hardcode colors/spacing — use `vars` from theme contract
+- ❌ Hardcode colors/spacing — use Tailwind classes and glass utilities
 - ❌ Add UI strings without i18n (`t('key')`)
 - ❌ Modify `packages/core/src/types/api.ts` without explicit approval
 - ❌ Use React patterns (useState, useEffect) — this is SolidJS
-- ❌ Create `.css` files — use `.css.ts` (Vanilla Extract)
+- ❌ Create custom `.css` files — use Tailwind classes
 - ❌ Import from `@wti/ui` in `@wti/core` (breaks dependency direction)
 
 ### Testing Rules

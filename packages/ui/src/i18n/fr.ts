@@ -27,6 +27,8 @@ export const fr: Translations = {
     cookie: 'Cookie',
     noParameters: 'Aucun parametre',
     noRequestBody: 'Pas de corps de requete',
+    jsonMode: 'JSON',
+    formMode: 'Formulaire',
   },
   response: {
     status: 'Statut',
