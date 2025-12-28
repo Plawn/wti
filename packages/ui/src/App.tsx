@@ -3,6 +3,7 @@ import { Show, createEffect, createSignal, onMount } from 'solid-js';
 import './styles/global.css';
 import { OperationPanel } from './components/Operation';
 import { Sidebar } from './components/Sidebar';
+import { SpecLoader } from './components/SpecLoader';
 import type { Locale } from './i18n';
 import { I18nProvider } from './i18n';
 import { type AuthStore, type SpecStore, createAuthStore, createSpecStore } from './stores';
@@ -10,7 +11,8 @@ import { type AuthStore, type SpecStore, createAuthStore, createSpecStore } from
 export type Theme = 'light' | 'dark';
 
 export interface WTIProps {
-  spec: SpecInput;
+  /** Optional - if not provided, shows the spec loader UI */
+  spec?: SpecInput;
   theme?: Theme;
   locale?: Locale;
   className?: string;
@@ -36,8 +38,11 @@ export function WTI(props: WTIProps) {
     }
   });
 
+  // Load spec from props if provided
   createEffect(() => {
-    store.actions.loadSpec(props.spec);
+    if (props.spec) {
+      store.actions.loadSpec(props.spec);
+    }
   });
 
   return (
@@ -71,11 +76,16 @@ export function WTI(props: WTIProps) {
         </Show>
 
         <Show when={store.state.error}>
-          <ErrorScreen error={store.state.error} />
+          <ErrorScreen error={store.state.error} onRetry={() => store.actions.clearError()} />
         </Show>
 
         <Show when={store.state.spec}>
           <Layout store={store} authStore={authStore} />
+        </Show>
+
+        {/* Show spec loader when no spec is loaded */}
+        <Show when={!store.state.spec && !store.state.loading && !store.state.error}>
+          <SpecLoader store={store} />
         </Show>
       </div>
     </I18nProvider>
@@ -96,12 +106,12 @@ function LoadingScreen() {
   );
 }
 
-function ErrorScreen(props: { error: string | null }) {
+function ErrorScreen(props: { error: string | null; onRetry?: () => void }) {
   return (
     <div class="flex items-center justify-center h-screen p-6">
       <div class="glass-card rounded-3xl p-8 max-w-lg border-red-200/30 dark:border-red-800/20">
         <div class="flex items-start gap-4">
-          <div class="flex-shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/20">
+          <div class="shrink-0 w-14 h-14 rounded-2xl bg-linear-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/20">
             <svg
               class="w-7 h-7 text-white"
               fill="none"
@@ -120,6 +130,15 @@ function ErrorScreen(props: { error: string | null }) {
           <div class="flex-1 min-w-0">
             <h3 class="font-semibold text-lg text-gray-900 dark:text-white">Failed to load API</h3>
             <p class="text-gray-600 dark:text-gray-400 mt-2 leading-relaxed">{props.error}</p>
+            <Show when={props.onRetry}>
+              <button
+                type="button"
+                onClick={props.onRetry}
+                class="mt-4 px-4 py-2 text-sm font-medium rounded-xl glass-button text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                Try again
+              </button>
+            </Show>
           </div>
         </div>
       </div>

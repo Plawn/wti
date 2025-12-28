@@ -8,6 +8,7 @@ export interface InputProps {
   class?: string;
   disabled?: boolean;
   id?: string;
+  onKeyDown?: (e: KeyboardEvent) => void;
 }
 
 export const Input: Component<InputProps> = (props) => {
@@ -20,6 +21,7 @@ export const Input: Component<InputProps> = (props) => {
       value={props.value}
       disabled={props.disabled}
       onInput={(e) => props.onInput(e.currentTarget.value)}
+      onKeyDown={props.onKeyDown}
     />
   );
 };

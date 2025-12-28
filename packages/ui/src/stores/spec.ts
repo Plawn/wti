@@ -45,6 +45,10 @@ export function createSpecStore() {
       setState({ error, loading: false });
     },
 
+    clearError() {
+      setState({ error: null });
+    },
+
     selectOperation(operation: Operation | null) {
       setState({ selectedOperation: operation });
     },

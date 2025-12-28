@@ -9,16 +9,4 @@ if (!root) {
   throw new Error('Root element not found');
 }
 
-render(
-  () => (
-    <WTI
-      spec={{
-        type: 'openapi',
-        url: '/petstore.json',
-      }}
-      theme="dark"
-      locale="en"
-    />
-  ),
-  root,
-);
+render(() => <WTI theme="dark" locale="en" />, root);

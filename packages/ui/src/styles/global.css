@@ -132,7 +132,7 @@
 .glass-input {
   background: oklch(0 0 0 / 0.04);
   border: 1px solid oklch(0 0 0 / 0.08);
-  border-radius: 8px;
+  border-radius: 14px;
   transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
@@ -517,4 +517,52 @@ pre[class*="language-"] {
 
 .token.italic {
   font-style: italic;
+}
+
+/* HTTP Method Badges */
+@layer components {
+  .method-badge {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 6px 10px;
+    border-radius: 8px;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .method-get {
+    background: linear-gradient(to right, #10b981, #059669);
+    box-shadow: 0 2px 8px -2px rgb(16 185 129 / 0.3);
+  }
+
+  .method-post {
+    background: linear-gradient(to right, #3b82f6, #2563eb);
+    box-shadow: 0 2px 8px -2px rgb(59 130 246 / 0.3);
+  }
+
+  .method-put {
+    background: linear-gradient(to right, #f59e0b, #d97706);
+    box-shadow: 0 2px 8px -2px rgb(245 158 11 / 0.3);
+  }
+
+  .method-patch {
+    background: linear-gradient(to right, #8b5cf6, #7c3aed);
+    box-shadow: 0 2px 8px -2px rgb(139 92 246 / 0.3);
+  }
+
+  .method-delete {
+    background: linear-gradient(to right, #ef4444, #dc2626);
+    box-shadow: 0 2px 8px -2px rgb(239 68 68 / 0.3);
+  }
+
+  .method-head {
+    background: linear-gradient(to right, #06b6d4, #0891b2);
+    box-shadow: 0 2px 8px -2px rgb(6 182 212 / 0.3);
+  }
+
+  .method-options {
+    background: linear-gradient(to right, #6b7280, #4b5563);
+    box-shadow: 0 2px 8px -2px rgb(107 114 128 / 0.3);
+  }
 }

@@ -7,68 +7,52 @@ interface OperationItemProps {
   onClick: () => void;
 }
 
-const methodConfig: Record<string, { bg: string; text: string; glow: string; activeBg: string }> = {
+const methodStyles: Record<string, { background: string; boxShadow: string }> = {
   get: {
-    bg: 'bg-emerald-500',
-    text: 'text-emerald-600 dark:text-emerald-400',
-    glow: 'shadow-emerald-500/15',
-    activeBg: 'bg-emerald-500/10 dark:bg-emerald-500/15',
+    background: 'linear-gradient(to right, #10b981, #059669)',
+    boxShadow: '0 2px 8px -2px rgba(16, 185, 129, 0.3)',
   },
   post: {
-    bg: 'bg-blue-500',
-    text: 'text-blue-600 dark:text-blue-400',
-    glow: 'shadow-blue-500/15',
-    activeBg: 'bg-blue-500/10 dark:bg-blue-500/15',
+    background: 'linear-gradient(to right, #3b82f6, #2563eb)',
+    boxShadow: '0 2px 8px -2px rgba(59, 130, 246, 0.3)',
   },
   put: {
-    bg: 'bg-amber-500',
-    text: 'text-amber-600 dark:text-amber-400',
-    glow: 'shadow-amber-500/15',
-    activeBg: 'bg-amber-500/10 dark:bg-amber-500/15',
+    background: 'linear-gradient(to right, #f59e0b, #d97706)',
+    boxShadow: '0 2px 8px -2px rgba(245, 158, 11, 0.3)',
   },
   patch: {
-    bg: 'bg-violet-500',
-    text: 'text-violet-600 dark:text-violet-400',
-    glow: 'shadow-violet-500/15',
-    activeBg: 'bg-violet-500/10 dark:bg-violet-500/15',
+    background: 'linear-gradient(to right, #8b5cf6, #7c3aed)',
+    boxShadow: '0 2px 8px -2px rgba(139, 92, 246, 0.3)',
   },
   delete: {
-    bg: 'bg-rose-500',
-    text: 'text-rose-600 dark:text-rose-400',
-    glow: 'shadow-rose-500/15',
-    activeBg: 'bg-rose-500/10 dark:bg-rose-500/15',
+    background: 'linear-gradient(to right, #ef4444, #dc2626)',
+    boxShadow: '0 2px 8px -2px rgba(239, 68, 68, 0.3)',
   },
   head: {
-    bg: 'bg-cyan-500',
-    text: 'text-cyan-600 dark:text-cyan-400',
-    glow: 'shadow-cyan-500/15',
-    activeBg: 'bg-cyan-500/10 dark:bg-cyan-500/15',
+    background: 'linear-gradient(to right, #06b6d4, #0891b2)',
+    boxShadow: '0 2px 8px -2px rgba(6, 182, 212, 0.3)',
   },
   options: {
-    bg: 'bg-gray-500',
-    text: 'text-gray-600 dark:text-gray-400',
-    glow: 'shadow-gray-500/15',
-    activeBg: 'bg-gray-500/10 dark:bg-gray-500/15',
+    background: 'linear-gradient(to right, #6b7280, #4b5563)',
+    boxShadow: '0 2px 8px -2px rgba(107, 114, 128, 0.3)',
   },
 };
 
-const defaultConfig = {
-  bg: 'bg-gray-500',
-  text: 'text-gray-600 dark:text-gray-400',
-  glow: 'shadow-gray-500/15',
-  activeBg: 'bg-gray-500/10 dark:bg-gray-500/15',
+const defaultStyle = {
+  background: 'linear-gradient(to right, #6b7280, #4b5563)',
+  boxShadow: '0 2px 8px -2px rgba(107, 114, 128, 0.3)',
 };
 
 export const OperationItem: Component<OperationItemProps> = (props) => {
-  const config = () => methodConfig[props.operation.method] || defaultConfig;
+  const badgeStyle = () => methodStyles[props.operation.method] || defaultStyle;
 
   const containerClasses = () => {
     const base =
-      'w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-xl transition-smooth cursor-pointer group';
+      'w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-xl transition-all duration-200 cursor-pointer group border border-transparent';
     if (props.selected) {
-      return `${base} ${config().activeBg} backdrop-blur-sm shadow-sm ${config().glow} ring-1 ring-white/30 dark:ring-white/10`;
+      return `${base} glass-active scale-[1.02]`;
     }
-    return `${base} hover:bg-white/40 dark:hover:bg-white/5`;
+    return `${base} hover:bg-white/40 dark:hover:bg-white/5 hover:scale-[1.01] hover:shadow-sm`;
   };
 
   const deprecatedClasses = () => (props.operation.deprecated ? 'opacity-50' : '');
@@ -80,7 +64,8 @@ export const OperationItem: Component<OperationItemProps> = (props) => {
       onClick={props.onClick}
     >
       <span
-        class={`${config().bg} text-white text-[10px] font-bold uppercase px-2.5 py-1.5 rounded-lg shadow-sm ${config().glow} flex-shrink-0`}
+        class="text-white text-[10px] font-bold uppercase px-2.5 py-1.5 rounded-lg flex-shrink-0"
+        style={badgeStyle()}
       >
         {props.operation.method}
       </span>

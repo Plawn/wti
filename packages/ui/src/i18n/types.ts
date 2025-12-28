@@ -100,16 +100,20 @@ export interface Translations {
   };
   specLoader: {
     title: string;
+    subtitle: string;
     uploadFile: string;
     loadFromUrl: string;
-    dragDropHint: string;
-    urlPlaceholder: string;
-    loadButton: string;
-    loadingSpec: string;
-    invalidSpec: string;
-    corsError: string;
-    acceptedFormats: string;
-    orDivider: string;
+    load: string;
+    loading: string;
+    or: string;
+    clickToUpload: string;
+    orDragDrop: string;
+    supportedFormats: string;
+    urlRequired: string;
+    loadFailed: string;
+    invalidFileType: string;
+    jsonOnly: string;
+    tryExample: string;
   };
 }
 
