@@ -1,8 +1,8 @@
-import { defineConfig } from 'vite';
-import solid from 'vite-plugin-solid';
+import { resolve } from 'node:path';
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin';
+import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
-import { resolve } from 'path';
+import solid from 'vite-plugin-solid';
 
 export default defineConfig({
   plugins: [

@@ -1,11 +1,13 @@
+import type { ApiSpec, Operation, Server, SpecInput } from '@wti/core';
+import { parseOpenApi } from '@wti/core';
 import { createStore } from 'solid-js/store';
-import type { ApiSpec, Operation, SpecInput } from '@wti/core';
 
 export interface SpecState {
   spec: ApiSpec | null;
   loading: boolean;
   error: string | null;
   selectedOperation: Operation | null;
+  selectedServer: Server | null;
   searchQuery: string;
   expandedTags: Set<string>;
 }
@@ -15,6 +17,7 @@ const initialState: SpecState = {
   loading: false,
   error: null,
   selectedOperation: null,
+  selectedServer: null,
   searchQuery: '',
   expandedTags: new Set(),
 };
@@ -24,7 +27,14 @@ export function createSpecStore() {
 
   const actions = {
     setSpec(spec: ApiSpec) {
-      setState({ spec, loading: false, error: null });
+      setState({
+        spec,
+        loading: false,
+        error: null,
+        selectedServer: spec.servers[0] || null,
+      });
+      // Expand all tags by default
+      actions.expandAllTags();
     },
 
     setLoading(loading: boolean) {
@@ -37,6 +47,10 @@ export function createSpecStore() {
 
     selectOperation(operation: Operation | null) {
       setState({ selectedOperation: operation });
+    },
+
+    selectServer(server: Server) {
+      setState({ selectedServer: server });
     },
 
     setSearchQuery(query: string) {
@@ -55,7 +69,18 @@ export function createSpecStore() {
 
     expandAllTags() {
       if (state.spec) {
-        setState({ expandedTags: new Set(state.spec.tags.map((t) => t.name)) });
+        const allTags = new Set<string>();
+        // Add defined tags
+        for (const tag of state.spec.tags) {
+          allTags.add(tag.name);
+        }
+        // Add implicit tags from operations
+        for (const op of state.spec.operations) {
+          for (const tag of op.tags) {
+            allTags.add(tag);
+          }
+        }
+        setState({ expandedTags: allTags });
       }
     },
 
@@ -66,10 +91,12 @@ export function createSpecStore() {
     async loadSpec(input: SpecInput) {
       setState({ loading: true, error: null });
       try {
-        // TODO: Implement actual spec loading
-        // For now, this is a placeholder
-        console.log('Loading spec:', input);
-        throw new Error('Spec loading not yet implemented');
+        if (input.type === 'openapi') {
+          const result = await parseOpenApi(input);
+          actions.setSpec(result.spec);
+        } else if (input.type === 'grpc') {
+          throw new Error('gRPC support not yet implemented');
+        }
       } catch (err) {
         setState({
           error: err instanceof Error ? err.message : 'Failed to load spec',

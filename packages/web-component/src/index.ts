@@ -1,5 +1,5 @@
+import { type Locale, type Theme, WTI } from '@wti/ui';
 import { customElement } from 'solid-element';
-import { WTI, type Theme, type Locale } from '@wti/ui';
 
 interface WTIElementProps {
   'spec-url': string;
@@ -35,7 +35,7 @@ customElement<WTIElementProps>(
       theme: props.theme,
       locale: props.locale,
     });
-  }
+  },
 );
 
 // Type declaration for global usage

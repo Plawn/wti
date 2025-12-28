@@ -237,7 +237,11 @@
         "required": ["name"],
         "properties": {
           "name": { "type": "string", "minLength": 1, "maxLength": 100 },
-          "status": { "type": "string", "enum": ["available", "pending", "sold"], "default": "available" },
+          "status": {
+            "type": "string",
+            "enum": ["available", "pending", "sold"],
+            "default": "available"
+          },
           "category": { "type": "string" },
           "tags": { "type": "array", "items": { "type": "string" } }
         }
@@ -265,8 +269,5 @@
       }
     }
   },
-  "security": [
-    { "bearerAuth": [] },
-    { "apiKey": [] }
-  ]
+  "security": [{ "bearerAuth": [] }, { "apiKey": [] }]
 }

@@ -1,8 +1,12 @@
 // Types
 export * from './types';
 
+// OpenAPI parser
+export * from './openapi';
+
+// HTTP client
+export * from './http';
+
 // Modules will be exported as they are implemented
-// export * from './openapi';
 // export * from './grpc';
-// export * from './http';
 // export * from './codegen';

@@ -1,6 +1,7 @@
+import { WTI } from '@wti/ui';
+import '@wti/ui/style.css';
 /* @refresh reload */
 import { render } from 'solid-js/web';
-import { WTI } from '@wti/ui';
 
 const root = document.getElementById('root');
 
@@ -19,5 +20,5 @@ render(
       locale="en"
     />
   ),
-  root
+  root,
 );

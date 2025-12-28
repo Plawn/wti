@@ -16,7 +16,6 @@
   },
   "devDependencies": {
     "@types/bun": "^1.1.14",
-    "@vanilla-extract/vite-plugin": "^4.0.19",
     "typescript": "^5.7.2",
     "vite": "^6.0.6",
     "vite-plugin-solid": "^2.11.0"

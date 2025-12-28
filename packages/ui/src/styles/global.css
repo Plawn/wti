@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+/* Modern design tokens */
+@theme {
+  --color-surface-50: oklch(0.99 0.002 240);
+  --color-surface-100: oklch(0.97 0.004 240);
+  --color-surface-200: oklch(0.93 0.006 240);
+  --color-surface-800: oklch(0.25 0.015 260);
+  --color-surface-900: oklch(0.18 0.02 260);
+  --color-surface-950: oklch(0.12 0.02 260);
+
+  --color-accent-500: oklch(0.65 0.2 250);
+  --color-accent-600: oklch(0.55 0.22 250);
+}
+
+/* Base styles */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: oklch(0.7 0.01 250 / 0.3);
+  border-radius: 999px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.6 0.02 250 / 0.5);
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+  background: oklch(0.4 0.02 250 / 0.4);
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.5 0.02 250 / 0.5);
+}
+
+/* Glass effect utilities */
+.glass {
+  background: oklch(1 0 0 / 0.7);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+}
+
+.dark .glass {
+  background: oklch(0.2 0.02 260 / 0.7);
+}
+
+/* Subtle pattern for depth */
+.pattern-dots {
+  background-image: radial-gradient(oklch(0.5 0.02 250 / 0.08) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.dark .pattern-dots {
+  background-image: radial-gradient(oklch(0.6 0.02 250 / 0.06) 1px, transparent 1px);
+}
+
+/* Focus ring utility */
+.focus-ring {
+  outline: none;
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid oklch(0.65 0.2 250);
+  outline-offset: 2px;
+}
+
+/* Smooth transitions */
+.transition-smooth {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Glow effects */
+.glow-sm {
+  box-shadow: 0 0 15px -3px oklch(0.65 0.2 250 / 0.3);
+}
+
+.glow-md {
+  box-shadow: 0 0 25px -5px oklch(0.65 0.2 250 / 0.4);
+}

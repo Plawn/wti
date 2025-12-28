@@ -1,7 +1,7 @@
-import { createContext, useContext, createMemo, type JSX } from 'solid-js';
-import type { Translations, Locale } from './types';
+import { type JSX, createContext, createMemo, useContext } from 'solid-js';
 import { en } from './en';
 import { fr } from './fr';
+import type { Locale, Translations } from './types';
 
 const translations: Record<Locale, Translations> = { en, fr };
 
