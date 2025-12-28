@@ -1,11 +1,13 @@
 import type { Component } from 'solid-js';
-import type { SpecStore } from '../../stores';
+import type { AuthStore, SpecStore } from '../../stores';
+import { AuthPanel } from './AuthPanel';
 import { OperationTree } from './OperationTree';
 import { SearchBar } from './SearchBar';
 import { ServerSelector } from './ServerSelector';
 
 interface SidebarProps {
   store: SpecStore;
+  authStore: AuthStore;
 }
 
 export const Sidebar: Component<SidebarProps> = (props) => {
@@ -62,6 +64,12 @@ export const Sidebar: Component<SidebarProps> = (props) => {
           onInput={props.store.actions.setSearchQuery}
         />
       </div>
+
+      {/* Divider */}
+      <div class="mx-5 divider-glass" />
+
+      {/* Auth Panel */}
+      <AuthPanel authStore={props.authStore} securitySchemes={spec().securitySchemes} />
 
       {/* Divider */}
       <div class="mx-5 divider-glass" />

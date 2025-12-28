@@ -1,6 +1,7 @@
 import type { Operation } from '@wti/core';
 import { type Component, For, Show } from 'solid-js';
 import { useI18n } from '../../i18n';
+import { Markdown } from '../shared';
 
 interface OperationHeaderProps {
   operation: Operation;
@@ -47,9 +48,7 @@ export const OperationHeader: Component<OperationHeaderProps> = (props) => {
 
       {/* Description */}
       <Show when={props.operation.description}>
-        <p class="text-gray-600 dark:text-gray-400 leading-relaxed max-w-3xl">
-          {props.operation.description}
-        </p>
+        <Markdown content={props.operation.description} class="max-w-3xl" />
       </Show>
 
       {/* Tags and badges */}

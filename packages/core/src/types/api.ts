@@ -10,7 +10,7 @@ export type ParameterLocation = 'path' | 'query' | 'header' | 'cookie';
 
 export type SchemaType = 'string' | 'number' | 'integer' | 'boolean' | 'array' | 'object' | 'null';
 
-export type AuthType = 'apiKey' | 'bearer' | 'basic' | 'oauth2';
+export type AuthType = 'apiKey' | 'bearer' | 'basic' | 'oauth2' | 'openIdConnect';
 
 export interface ApiInfo {
   title: string;
@@ -136,6 +136,7 @@ export interface SecurityRequirement {
   scheme?: string;
   flows?: OAuth2Flows;
   scopes?: string[];
+  openIdConnectUrl?: string;
 }
 
 export interface OAuth2Flows {

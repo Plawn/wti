@@ -42,6 +42,7 @@ export interface Translations {
     bearer: string;
     basic: string;
     oauth2: string;
+    openid: string;
     username: string;
     password: string;
     token: string;
@@ -49,6 +50,37 @@ export interface Translations {
     logout: string;
     configured: string;
     notConfigured: string;
+    issuerUrl: string;
+    clientId: string;
+    clientSecret: string;
+    clientSecretPlaceholder: string;
+    scopes: string;
+    accessToken: string;
+    accessTokenPlaceholder: string;
+    idToken: string;
+    idTokenPlaceholder: string;
+    configure: string;
+    setTokens: string;
+    editConfig: string;
+    openidConfigured: string;
+    openidTokenHint: string;
+    tokensSet: string;
+    refreshToken: string;
+    refreshTokenPlaceholder: string;
+    refreshTokenHint: string;
+    expiresIn: string;
+    expiresInHint: string;
+    tokenExpired: string;
+    tokenExpiringSoon: string;
+    tokenExpiresIn: string;
+    tokenExpiresInHours: string;
+    refreshNow: string;
+    refreshing: string;
+    loginWithOpenId: string;
+    loggingIn: string;
+    loggedIn: string;
+    missingConfig: string;
+    refreshFailed: string;
   };
   codegen: {
     title: string;
@@ -65,6 +97,19 @@ export interface Translations {
   sidebar: {
     allOperations: string;
     servers: string;
+  };
+  specLoader: {
+    title: string;
+    uploadFile: string;
+    loadFromUrl: string;
+    dragDropHint: string;
+    urlPlaceholder: string;
+    loadButton: string;
+    loadingSpec: string;
+    invalidSpec: string;
+    corsError: string;
+    acceptedFormats: string;
+    orDivider: string;
   };
 }
 

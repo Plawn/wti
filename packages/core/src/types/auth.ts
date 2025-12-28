@@ -30,7 +30,20 @@ export interface OAuth2Auth {
   scopes?: string[];
 }
 
-export type AuthConfig = ApiKeyAuth | BearerAuth | BasicAuth | OAuth2Auth;
+export interface OpenIdAuth {
+  type: 'openid';
+  issuerUrl: string;
+  clientId: string;
+  clientSecret?: string;
+  scopes?: string[];
+  accessToken?: string;
+  refreshToken?: string;
+  idToken?: string;
+  expiresAt?: number;
+  tokenType?: string;
+}
+
+export type AuthConfig = ApiKeyAuth | BearerAuth | BasicAuth | OAuth2Auth | OpenIdAuth;
 
 export interface AuthState {
   configs: Record<string, AuthConfig>;

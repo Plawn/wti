@@ -7,14 +7,34 @@ import {
   getDefaultValues,
   getPreferredContentType,
 } from '@wti/core';
-import { type Component, For, type JSX, Show, createEffect, createMemo, createSignal } from 'solid-js';
+import {
+  type Component,
+  For,
+  type JSX,
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+} from 'solid-js';
 import { useI18n } from '../../i18n';
-import { Button, Checkbox, Input, Select, Textarea } from '../shared';
+import type { AuthStore } from '../../stores';
+import {
+  Button,
+  Checkbox,
+  CodeBlock,
+  Input,
+  JsonSchemaForm,
+  Markdown,
+  Select,
+  Textarea,
+} from '../shared';
 import { OperationHeader } from './OperationHeader';
+import { ResponseHeaders } from './ResponseHeaders';
 
 interface OperationPanelProps {
   operation: Operation;
   server: Server;
+  authStore?: AuthStore;
 }
 
 export const OperationPanel: Component<OperationPanelProps> = (props) => {
@@ -70,14 +90,27 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
   });
 
   createEffect(() => {
-    console.log('bodySchema:', bodySchema(), 'hasRequestBody:', hasRequestBody(), 'contentType:', contentType());
+    console.log(
+      'bodySchema:',
+      bodySchema(),
+      'hasRequestBody:',
+      hasRequestBody(),
+      'contentType:',
+      contentType(),
+    );
   });
 
-
-  // Check if schema is suitable for form mode (has a schema with properties)
+  // Check if schema is suitable for form mode (has a schema with properties or is an array)
   const canUseFormMode = createMemo(() => {
     const schema = bodySchema();
-    console.log('bodySchema:', schema, 'hasRequestBody:', hasRequestBody(), 'contentType:', contentType());
+    console.log(
+      'bodySchema:',
+      schema,
+      'hasRequestBody:',
+      hasRequestBody(),
+      'contentType:',
+      contentType(),
+    );
     if (!schema) {
       return false;
     }
@@ -85,6 +118,10 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
     if (schema.properties && Object.keys(schema.properties).length > 0) return true;
     // Also show for explicit object type
     if (schema.type === 'object') {
+      return true;
+    }
+    // Support array type with items schema
+    if (schema.type === 'array' && schema.items) {
       return true;
     }
     return false;
@@ -110,11 +147,6 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
       }
     }
     setBodyMode('form');
-  };
-
-  // Update a single form field
-  const updateFormField = (key: string, value: unknown) => {
-    setBodyFormData((prev) => ({ ...prev, [key]: value }));
   };
 
   // Initialize default values
@@ -168,8 +200,12 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
         contentType: contentType(),
       };
 
+      // Get auth with auto-refresh for OpenID tokens
+      const auth = await props.authStore?.actions.getActiveAuthWithAutoRefresh();
+
       const config = buildRequestConfig(props.operation, values, {
         server: props.server,
+        auth,
       });
 
       const result = await executeRequest(config);
@@ -243,20 +279,22 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
               <button
                 type="button"
                 onClick={switchToJsonMode}
-                class={`px-4 py-1.5 text-xs font-medium rounded-lg transition-all ${bodyMode() === 'json'
-                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                  }`}
+                class={`px-4 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                  bodyMode() === 'json'
+                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                }`}
               >
                 {t('operations.jsonMode')}
               </button>
               <button
                 type="button"
                 onClick={switchToFormMode}
-                class={`px-4 py-1.5 text-xs font-medium rounded-lg transition-all ${bodyMode() === 'form'
-                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                  }`}
+                class={`px-4 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                  bodyMode() === 'form'
+                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                }`}
               >
                 {t('operations.formMode')}
               </button>
@@ -276,20 +314,21 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
           </Show>
 
           {/* Form Editor */}
-          <Show when={bodyMode() === 'form' && bodySchema()}>
-            <div class="space-y-4">
-              <For each={Object.entries(bodySchema()?.properties || {})}>
-                {([key, propSchema]) => (
-                  <BodyFormField
-                    name={key}
-                    schema={propSchema as Schema}
-                    value={bodyFormData()[key]}
-                    required={bodySchema()?.required?.includes(key) || false}
-                    onChange={(value) => updateFormField(key, value)}
-                  />
-                )}
-              </For>
-            </div>
+          <Show when={bodyMode() === 'form' && bodySchema()} keyed>
+            {(schema) => (
+              <JsonSchemaForm
+                schema={schema}
+                value={bodyFormData()}
+                onChange={(value) => {
+                  // Handle both object and array body types
+                  if (Array.isArray(value)) {
+                    setBodyFormData(value as unknown as Record<string, unknown>);
+                  } else {
+                    setBodyFormData((value as Record<string, unknown>) || {});
+                  }
+                }}
+              />
+            )}
           </Show>
         </Section>
       </Show>
@@ -423,10 +462,17 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
                   </button>
                 </div>
               </div>
+              {/* Response headers */}
+              <div class="px-6 pt-4">
+                <ResponseHeaders headers={res.headers} />
+              </div>
               {/* Response body */}
-              <pre class="p-6 text-sm font-mono text-gray-800 dark:text-gray-200 overflow-x-auto max-h-[500px] scrollbar-thin">
-                {typeof res.body === 'object' ? JSON.stringify(res.body, null, 2) : res.bodyText}
-              </pre>
+              <CodeBlock
+                code={
+                  typeof res.body === 'object' ? JSON.stringify(res.body, null, 2) : res.bodyText
+                }
+                language="json"
+              />
             </div>
           );
         }}
@@ -629,9 +675,10 @@ const ParameterInput: Component<ParameterInputProps> = (props) => {
           </Show>
         </div>
         <Show when={props.param.description}>
-          <p class="text-xs text-gray-400 dark:text-gray-500 mt-1.5 leading-relaxed">
-            {props.param.description}
-          </p>
+          <Markdown
+            content={props.param.description}
+            class="text-xs mt-1.5 [&_p]:text-gray-400 dark:[&_p]:text-gray-500 [&_p]:my-0"
+          />
         </Show>
       </div>
       <div class="sm:w-64">
@@ -644,128 +691,6 @@ const ParameterInput: Component<ParameterInputProps> = (props) => {
           </div>
         </Show>
       </div>
-    </div>
-  );
-};
-
-// Form field for request body
-interface BodyFormFieldProps {
-  name: string;
-  schema: Schema;
-  value: unknown;
-  required: boolean;
-  onChange: (value: unknown) => void;
-}
-
-const BodyFormField: Component<BodyFormFieldProps> = (props) => {
-  const schemaType = () => props.schema.type || 'string';
-  const hasEnum = () => props.schema.enum && props.schema.enum.length > 0;
-
-  const stringValue = () => {
-    if (props.value === undefined || props.value === null) return '';
-    if (typeof props.value === 'object') return JSON.stringify(props.value);
-    return String(props.value);
-  };
-
-  const handleChange = (strValue: string) => {
-    const type = schemaType();
-    if (type === 'number' || type === 'integer') {
-      props.onChange(strValue === '' ? undefined : Number(strValue));
-    } else if (type === 'boolean') {
-      props.onChange(strValue === 'true');
-    } else {
-      props.onChange(strValue || undefined);
-    }
-  };
-
-  const renderInput = () => {
-    // Enum - Select dropdown
-    if (hasEnum()) {
-      return (
-        <Select value={stringValue()} onChange={handleChange}>
-          <option value="">-- Select --</option>
-          <For each={props.schema.enum as unknown[]}>
-            {(enumValue) => <option value={String(enumValue)}>{String(enumValue)}</option>}
-          </For>
-        </Select>
-      );
-    }
-
-    // Boolean - Checkbox
-    if (schemaType() === 'boolean') {
-      return (
-        <Checkbox
-          checked={props.value === true}
-          onChange={(checked) => props.onChange(checked)}
-          label={props.value === true ? 'true' : 'false'}
-        />
-      );
-    }
-
-    // Number/Integer
-    if (schemaType() === 'number' || schemaType() === 'integer') {
-      return (
-        <Input
-          type="number"
-          value={stringValue()}
-          onInput={handleChange}
-          placeholder={props.schema.default?.toString() || '0'}
-        />
-      );
-    }
-
-    // Object/Array - JSON textarea
-    if (schemaType() === 'object' || schemaType() === 'array') {
-      return (
-        <Textarea
-          value={stringValue()}
-          onInput={(v) => {
-            try {
-              props.onChange(v ? JSON.parse(v) : undefined);
-            } catch {
-              // Keep as string if invalid JSON
-            }
-          }}
-          placeholder={schemaType() === 'array' ? '[]' : '{}'}
-          class="h-24 font-mono text-sm"
-        />
-      );
-    }
-
-    // Default: string input
-    return (
-      <Input
-        value={stringValue()}
-        onInput={handleChange}
-        placeholder={props.schema.default?.toString() || props.name}
-      />
-    );
-  };
-
-  return (
-    <div class="flex flex-col sm:flex-row sm:items-start gap-3">
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-2 mb-1">
-          <span class="font-mono text-sm font-medium text-gray-900 dark:text-white">
-            {props.name}
-          </span>
-          <Show when={props.required}>
-            <span class="text-rose-500 text-xs font-semibold">required</span>
-          </Show>
-        </div>
-        <div class="flex items-center gap-2 text-xs">
-          <span class="text-gray-400 dark:text-gray-500">{schemaType()}</span>
-          <Show when={hasEnum()}>
-            <span class="text-gray-400 dark:text-gray-500">(enum)</span>
-          </Show>
-        </div>
-        <Show when={props.schema.description}>
-          <p class="text-xs text-gray-400 dark:text-gray-500 mt-1.5 leading-relaxed">
-            {props.schema.description}
-          </p>
-        </Show>
-      </div>
-      <div class="sm:w-64">{renderInput()}</div>
     </div>
   );
 };

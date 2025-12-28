@@ -170,6 +170,12 @@ function applyAuth(
         headers.Authorization = `${auth.tokenType || 'Bearer'} ${auth.accessToken}`;
       }
       break;
+
+    case 'openid':
+      if (auth.accessToken) {
+        headers.Authorization = `${auth.tokenType || 'Bearer'} ${auth.accessToken}`;
+      }
+      break;
   }
 }
 

@@ -266,8 +266,12 @@
         "type": "apiKey",
         "in": "header",
         "name": "X-API-Key"
+      },
+      "openIdConnect": {
+        "type": "openIdConnect",
+        "openIdConnectUrl": "https://example.com/.well-known/openid-configuration"
       }
     }
   },
-  "security": [{ "bearerAuth": [] }, { "apiKey": [] }]
+  "security": [{ "bearerAuth": [] }, { "apiKey": [] }, { "openIdConnect": [] }]
 }

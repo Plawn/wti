@@ -429,6 +429,10 @@ function convertSecurityScheme(name: string, scheme: OpenAPISecurityScheme): Sec
     base.flows = convertOAuth2Flows(scheme.flows);
   }
 
+  if (scheme.type === 'openIdConnect') {
+    base.openIdConnectUrl = scheme.openIdConnectUrl;
+  }
+
   return base;
 }
 
@@ -440,6 +444,8 @@ function mapSecuritySchemeType(type: string): AuthType {
       return 'bearer'; // Could also be 'basic', determined by scheme
     case 'oauth2':
       return 'oauth2';
+    case 'openIdConnect':
+      return 'openIdConnect';
     default:
       return 'apiKey';
   }

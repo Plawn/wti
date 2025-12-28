@@ -1,11 +1,11 @@
 import type { SpecInput } from '@wti/core';
-import { Show, createEffect } from 'solid-js';
+import { Show, createEffect, createSignal, onMount } from 'solid-js';
 import './styles/global.css';
 import { OperationPanel } from './components/Operation';
 import { Sidebar } from './components/Sidebar';
 import type { Locale } from './i18n';
 import { I18nProvider } from './i18n';
-import { type SpecStore, createSpecStore } from './stores';
+import { type AuthStore, type SpecStore, createAuthStore, createSpecStore } from './stores';
 
 export type Theme = 'light' | 'dark';
 
@@ -18,9 +18,23 @@ export interface WTIProps {
 
 export function WTI(props: WTIProps) {
   const store = createSpecStore();
+  const authStore = createAuthStore();
+  const [oidcError, setOidcError] = createSignal<string | null>(null);
 
   const themeClass = () => (props.theme === 'dark' ? 'dark' : '');
   const locale = () => props.locale ?? 'en';
+
+  // Handle OIDC callback on mount
+  onMount(async () => {
+    if (authStore.actions.hasPendingOidcCallback()) {
+      const result = await authStore.actions.handleOpenIdCallback();
+      if (!result.success && result.error) {
+        setOidcError(result.error);
+        // Clear error after 5 seconds
+        setTimeout(() => setOidcError(null), 5000);
+      }
+    }
+  });
 
   createEffect(() => {
     store.actions.loadSpec(props.spec);
@@ -35,6 +49,23 @@ export function WTI(props: WTIProps) {
         <div class="fixed inset-0 bg-mesh -z-10" />
         <div class="fixed inset-0 pattern-dots -z-10" />
 
+        {/* OIDC Error Toast */}
+        <Show when={oidcError()}>
+          <div class="fixed top-4 right-4 z-50 glass-card rounded-xl p-4 border border-red-200/30 dark:border-red-800/20 shadow-lg max-w-md animate-slide-in">
+            <div class="flex items-start gap-3">
+              <div class="shrink-0 w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                <svg class="w-4 h-4 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900 dark:text-white">OpenID Login Failed</p>
+                <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">{oidcError()}</p>
+              </div>
+            </div>
+          </div>
+        </Show>
+
         <Show when={store.state.loading}>
           <LoadingScreen />
         </Show>
@@ -44,7 +75,7 @@ export function WTI(props: WTIProps) {
         </Show>
 
         <Show when={store.state.spec}>
-          <Layout store={store} />
+          <Layout store={store} authStore={authStore} />
         </Show>
       </div>
     </I18nProvider>
@@ -98,6 +129,7 @@ function ErrorScreen(props: { error: string | null }) {
 
 interface LayoutProps {
   store: SpecStore;
+  authStore: AuthStore;
 }
 
 function Layout(props: LayoutProps) {
@@ -110,19 +142,23 @@ function Layout(props: LayoutProps) {
     return null;
   };
 
-  console.log('daa');
-
   return (
     <div class="flex min-h-screen">
       {/* iOS 26 Glass Sidebar */}
       <aside class="w-80 flex-shrink-0 glass-sidebar border-r border-white/20 dark:border-white/5">
-        <Sidebar store={props.store} />
+        <Sidebar store={props.store} authStore={props.authStore} />
       </aside>
 
       {/* Main content */}
       <main class="flex-1 overflow-y-auto">
         <Show when={selectedData()} fallback={<WelcomeScreen />} keyed>
-          {(data) => <OperationPanel operation={data.operation} server={data.server} />}
+          {(data) => (
+            <OperationPanel
+              operation={data.operation}
+              server={data.server}
+              authStore={props.authStore}
+            />
+          )}
         </Show>
       </main>
     </div>
