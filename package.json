@@ -1,0 +1,23 @@
+{
+  "name": "wti",
+  "version": "0.0.1",
+  "private": true,
+  "description": "WTI - What The Interface: A modern Swagger UI alternative",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "bun run --filter @wti/demo dev",
+    "build": "bun run --filter './packages/*' build",
+    "build:demo": "bun run --filter @wti/demo build",
+    "test": "bun test",
+    "lint": "bunx @biomejs/biome check .",
+    "lint:fix": "bunx @biomejs/biome check --write .",
+    "typecheck": "bun run --filter '*' typecheck"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "typescript": "^5.7.2"
+  }
+}

@@ -1,0 +1,8 @@
+[install]
+# Use exact versions for reproducibility
+exact = true
+
+[test]
+# Enable coverage
+coverage = true
+coverageDir = "coverage"
