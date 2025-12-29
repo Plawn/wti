@@ -44,7 +44,10 @@ export async function executeRequest(
     const response = await fetch(url, {
       method: config.method,
       headers: config.headers,
-      body: canHaveBody && config.body !== undefined ? serializeBody(config.body, config.headers) : undefined,
+      body:
+        canHaveBody && config.body !== undefined
+          ? serializeBody(config.body, config.headers)
+          : undefined,
       signal: combinedSignal,
     });
 

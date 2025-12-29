@@ -1,5 +1,5 @@
 import type { SecurityRequirement } from '@wti/core';
-import { type Component, For, Show, createSignal } from 'solid-js';
+import { type Component, For, Show, createEffect, createSignal, onCleanup } from 'solid-js';
 import { useAuthConfig } from '../../hooks';
 import { useI18n } from '../../i18n';
 import type { AuthStore } from '../../stores';
@@ -461,6 +461,35 @@ const OpenIdForm: Component<OpenIdFormProps> = (props) => {
   const [isRefreshing, setIsRefreshing] = createSignal(false);
   const [loginError, setLoginError] = createSignal<string | null>(null);
 
+  // Timer signal to force periodic re-render of expiration countdown
+  const [now, setNow] = createSignal(Date.now());
+  const timer = setInterval(() => setNow(Date.now()), 10_000); // Update every 10 seconds
+  onCleanup(() => clearInterval(timer));
+
+  // Auto-refresh tokens when they're about to expire (60 seconds buffer)
+  createEffect(() => {
+    const config = existingConfig();
+    const currentTime = now();
+
+    // Only auto-refresh if we have tokens, a refresh token, and an expiration time
+    if (!config?.accessToken || !config?.refreshToken || !config?.expiresAt) return;
+
+    // Check if token is expiring within 60 seconds or already expired
+    const timeUntilExpiry = config.expiresAt - currentTime;
+    if (timeUntilExpiry <= 60_000 && !isRefreshing()) {
+      // Trigger auto-refresh
+      setIsRefreshing(true);
+      props.authStore.actions.refreshOpenIdAuth().then((success) => {
+        if (!success) {
+          setLoginError(t('auth.refreshFailed'));
+        } else {
+          setLoginError(null);
+        }
+        setIsRefreshing(false);
+      });
+    }
+  });
+
   const hasTokens = () => {
     const config = existingConfig();
     return config?.accessToken || config?.idToken;
@@ -470,14 +499,14 @@ const OpenIdForm: Component<OpenIdFormProps> = (props) => {
     const config = existingConfig();
     if (!config?.expiresAt) return null;
 
-    const now = Date.now();
+    const currentTime = now(); // Use reactive signal instead of Date.now()
     const expiresAt = config.expiresAt;
 
-    if (now >= expiresAt) {
+    if (currentTime >= expiresAt) {
       return { status: 'expired', text: t('auth.tokenExpired') };
     }
 
-    const remainingMs = expiresAt - now;
+    const remainingMs = expiresAt - currentTime;
     const remainingMinutes = Math.floor(remainingMs / 60000);
 
     if (remainingMinutes < 5) {
@@ -639,9 +668,7 @@ const OpenIdForm: Component<OpenIdFormProps> = (props) => {
                 when={getUsernameFromIdToken(existingConfig()?.idToken)}
                 fallback={t('auth.loggedIn')}
               >
-                {(username) =>
-                  t('auth.loggedInAs').replace('{username}', username())
-                }
+                {(username) => t('auth.loggedInAs').replace('{username}', username())}
               </Show>
             </p>
           </div>
