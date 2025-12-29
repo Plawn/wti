@@ -6,7 +6,6 @@ import {
   getDefaultValues,
   getPreferredContentType,
 } from '@wti/core';
-import { CodeSnippets } from './CodeSnippets';
 import { type Component, For, type JSX, Show, createMemo, createSignal } from 'solid-js';
 import { useI18n } from '../../i18n';
 import type { AuthStore, HistoryStore } from '../../stores';
@@ -22,6 +21,7 @@ import {
   Tabs,
   Textarea,
 } from '../shared';
+import { CodeSnippets } from './CodeSnippets';
 import { OperationHeader } from './OperationHeader';
 import { ResponseHeaders } from './ResponseHeaders';
 
@@ -776,6 +776,7 @@ const ParameterInput: Component<ParameterInputProps> = (props) => {
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              aria-hidden="true"
             >
               <path
                 stroke-linecap="round"

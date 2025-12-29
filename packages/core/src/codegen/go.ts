@@ -65,7 +65,9 @@ function generate(request: RequestConfig, options: CodeGenOptions = {}): string 
   }
 
   if (request.body !== undefined && request.body !== null) {
-    lines.push(`\treq, err := http.NewRequest("${request.method}", ${urlVar}, bytes.NewBuffer(body))`);
+    lines.push(
+      `\treq, err := http.NewRequest("${request.method}", ${urlVar}, bytes.NewBuffer(body))`,
+    );
   } else {
     lines.push(`\treq, err := http.NewRequest("${request.method}", ${urlVar}, nil)`);
   }

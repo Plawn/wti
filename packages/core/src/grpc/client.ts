@@ -157,8 +157,8 @@ export function createGrpcClient(options: GrpcClientOptions) {
     async function* streamMessages(): AsyncIterable<TResponse> {
       let buffer = '';
 
-      while (true) {
-        const { done, value } = await reader!.read();
+      while (reader) {
+        const { done, value } = await reader.read();
 
         if (done) break;
 

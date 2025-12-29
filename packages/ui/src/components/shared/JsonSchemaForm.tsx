@@ -1,5 +1,6 @@
 import type { Schema } from '@wti/core';
 import { type Component, For, Match, Show, Switch, createMemo } from 'solid-js';
+import { toDisplayString, toDisplayStringJson } from '../../utils';
 import { Checkbox, Input, Select, Textarea } from './Input';
 
 /**
@@ -81,10 +82,7 @@ interface StringFieldProps {
 }
 
 const StringField: Component<StringFieldProps> = (props) => {
-  const stringValue = () => {
-    if (props.value === undefined || props.value === null) return '';
-    return String(props.value);
-  };
+  const stringValue = () => toDisplayString(props.value);
 
   const isMultiline = () => {
     const format = props.schema.format;
@@ -122,10 +120,7 @@ interface NumberFieldProps {
 }
 
 const NumberField: Component<NumberFieldProps> = (props) => {
-  const stringValue = () => {
-    if (props.value === undefined || props.value === null) return '';
-    return String(props.value);
-  };
+  const stringValue = () => toDisplayString(props.value);
 
   const handleChange = (strValue: string) => {
     if (strValue === '') {
@@ -177,10 +172,7 @@ interface EnumFieldProps {
 }
 
 const EnumField: Component<EnumFieldProps> = (props) => {
-  const stringValue = () => {
-    if (props.value === undefined || props.value === null) return '';
-    return String(props.value);
-  };
+  const stringValue = () => toDisplayString(props.value);
 
   const handleChange = (strValue: string) => {
     if (strValue === '') {
@@ -213,11 +205,7 @@ interface UnionFieldProps {
 }
 
 const UnionField: Component<UnionFieldProps> = (props) => {
-  const stringValue = () => {
-    if (props.value === undefined || props.value === null) return '';
-    if (typeof props.value === 'object') return JSON.stringify(props.value, null, 2);
-    return String(props.value);
-  };
+  const stringValue = () => toDisplayStringJson(props.value);
 
   const handleChange = (strValue: string) => {
     if (strValue === '') {
@@ -375,7 +363,7 @@ const ArrayField: Component<ArrayFieldProps> = (props) => {
                   type="button"
                   onClick={() => moveItem(index(), index() - 1)}
                   disabled={index() === 0}
-                  class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  class="glass-icon-btn"
                   title="Move up"
                 >
                   <svg
@@ -394,7 +382,7 @@ const ArrayField: Component<ArrayFieldProps> = (props) => {
                   type="button"
                   onClick={() => moveItem(index(), index() + 1)}
                   disabled={index() === currentValue().length - 1}
-                  class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  class="glass-icon-btn"
                   title="Move down"
                 >
                   <svg

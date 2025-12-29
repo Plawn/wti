@@ -6,9 +6,12 @@ import type {
   OAuth2Auth,
   OpenIdAuth,
 } from '@wti/core';
-import { createStore } from 'solid-js/store';
+import { createSignal } from 'solid-js';
+import { createStore, unwrap } from 'solid-js/store';
+import { storage } from '../storage';
 
-const STORAGE_KEY = 'wti-auth';
+const STORAGE_STORE = 'auth';
+const STORAGE_KEY = 'state';
 const OIDC_STATE_KEY = 'wti-oidc-state';
 
 // Refresh tokens 60 seconds before expiration
@@ -75,7 +78,7 @@ async function getOidcDiscovery(issuerUrl: string): Promise<OidcDiscovery> {
     return cached;
   }
 
-  const discoveryUrl = issuerUrl.replace(/\/$/, '') + '/.well-known/openid-configuration';
+  const discoveryUrl = `${issuerUrl.replace(/\/$/, '')}/.well-known/openid-configuration`;
   const response = await fetch(discoveryUrl);
   if (!response.ok) {
     throw new Error(`Failed to fetch OIDC discovery document: ${response.status}`);
@@ -105,7 +108,7 @@ async function getTokenEndpoint(issuerUrl: string): Promise<string> {
 }
 
 /**
- * Store PKCE state for the callback
+ * Store PKCE state for the callback (uses sessionStorage - session-scoped)
  */
 function storePkceState(pkceState: OidcPkceState): void {
   sessionStorage.setItem(OIDC_STATE_KEY, JSON.stringify(pkceState));
@@ -186,48 +189,69 @@ const initialState: AuthStoreState = {
   activeScheme: null,
 };
 
-/**
- * Load auth state from localStorage
- */
-function loadFromStorage(): AuthStoreState {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored) as AuthStoreState;
-      return {
-        configs: parsed.configs || {},
-        activeScheme: parsed.activeScheme || null,
-      };
-    }
-  } catch {
-    // Ignore parse errors
-  }
-  return initialState;
-}
-
-/**
- * Save auth state to localStorage
- */
-function saveToStorage(state: AuthStoreState): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch {
-    // Ignore storage errors
-  }
-}
-
 export function createAuthStore() {
-  const [state, setState] = createStore<AuthStoreState>(loadFromStorage());
+  const [state, setState] = createStore<AuthStoreState>(initialState);
+  const [loading, setLoading] = createSignal(false);
+  const [initialized, setInitialized] = createSignal(false);
 
-  const persist = () => {
-    saveToStorage(state);
+  /**
+   * Save auth state to IndexedDB
+   */
+  const persist = async () => {
+    // Use unwrap to get plain object from SolidJS store proxy (required for IndexedDB serialization)
+    const rawState = unwrap(state);
+    await storage.set(STORAGE_STORE, STORAGE_KEY, {
+      configs: rawState.configs,
+      activeScheme: rawState.activeScheme,
+    });
   };
 
   const actions = {
     /**
+     * Initialize store by loading from IndexedDB
+     */
+    async init() {
+      if (initialized()) return;
+
+      setLoading(true);
+      try {
+        const stored = await storage.get<AuthStoreState>(STORAGE_STORE, STORAGE_KEY);
+        if (stored) {
+          setState({
+            configs: stored.configs || {},
+            activeScheme: stored.activeScheme || null,
+          });
+        }
+      } catch (error) {
+        console.warn('Failed to load auth state from storage:', error);
+      } finally {
+        setLoading(false);
+        setInitialized(true);
+      }
+    },
+
+    /**
+     * Check if store is loading
+     */
+    isLoading() {
+      return loading();
+    },
+
+    /**
+     * Check if store is initialized
+     */
+    isInitialized() {
+      return initialized();
+    },
+
+    /**
      * Set API Key authentication
      */
-    setApiKey(name: string, value: string, location: 'header' | 'query' | 'cookie' = 'header') {
+    async setApiKey(
+      name: string,
+      value: string,
+      location: 'header' | 'query' | 'cookie' = 'header',
+    ) {
       const config: ApiKeyAuth = {
         type: 'apiKey',
         name,
@@ -236,13 +260,13 @@ export function createAuthStore() {
       };
       setState('configs', name, config);
       setState('activeScheme', name);
-      persist();
+      await persist();
     },
 
     /**
      * Set Bearer token authentication
      */
-    setBearerToken(token: string, scheme = 'Bearer') {
+    async setBearerToken(token: string, scheme = 'Bearer') {
       const config: BearerAuth = {
         type: 'bearer',
         token,
@@ -251,13 +275,13 @@ export function createAuthStore() {
       const name = 'bearer';
       setState('configs', name, config);
       setState('activeScheme', name);
-      persist();
+      await persist();
     },
 
     /**
      * Set Basic authentication
      */
-    setBasicAuth(username: string, password: string) {
+    async setBasicAuth(username: string, password: string) {
       const config: BasicAuth = {
         type: 'basic',
         username,
@@ -266,13 +290,13 @@ export function createAuthStore() {
       const name = 'basic';
       setState('configs', name, config);
       setState('activeScheme', name);
-      persist();
+      await persist();
     },
 
     /**
      * Set OAuth2 token authentication
      */
-    setOAuth2Token(
+    async setOAuth2Token(
       accessToken: string,
       options?: {
         refreshToken?: string;
@@ -292,13 +316,13 @@ export function createAuthStore() {
       const name = 'oauth2';
       setState('configs', name, config);
       setState('activeScheme', name);
-      persist();
+      await persist();
     },
 
     /**
      * Set OpenID Connect authentication
      */
-    setOpenIdAuth(
+    async setOpenIdAuth(
       issuerUrl: string,
       clientId: string,
       options?: {
@@ -326,24 +350,24 @@ export function createAuthStore() {
       const name = 'openid';
       setState('configs', name, config);
       setState('activeScheme', name);
-      persist();
+      await persist();
     },
 
     /**
      * Clear OpenID Connect authentication
      */
-    clearOpenIdAuth() {
+    async clearOpenIdAuth() {
       setState('configs', 'openid', undefined);
       if (state.activeScheme === 'openid') {
         setState('activeScheme', null);
       }
-      persist();
+      await persist();
     },
 
     /**
      * Clear authentication for a specific scheme
      */
-    clearAuth(schemeName?: string) {
+    async clearAuth(schemeName?: string) {
       if (schemeName) {
         setState('configs', schemeName, undefined);
         if (state.activeScheme === schemeName) {
@@ -356,15 +380,15 @@ export function createAuthStore() {
           activeScheme: null,
         });
       }
-      persist();
+      await persist();
     },
 
     /**
      * Set the active auth scheme
      */
-    setActiveScheme(schemeName: string | null) {
+    async setActiveScheme(schemeName: string | null) {
       setState('activeScheme', schemeName);
-      persist();
+      await persist();
     },
 
     /**
@@ -421,7 +445,7 @@ export function createAuthStore() {
           expiresAt: newTokens.expiresAt,
           idToken: newTokens.idToken || config.idToken,
         });
-        persist();
+        await persist();
         return true;
       } catch (error) {
         console.error('Failed to refresh OpenID tokens:', error);
@@ -543,13 +567,18 @@ export function createAuthStore() {
         return { success: false, error: 'Invalid state parameter - possible CSRF attack' };
       }
 
+      // Verify authorization code exists
+      if (!code) {
+        return { success: false, error: 'Missing authorization code' };
+      }
+
       try {
         // Exchange authorization code for tokens
         const tokenEndpoint = await getTokenEndpoint(pkceState.issuerUrl);
 
         const body = new URLSearchParams({
           grant_type: 'authorization_code',
-          code: code!,
+          code,
           redirect_uri: pkceState.redirectUri,
           client_id: pkceState.clientId,
           code_verifier: pkceState.codeVerifier,
@@ -575,7 +604,7 @@ export function createAuthStore() {
         const tokens = await response.json();
 
         // Store the tokens
-        this.setOpenIdAuth(pkceState.issuerUrl, pkceState.clientId, {
+        await this.setOpenIdAuth(pkceState.issuerUrl, pkceState.clientId, {
           clientSecret: pkceState.clientSecret,
           scopes: pkceState.scopes,
           accessToken: tokens.access_token,
@@ -608,7 +637,7 @@ export function createAuthStore() {
     },
   };
 
-  return { state, actions };
+  return { state, actions, loading, initialized };
 }
 
 export type AuthStore = ReturnType<typeof createAuthStore>;

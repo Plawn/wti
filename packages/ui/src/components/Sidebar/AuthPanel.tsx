@@ -1,12 +1,6 @@
-import type {
-  ApiKeyAuth,
-  BasicAuth,
-  BearerAuth,
-  OAuth2Auth,
-  OpenIdAuth,
-  SecurityRequirement,
-} from '@wti/core';
+import type { SecurityRequirement } from '@wti/core';
 import { type Component, For, Show, createSignal } from 'solid-js';
+import { useAuthConfig } from '../../hooks';
 import { useI18n } from '../../i18n';
 import type { AuthStore } from '../../stores';
 import { Button, Input, Select } from '../shared';
@@ -167,6 +161,7 @@ interface ApiKeyFormProps {
 
 const ApiKeyForm: Component<ApiKeyFormProps> = (props) => {
   const { t } = useI18n();
+  const existingConfig = useAuthConfig(props.authStore, 'apiKey');
 
   // Get API key schemes from security schemes
   const apiKeySchemes = () => {
@@ -185,12 +180,6 @@ const ApiKeyForm: Component<ApiKeyFormProps> = (props) => {
 
   const [selectedScheme, setSelectedScheme] = createSignal(apiKeySchemes()[0]?.name || 'X-API-Key');
   const [apiKeyValue, setApiKeyValue] = createSignal('');
-
-  // Load existing value with proper type narrowing
-  const existingConfig = (): ApiKeyAuth | undefined => {
-    const config = props.authStore.actions.getAuthByType('apiKey');
-    return config?.type === 'apiKey' ? config : undefined;
-  };
 
   const handleAuthorize = () => {
     const scheme = apiKeySchemes().find((s) => s.name === selectedScheme());
@@ -263,13 +252,8 @@ interface BearerFormProps {
 
 const BearerForm: Component<BearerFormProps> = (props) => {
   const { t } = useI18n();
+  const existingConfig = useAuthConfig(props.authStore, 'bearer');
   const [token, setToken] = createSignal('');
-
-  // Load existing value with proper type narrowing
-  const existingConfig = (): BearerAuth | undefined => {
-    const config = props.authStore.actions.getAuthByType('bearer');
-    return config?.type === 'bearer' ? config : undefined;
-  };
 
   const handleAuthorize = () => {
     if (token()) {
@@ -321,14 +305,9 @@ interface BasicFormProps {
 
 const BasicForm: Component<BasicFormProps> = (props) => {
   const { t } = useI18n();
+  const existingConfig = useAuthConfig(props.authStore, 'basic');
   const [username, setUsername] = createSignal('');
   const [password, setPassword] = createSignal('');
-
-  // Load existing value with proper type narrowing
-  const existingConfig = (): BasicAuth | undefined => {
-    const config = props.authStore.actions.getAuthByType('basic');
-    return config?.type === 'basic' ? config : undefined;
-  };
 
   const handleAuthorize = () => {
     if (username()) {
@@ -397,13 +376,8 @@ interface OAuth2FormProps {
 
 const OAuth2Form: Component<OAuth2FormProps> = (props) => {
   const { t } = useI18n();
+  const existingConfig = useAuthConfig(props.authStore, 'oauth2');
   const [accessToken, setAccessToken] = createSignal('');
-
-  // Load existing value with proper type narrowing
-  const existingConfig = (): OAuth2Auth | undefined => {
-    const config = props.authStore.actions.getAuthByType('oauth2');
-    return config?.type === 'oauth2' ? config : undefined;
-  };
 
   const handleAuthorize = () => {
     if (accessToken()) {
@@ -451,6 +425,26 @@ const OAuth2Form: Component<OAuth2FormProps> = (props) => {
   );
 };
 
+/**
+ * Decode a JWT ID token and extract the username from common claims
+ */
+function getUsernameFromIdToken(idToken: string | undefined): string | null {
+  if (!idToken) return null;
+
+  try {
+    const parts = idToken.split('.');
+    if (parts.length !== 3) return null;
+
+    // Decode the payload (second part)
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+
+    // Try common OIDC claims for username/display name
+    return payload.name || payload.preferred_username || payload.email || payload.sub || null;
+  } catch {
+    return null;
+  }
+}
+
 // OpenID Connect Form
 interface OpenIdFormProps {
   authStore: AuthStore;
@@ -458,6 +452,7 @@ interface OpenIdFormProps {
 
 const OpenIdForm: Component<OpenIdFormProps> = (props) => {
   const { t } = useI18n();
+  const existingConfig = useAuthConfig(props.authStore, 'openid');
   const [issuerUrl, setIssuerUrl] = createSignal('');
   const [clientId, setClientId] = createSignal('');
   const [clientSecret, setClientSecret] = createSignal('');
@@ -465,12 +460,6 @@ const OpenIdForm: Component<OpenIdFormProps> = (props) => {
   const [isLoggingIn, setIsLoggingIn] = createSignal(false);
   const [isRefreshing, setIsRefreshing] = createSignal(false);
   const [loginError, setLoginError] = createSignal<string | null>(null);
-
-  // Load existing value with proper type narrowing
-  const existingConfig = (): OpenIdAuth | undefined => {
-    const config = props.authStore.actions.getAuthByType('openid');
-    return config?.type === 'openid' ? config : undefined;
-  };
 
   const hasTokens = () => {
     const config = existingConfig();
@@ -646,7 +635,14 @@ const OpenIdForm: Component<OpenIdFormProps> = (props) => {
           <div class="flex items-center gap-2 mb-2">
             <span class="w-2 h-2 rounded-full bg-emerald-500" />
             <p class="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-              {t('auth.loggedIn')}
+              <Show
+                when={getUsernameFromIdToken(existingConfig()?.idToken)}
+                fallback={t('auth.loggedIn')}
+              >
+                {(username) =>
+                  t('auth.loggedInAs').replace('{username}', username())
+                }
+              </Show>
             </p>
           </div>
           <p class="text-xs text-gray-600 dark:text-gray-300 truncate">

@@ -194,6 +194,38 @@
   border-color: oklch(1 0 0 / 0.2);
 }
 
+/* iOS 26 Icon Button - Small interactive icons */
+.glass-icon-btn {
+  padding: 0.375rem;
+  border-radius: 0.5rem;
+  color: oklch(0.55 0.02 250);
+  transition: all 0.15s ease;
+}
+
+.glass-icon-btn:hover {
+  color: oklch(0.35 0.02 250);
+  background: oklch(0 0 0 / 0.06);
+}
+
+.dark .glass-icon-btn {
+  color: oklch(0.6 0.02 250);
+}
+
+.dark .glass-icon-btn:hover {
+  color: oklch(0.8 0.02 250);
+  background: oklch(1 0 0 / 0.1);
+}
+
+.glass-icon-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.glass-icon-btn:disabled:hover {
+  background: transparent;
+  color: inherit;
+}
+
 /* iOS 26 Primary Button - Filled style */
 .btn-primary {
   background: oklch(0.55 0.2 260);

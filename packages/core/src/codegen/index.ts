@@ -4,12 +4,7 @@
  * Generates code snippets in multiple languages from request configurations
  */
 
-export type { CodeGenerator, CodeGenOptions, CodeLanguage, GeneratedCode } from './types';
-
-export { curlGenerator } from './curl';
-export { javascriptGenerator } from './javascript';
-export { pythonGenerator } from './python';
-export { goGenerator } from './go';
+export type { CodeGenOptions, CodeLanguage, GeneratedCode } from './types';
 
 import type { RequestConfig } from '../types';
 import { curlGenerator } from './curl';
@@ -19,9 +14,9 @@ import { pythonGenerator } from './python';
 import type { CodeGenOptions, CodeGenerator, CodeLanguage, GeneratedCode } from './types';
 
 /**
- * All available code generators
+ * All available code generators (internal)
  */
-export const generators: Record<CodeLanguage, CodeGenerator> = {
+const generators: Record<CodeLanguage, CodeGenerator> = {
   curl: curlGenerator,
   javascript: javascriptGenerator,
   python: pythonGenerator,
@@ -57,16 +52,4 @@ export function generateCode(
     code: generator.generate(request, options),
     extension: generator.extension,
   };
-}
-
-/**
- * Generate code for all available languages
- */
-export function generateAllCode(request: RequestConfig, options?: CodeGenOptions): GeneratedCode[] {
-  return Object.values(generators).map((generator) => ({
-    language: generator.language,
-    displayName: generator.displayName,
-    code: generator.generate(request, options),
-    extension: generator.extension,
-  }));
 }

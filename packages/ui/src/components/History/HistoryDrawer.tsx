@@ -73,15 +73,17 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
         shadow: 'shadow-indigo-500/20',
       },
     };
-    return styles[method.toLowerCase()] || {
-      bg: 'bg-gradient-to-r from-gray-500 to-gray-600',
-      shadow: 'shadow-gray-500/20',
-    };
+    return (
+      styles[method.toLowerCase()] || {
+        bg: 'bg-gradient-to-r from-gray-500 to-gray-600',
+        shadow: 'shadow-gray-500/20',
+      }
+    );
   };
 
-  const handleClear = () => {
+  const handleClear = async () => {
     if (confirmClear()) {
-      props.store.actions.clearHistory();
+      await props.store.actions.clearHistory();
       setConfirmClear(false);
     } else {
       setConfirmClear(true);
@@ -89,8 +91,8 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
     }
   };
 
-  const handleExport = () => {
-    const json = props.store.actions.exportHistory();
+  const handleExport = async () => {
+    const json = await props.store.actions.exportHistory();
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -115,7 +117,13 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
   };
 
   return (
-    <Drawer open={props.open} onClose={props.onClose} title={t('history.title')} position="right" size="lg">
+    <Drawer
+      open={props.open}
+      onClose={props.onClose}
+      title={t('history.title')}
+      position="right"
+      size="lg"
+    >
       <div class="-mx-6 -mt-6 flex flex-col h-[calc(100%+1.5rem)]">
         {/* Actions */}
         <div class="flex items-center justify-between px-4 py-3 border-b border-white/10 dark:border-white/5 bg-black/5 dark:bg-white/5">
@@ -154,7 +162,13 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
             when={props.store.state.entries.length > 0}
             fallback={
               <div class="flex flex-col items-center justify-center h-48 text-gray-400 dark:text-gray-500">
-                <svg class="w-12 h-12 mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <svg
+                  class="w-12 h-12 mb-3 opacity-50"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
@@ -171,76 +185,102 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
                 {(entry) => {
                   const methodStyle = getMethodStyle(entry.operationMethod);
                   return (
-                  <div class="px-4 py-3 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-                    <div class="flex items-start gap-3">
-                      {/* Status indicator */}
-                      <div class={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${getStatusColor(entry)}`} />
+                    <div class="px-4 py-3 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                      <div class="flex items-start gap-3">
+                        {/* Status indicator */}
+                        <div
+                          class={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${getStatusColor(entry)}`}
+                        />
 
-                      {/* Method badge */}
-                      <span
-                        class={`${methodStyle.bg} text-white text-[10px] font-bold uppercase w-12 py-1 rounded-md shadow-sm ${methodStyle.shadow} flex-shrink-0 text-center`}
-                      >
-                        {entry.operationMethod.toUpperCase()}
-                      </span>
+                        {/* Method badge */}
+                        <span
+                          class={`${methodStyle.bg} text-white text-[10px] font-bold uppercase w-12 py-1 rounded-md shadow-sm ${methodStyle.shadow} flex-shrink-0 text-center`}
+                        >
+                          {entry.operationMethod.toUpperCase()}
+                        </span>
 
-                      {/* Content */}
-                      <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-1">
-                          <p class="text-sm font-mono text-gray-700 dark:text-gray-300 truncate">{entry.operationPath}</p>
-                        </div>
-                        <div class="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
-                          <span>{formatTime(entry.timestamp)}</span>
-                          <Show when={entry.response}>
-                            <span>·</span>
-                            <span class={entry.response!.status >= 400 ? 'text-rose-500' : 'text-emerald-500'}>
-                              {entry.response!.status}
-                            </span>
-                            <span>·</span>
-                            <span>{Math.round(entry.response!.timing.duration)}ms</span>
+                        {/* Content */}
+                        <div class="flex-1 min-w-0">
+                          <div class="flex items-center gap-2 mb-1">
+                            <p class="text-sm font-mono text-gray-700 dark:text-gray-300 truncate">
+                              {entry.operationPath}
+                            </p>
+                          </div>
+                          <div class="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
+                            <span>{formatTime(entry.timestamp)}</span>
+                            <Show when={entry.response} keyed>
+                              {(response) => (
+                                <>
+                                  <span>·</span>
+                                  <span
+                                    class={
+                                      response.status >= 400 ? 'text-rose-500' : 'text-emerald-500'
+                                    }
+                                  >
+                                    {response.status}
+                                  </span>
+                                  <span>·</span>
+                                  <span>{Math.round(response.timing.duration)}ms</span>
+                                </>
+                              )}
+                            </Show>
+                          </div>
+                          <Show when={entry.error}>
+                            <p class="text-xs text-rose-500 dark:text-rose-400 mt-1 truncate">
+                              {entry.error}
+                            </p>
                           </Show>
                         </div>
-                        <Show when={entry.error}>
-                          <p class="text-xs text-rose-500 dark:text-rose-400 mt-1 truncate">{entry.error}</p>
-                        </Show>
-                      </div>
 
-                      {/* Actions */}
-                      <div class="flex items-center gap-1 flex-shrink-0">
-                        <Show when={props.onReplay}>
+                        {/* Actions */}
+                        <div class="flex items-center gap-1 flex-shrink-0">
+                          <Show when={props.onReplay}>
+                            <button
+                              type="button"
+                              onClick={() => props.onReplay?.(entry)}
+                              class="p-1.5 text-gray-400 hover:text-blue-500 transition-colors rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30"
+                              title={t('history.replay')}
+                            >
+                              <svg
+                                class="w-4 h-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                aria-hidden="true"
+                              >
+                                <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                                />
+                              </svg>
+                            </button>
+                          </Show>
                           <button
                             type="button"
-                            onClick={() => props.onReplay?.(entry)}
-                            class="p-1.5 text-gray-400 hover:text-blue-500 transition-colors rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30"
-                            title={t('history.replay')}
+                            onClick={() => props.store.actions.removeEntry(entry.id)}
+                            class="p-1.5 text-gray-400 hover:text-red-500 transition-colors rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30"
+                            title={t('history.delete')}
                           >
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <svg
+                              class="w-4 h-4"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              aria-hidden="true"
+                            >
                               <path
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                                 stroke-width="2"
-                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                               />
                             </svg>
                           </button>
-                        </Show>
-                        <button
-                          type="button"
-                          onClick={() => props.store.actions.removeEntry(entry.id)}
-                          class="p-1.5 text-gray-400 hover:text-red-500 transition-colors rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30"
-                          title={t('history.delete')}
-                        >
-                          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
-                        </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
                   );
                 }}
               </For>

@@ -21,12 +21,7 @@ export default defineConfig({
     },
     cssCodeSplit: false,
     rollupOptions: {
-      external: [
-        'solid-js',
-        'solid-js/web',
-        'solid-js/store',
-        '@wti/core',
-      ],
+      external: ['solid-js', 'solid-js/web', 'solid-js/store', '@wti/core'],
       output: {
         globals: {
           'solid-js': 'SolidJS',

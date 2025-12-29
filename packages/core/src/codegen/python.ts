@@ -28,7 +28,9 @@ function toPythonValue(value: unknown, indent: number, prettyPrint: boolean): st
   if (typeof value === 'object') {
     const entries = Object.entries(value);
     if (entries.length === 0) return '{}';
-    const items = entries.map(([k, v]) => `${JSON.stringify(k)}: ${toPythonValue(v, indent + 4, prettyPrint)}`);
+    const items = entries.map(
+      ([k, v]) => `${JSON.stringify(k)}: ${toPythonValue(v, indent + 4, prettyPrint)}`,
+    );
     if (prettyPrint) {
       const pad = ' '.repeat(indent + 4);
       return `{\n${pad}${items.join(`,\n${pad}`)}\n${' '.repeat(indent)}}`;
@@ -89,7 +91,8 @@ function generate(request: RequestConfig, options: CodeGenOptions = {}): string 
   }
 
   if (request.body !== undefined && request.body !== null) {
-    const contentType = request.headers?.['Content-Type'] || request.headers?.['content-type'] || '';
+    const contentType =
+      request.headers?.['Content-Type'] || request.headers?.['content-type'] || '';
     if (contentType.includes('application/json') || typeof request.body === 'object') {
       args.push('json=payload');
     } else {

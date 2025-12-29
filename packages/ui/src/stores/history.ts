@@ -1,14 +1,17 @@
 /**
  * Request history store
  *
- * Stores request/response history with localStorage persistence
+ * Stores request/response history with IndexedDB persistence and pagination
  */
 
 import type { RequestConfig, RequestValues, ResponseData } from '@wti/core';
+import { createSignal } from 'solid-js';
 import { createStore } from 'solid-js/store';
+import { storage } from '../storage';
 
-const STORAGE_KEY = 'wti-request-history';
-const MAX_ENTRIES = 100;
+const STORAGE_STORE = 'history';
+const PAGE_SIZE = 20;
+const MAX_ENTRIES = 500;
 
 export interface HistoryEntry {
   id: string;
@@ -30,21 +33,37 @@ export interface HistoryState {
 export interface HistoryStore {
   state: HistoryState;
   actions: {
+    /** Initialize store by loading first page from storage */
+    init: () => Promise<void>;
+    /** Load more entries (pagination) */
+    loadMore: () => Promise<void>;
     /** Add a new entry to history */
-    addEntry: (entry: Omit<HistoryEntry, 'id' | 'timestamp'>) => string;
+    addEntry: (entry: Omit<HistoryEntry, 'id' | 'timestamp'>) => Promise<string>;
     /** Update an existing entry (e.g., add response) */
-    updateEntry: (id: string, update: Partial<Omit<HistoryEntry, 'id' | 'timestamp'>>) => void;
+    updateEntry: (
+      id: string,
+      update: Partial<Omit<HistoryEntry, 'id' | 'timestamp'>>,
+    ) => Promise<void>;
     /** Remove an entry by ID */
-    removeEntry: (id: string) => void;
+    removeEntry: (id: string) => Promise<void>;
     /** Clear all history */
-    clearHistory: () => void;
+    clearHistory: () => Promise<void>;
     /** Get entry by ID */
     getEntry: (id: string) => HistoryEntry | undefined;
     /** Export history as JSON */
-    exportHistory: () => string;
+    exportHistory: () => Promise<string>;
     /** Import history from JSON */
-    importHistory: (json: string) => boolean;
+    importHistory: (json: string) => Promise<boolean>;
+    /** Check if store is loading */
+    isLoading: () => boolean;
+    /** Check if there are more entries to load */
+    hasMore: () => boolean;
+    /** Get total count of entries */
+    getTotalCount: () => number;
   };
+  loading: () => boolean;
+  hasMore: () => boolean;
+  totalCount: () => number;
 }
 
 /**
@@ -55,43 +74,81 @@ function generateId(): string {
 }
 
 /**
- * Load history from localStorage
- */
-function loadFromStorage(): HistoryEntry[] {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed)) {
-        return parsed;
-      }
-    }
-  } catch (e) {
-    console.warn('Failed to load history from localStorage:', e);
-  }
-  return [];
-}
-
-/**
- * Save history to localStorage
- */
-function saveToStorage(entries: HistoryEntry[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-  } catch (e) {
-    console.warn('Failed to save history to localStorage:', e);
-  }
-}
-
-/**
  * Create the history store
  */
 export function createHistoryStore(): HistoryStore {
   const [state, setState] = createStore<HistoryState>({
-    entries: loadFromStorage(),
+    entries: [],
   });
 
-  const addEntry = (entry: Omit<HistoryEntry, 'id' | 'timestamp'>): string => {
+  const [loading, setLoading] = createSignal(false);
+  const [hasMore, setHasMore] = createSignal(true);
+  const [totalCount, setTotalCount] = createSignal(0);
+  const [initialized, setInitialized] = createSignal(false);
+
+  /**
+   * Initialize store by loading first page from storage
+   */
+  const init = async (): Promise<void> => {
+    if (initialized()) return;
+
+    setLoading(true);
+    try {
+      // Get total count
+      const count = await storage.count(STORAGE_STORE);
+      setTotalCount(count);
+
+      // Load first page
+      const entries = await storage.getPage<HistoryEntry>(STORAGE_STORE, {
+        limit: PAGE_SIZE,
+        index: 'by-timestamp',
+        direction: 'prev', // Most recent first
+      });
+
+      setState('entries', entries);
+      setHasMore(entries.length >= PAGE_SIZE && entries.length < count);
+    } catch (error) {
+      console.warn('Failed to load history from storage:', error);
+    } finally {
+      setLoading(false);
+      setInitialized(true);
+    }
+  };
+
+  /**
+   * Load more entries (pagination)
+   */
+  const loadMore = async (): Promise<void> => {
+    if (loading() || !hasMore()) return;
+
+    setLoading(true);
+    try {
+      const currentCount = state.entries.length;
+      const entries = await storage.getPage<HistoryEntry>(STORAGE_STORE, {
+        limit: PAGE_SIZE,
+        offset: currentCount,
+        index: 'by-timestamp',
+        direction: 'prev',
+      });
+
+      if (entries.length > 0) {
+        setState('entries', (prev) => [...prev, ...entries]);
+      }
+
+      const total = await storage.count(STORAGE_STORE);
+      setTotalCount(total);
+      setHasMore(state.entries.length + entries.length < total);
+    } catch (error) {
+      console.warn('Failed to load more history:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
+   * Add a new entry to history
+   */
+  const addEntry = async (entry: Omit<HistoryEntry, 'id' | 'timestamp'>): Promise<string> => {
     const id = generateId();
     const newEntry: HistoryEntry = {
       ...entry,
@@ -99,66 +156,138 @@ export function createHistoryStore(): HistoryStore {
       timestamp: Date.now(),
     };
 
-    setState('entries', (entries) => {
-      // Add new entry at the beginning, limit to MAX_ENTRIES
-      const updated = [newEntry, ...entries].slice(0, MAX_ENTRIES);
-      saveToStorage(updated);
-      return updated;
-    });
+    // Add to IndexedDB
+    await storage.set(STORAGE_STORE, id, newEntry);
+
+    // Add to state (at the beginning since it's newest)
+    setState('entries', (entries) => [newEntry, ...entries]);
+
+    // Update total count
+    setTotalCount((c) => c + 1);
+
+    // Prune old entries if over max
+    const total = await storage.count(STORAGE_STORE);
+    if (total > MAX_ENTRIES) {
+      // Get oldest entries to remove
+      const oldest = await storage.getPage<HistoryEntry>(STORAGE_STORE, {
+        limit: total - MAX_ENTRIES,
+        index: 'by-timestamp',
+        direction: 'next', // Oldest first
+      });
+
+      for (const old of oldest) {
+        await storage.remove(STORAGE_STORE, old.id);
+      }
+
+      setTotalCount(MAX_ENTRIES);
+    }
 
     return id;
   };
 
-  const updateEntry = (id: string, update: Partial<Omit<HistoryEntry, 'id' | 'timestamp'>>): void => {
-    setState('entries', (entries) => {
-      const updated = entries.map((entry) =>
-        entry.id === id ? { ...entry, ...update } : entry
-      );
-      saveToStorage(updated);
-      return updated;
-    });
+  /**
+   * Update an existing entry (e.g., add response)
+   */
+  const updateEntry = async (
+    id: string,
+    update: Partial<Omit<HistoryEntry, 'id' | 'timestamp'>>,
+  ): Promise<void> => {
+    // Update in state
+    const entryIndex = state.entries.findIndex((e) => e.id === id);
+    if (entryIndex !== -1) {
+      const updatedEntry = { ...state.entries[entryIndex], ...update };
+      setState('entries', entryIndex, updatedEntry);
+
+      // Update in storage
+      await storage.set(STORAGE_STORE, id, updatedEntry);
+    } else {
+      // Entry not in state, try to update in storage directly
+      const existing = await storage.get<HistoryEntry>(STORAGE_STORE, id);
+      if (existing) {
+        const updatedEntry = { ...existing, ...update };
+        await storage.set(STORAGE_STORE, id, updatedEntry);
+      }
+    }
   };
 
-  const removeEntry = (id: string): void => {
-    setState('entries', (entries) => {
-      const updated = entries.filter((entry) => entry.id !== id);
-      saveToStorage(updated);
-      return updated;
-    });
+  /**
+   * Remove an entry by ID
+   */
+  const removeEntry = async (id: string): Promise<void> => {
+    // Remove from state
+    setState('entries', (entries) => entries.filter((e) => e.id !== id));
+
+    // Remove from storage
+    await storage.remove(STORAGE_STORE, id);
+
+    // Update count
+    setTotalCount((c) => Math.max(0, c - 1));
   };
 
-  const clearHistory = (): void => {
+  /**
+   * Clear all history
+   */
+  const clearHistory = async (): Promise<void> => {
     setState('entries', []);
-    localStorage.removeItem(STORAGE_KEY);
+    await storage.clear(STORAGE_STORE);
+    setTotalCount(0);
+    setHasMore(false);
   };
 
+  /**
+   * Get entry by ID (from loaded entries only)
+   */
   const getEntry = (id: string): HistoryEntry | undefined => {
     return state.entries.find((entry) => entry.id === id);
   };
 
-  const exportHistory = (): string => {
-    return JSON.stringify(state.entries, null, 2);
+  /**
+   * Export history as JSON
+   */
+  const exportHistory = async (): Promise<string> => {
+    // Get all entries from storage
+    const allEntries = await storage.getAll<HistoryEntry>(STORAGE_STORE);
+    // Sort by timestamp descending
+    allEntries.sort((a, b) => b.timestamp - a.timestamp);
+    return JSON.stringify(allEntries, null, 2);
   };
 
-  const importHistory = (json: string): boolean => {
+  /**
+   * Import history from JSON
+   */
+  const importHistory = async (json: string): Promise<boolean> => {
     try {
       const parsed = JSON.parse(json);
       if (!Array.isArray(parsed)) {
         return false;
       }
+
       // Validate entries have required fields
       const valid = parsed.every(
         (entry) =>
           typeof entry.id === 'string' &&
           typeof entry.timestamp === 'number' &&
           typeof entry.operationId === 'string' &&
-          entry.request
+          entry.request,
       );
+
       if (!valid) {
         return false;
       }
-      setState('entries', parsed.slice(0, MAX_ENTRIES));
-      saveToStorage(state.entries);
+
+      // Clear existing and import new
+      await storage.clear(STORAGE_STORE);
+
+      // Import entries (limit to MAX_ENTRIES)
+      const toImport = parsed.slice(0, MAX_ENTRIES);
+      for (const entry of toImport) {
+        await storage.set(STORAGE_STORE, entry.id, entry);
+      }
+
+      // Reload state
+      setInitialized(false);
+      await init();
+
       return true;
     } catch {
       return false;
@@ -168,6 +297,8 @@ export function createHistoryStore(): HistoryStore {
   return {
     state,
     actions: {
+      init,
+      loadMore,
       addEntry,
       updateEntry,
       removeEntry,
@@ -175,6 +306,12 @@ export function createHistoryStore(): HistoryStore {
       getEntry,
       exportHistory,
       importHistory,
+      isLoading: loading,
+      hasMore,
+      getTotalCount: totalCount,
     },
+    loading,
+    hasMore,
+    totalCount,
   };
 }

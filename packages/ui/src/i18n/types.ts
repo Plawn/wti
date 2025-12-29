@@ -4,6 +4,8 @@ export interface Translations {
     cancel: string;
     copy: string;
     copied: string;
+    copyLink: string;
+    linkCopied: string;
     close: string;
     search: string;
     loading: string;
@@ -79,6 +81,7 @@ export interface Translations {
     loginWithOpenId: string;
     loggingIn: string;
     loggedIn: string;
+    loggedInAs: string;
     missingConfig: string;
     refreshFailed: string;
   };

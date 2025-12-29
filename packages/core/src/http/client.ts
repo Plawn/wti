@@ -38,10 +38,13 @@ export async function executeRequest(
   const startTime = performance.now();
 
   try {
+    // GET and HEAD requests cannot have a body per the Fetch specification
+    const canHaveBody = config.method !== 'GET' && config.method !== 'HEAD';
+
     const response = await fetch(url, {
       method: config.method,
       headers: config.headers,
-      body: config.body !== undefined ? serializeBody(config.body, config.headers) : undefined,
+      body: canHaveBody && config.body !== undefined ? serializeBody(config.body, config.headers) : undefined,
       signal: combinedSignal,
     });
 

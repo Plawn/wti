@@ -93,7 +93,9 @@ function generate(request: RequestConfig, options: CodeGenOptions = {}): string 
   optionsLines.push(`${indent}${indent}method: '${request.method}',`);
 
   if (request.headers && Object.keys(request.headers).length > 0) {
-    optionsLines.push(`${indent}${indent}headers: ${formatValue(request.headers, 4, prettyPrint)},`);
+    optionsLines.push(
+      `${indent}${indent}headers: ${formatValue(request.headers, 4, prettyPrint)},`,
+    );
   }
 
   if (request.body !== undefined && request.body !== null) {

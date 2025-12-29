@@ -82,8 +82,8 @@ export const Drawer: Component<DrawerProps> = (props) => {
   const styles = () => positionStyles[position()];
 
   // Check if dark mode is active
-  const isDark = () => document.documentElement.classList.contains('dark') ||
-    document.querySelector('.dark') !== null;
+  const isDark = () =>
+    document.documentElement.classList.contains('dark') || document.querySelector('.dark') !== null;
 
   return (
     <Show when={props.open}>

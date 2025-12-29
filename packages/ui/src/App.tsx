@@ -15,6 +15,7 @@ import {
   createHistoryStore,
   createSpecStore,
 } from './stores';
+import { getParamsFromUrl } from './utils/url';
 
 export type Theme = 'light' | 'dark';
 
@@ -37,8 +38,12 @@ export function WTI(props: WTIProps) {
   const themeClass = () => (props.theme === 'dark' ? 'dark' : '');
   const locale = () => props.locale ?? 'en';
 
-  // Handle OIDC callback on mount
+  // Initialize stores and handle OIDC callback on mount
   onMount(async () => {
+    // Load persisted auth state from IndexedDB
+    await authStore.actions.init();
+
+    // Handle OIDC callback if present
     if (authStore.actions.hasPendingOidcCallback()) {
       const result = await authStore.actions.handleOpenIdCallback();
       if (!result.success && result.error) {
@@ -53,6 +58,21 @@ export function WTI(props: WTIProps) {
   createEffect(() => {
     if (props.spec) {
       store.actions.loadSpec(props.spec);
+    }
+  });
+
+  // Handle URL deep linking after spec loads
+  createEffect(() => {
+    if (store.state.spec && !store.state.selectedOperation) {
+      const urlParams = getParamsFromUrl();
+      if (urlParams.operationId) {
+        // Select server first if specified
+        if (urlParams.serverIndex !== undefined) {
+          store.actions.selectServerByIndex(urlParams.serverIndex);
+        }
+        // Then select the operation
+        store.actions.selectOperationById(urlParams.operationId);
+      }
     }
   });
 
@@ -120,7 +140,7 @@ export function WTI(props: WTIProps) {
           onReplay={(entry) => {
             // Find the operation by ID and select it
             const operation = store.state.spec?.operations.find(
-              (op) => op.id === entry.operationId
+              (op) => op.id === entry.operationId,
             );
             if (operation) {
               // Set replay values before selecting operation

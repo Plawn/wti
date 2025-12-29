@@ -1,5 +1,7 @@
 import { type Component, For, Show, createMemo, createSignal } from 'solid-js';
+import { useCopyToClipboard } from '../../hooks';
 import { useI18n } from '../../i18n';
+import { formatJson } from '../../utils';
 
 export interface JsonViewerProps {
   data: unknown;
@@ -174,24 +176,12 @@ const JsonNode: Component<JsonNodeProps> = (props) => {
 
 export const JsonViewer: Component<JsonViewerProps> = (props) => {
   const { t } = useI18n();
-  const [copied, setCopied] = createSignal(false);
+  const { copied, copy } = useCopyToClipboard();
 
   const maxHeight = () => props.maxHeight ?? '500px';
   const initialExpandDepth = () => props.initialExpandDepth ?? 2;
 
-  const jsonString = createMemo(() => {
-    try {
-      return JSON.stringify(props.data, null, 2);
-    } catch {
-      return String(props.data);
-    }
-  });
-
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(jsonString());
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+  const jsonString = createMemo(() => formatJson(props.data));
 
   const [expandAll, setExpandAll] = createSignal(false);
   const [key, setKey] = createSignal(0);
@@ -254,7 +244,7 @@ export const JsonViewer: Component<JsonViewerProps> = (props) => {
         </button>
         <button
           type="button"
-          onClick={handleCopy}
+          onClick={() => copy(jsonString())}
           class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 bg-gray-100/80 dark:bg-gray-800/80 hover:bg-gray-200/80 dark:hover:bg-gray-700/80 backdrop-blur-sm rounded-lg transition-all"
         >
           <Show

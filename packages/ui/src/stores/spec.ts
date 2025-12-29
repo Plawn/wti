@@ -1,6 +1,7 @@
 import type { ApiSpec, Operation, Server, SpecInput } from '@wti/core';
 import { parseOpenApi } from '@wti/core';
 import { createStore } from 'solid-js/store';
+import { clearUrlParams, updateUrlWithParams } from '../utils/url';
 
 export interface SpecState {
   spec: ApiSpec | null;
@@ -51,10 +52,50 @@ export function createSpecStore() {
 
     selectOperation(operation: Operation | null) {
       setState({ selectedOperation: operation });
+      // Sync URL with selected operation
+      if (operation) {
+        const serverIndex =
+          state.selectedServer && state.spec?.servers
+            ? state.spec.servers.indexOf(state.selectedServer)
+            : 0;
+        updateUrlWithParams({ operationId: operation.id, serverIndex });
+      } else {
+        clearUrlParams();
+      }
+    },
+
+    /**
+     * Select an operation by its ID
+     * Returns true if operation was found and selected
+     */
+    selectOperationById(operationId: string): boolean {
+      const operation = state.spec?.operations.find((op) => op.id === operationId);
+      if (operation) {
+        this.selectOperation(operation);
+        return true;
+      }
+      return false;
     },
 
     selectServer(server: Server) {
       setState({ selectedServer: server });
+      // Update URL with new server index
+      if (state.selectedOperation) {
+        const serverIndex = state.spec?.servers.indexOf(server) ?? 0;
+        updateUrlWithParams({ operationId: state.selectedOperation.id, serverIndex });
+      }
+    },
+
+    /**
+     * Select a server by its index
+     */
+    selectServerByIndex(index: number): boolean {
+      const server = state.spec?.servers[index];
+      if (server) {
+        this.selectServer(server);
+        return true;
+      }
+      return false;
     },
 
     setSearchQuery(query: string) {

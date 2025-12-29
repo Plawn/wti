@@ -156,8 +156,9 @@ export function createReflectionClient(baseUrl: string) {
       }
 
       return (
-        alphaResponse.message.listServicesResponse?.service?.map((s) => s.name || '').filter(Boolean) ||
-        []
+        alphaResponse.message.listServicesResponse?.service
+          ?.map((s) => s.name || '')
+          .filter(Boolean) || []
       );
     }
 
@@ -188,7 +189,9 @@ export function createReflectionClient(baseUrl: string) {
         throw new Error(`Reflection error: ${response.status.message}`);
       }
 
-      return parseFileDescriptors(alphaResponse.message.fileDescriptorResponse?.fileDescriptorProto);
+      return parseFileDescriptors(
+        alphaResponse.message.fileDescriptorResponse?.fileDescriptorProto,
+      );
     }
 
     return parseFileDescriptors(response.message.fileDescriptorResponse?.fileDescriptorProto);
@@ -353,7 +356,7 @@ function parseField(field: FieldDescriptorProto, _packageName: string): GrpcFiel
   const repeated = field.label === LABEL_REPEATED;
 
   // Clean up type name (remove leading dot)
-  let typeName = field.typeName?.replace(/^\./, '');
+  const typeName = field.typeName?.replace(/^\./, '');
 
   return {
     name: field.name || '',
@@ -417,10 +420,10 @@ function parseDefaultValue(value: string | undefined, type: GrpcFieldType): unkn
     case 'fixed64':
     case 'sfixed32':
     case 'sfixed64':
-      return parseInt(value, 10);
+      return Number.parseInt(value, 10);
     case 'float':
     case 'double':
-      return parseFloat(value);
+      return Number.parseFloat(value);
     default:
       return value;
   }

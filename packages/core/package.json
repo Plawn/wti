@@ -1,7 +1,16 @@
 {
   "name": "@wti/core",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Core logic for WTI - OpenAPI/gRPC parsing, HTTP client, code generation",
+  "author": "plawn",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/plawn/wti.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/plawn/wti#readme",
+  "keywords": ["openapi", "grpc", "api", "parser", "http-client", "codegen"],
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",

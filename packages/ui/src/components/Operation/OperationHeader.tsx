@@ -1,6 +1,7 @@
 import type { Operation } from '@wti/core';
-import { type Component, For, Show } from 'solid-js';
+import { type Component, For, Show, createSignal } from 'solid-js';
 import { useI18n } from '../../i18n';
+import { copyShareableUrl } from '../../utils/url';
 import { Markdown } from '../shared';
 
 interface OperationHeaderProps {
@@ -23,6 +24,13 @@ const defaultConfig = { bg: 'from-gray-500 to-slate-600', glow: 'shadow-gray-500
 export const OperationHeader: Component<OperationHeaderProps> = (props) => {
   const { t } = useI18n();
   const config = () => methodConfig[props.operation.method.toLowerCase()] || defaultConfig;
+  const [copied, setCopied] = createSignal(false);
+
+  const handleCopyLink = async () => {
+    await copyShareableUrl(props.operation.id);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <div class="mb-16">
@@ -33,10 +41,52 @@ export const OperationHeader: Component<OperationHeaderProps> = (props) => {
         >
           {props.operation.method}
         </span>
-        <div class="flex-1 min-w-0 pt-1.5">
+        <div class="flex-1 min-w-0 pt-1.5 flex items-center gap-3">
           <code class="text-lg font-mono text-gray-800 dark:text-gray-100 break-all leading-relaxed font-medium">
             {props.operation.path}
           </code>
+          {/* Copy Link Button */}
+          <button
+            type="button"
+            onClick={handleCopyLink}
+            class="flex-shrink-0 p-2 rounded-xl text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+            title={t('common.copyLink')}
+          >
+            <Show
+              when={!copied()}
+              fallback={
+                <svg
+                  class="w-4 h-4 text-emerald-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              }
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                />
+              </svg>
+            </Show>
+          </button>
         </div>
       </div>
 

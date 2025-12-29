@@ -2,7 +2,8 @@ import DOMPurify from 'dompurify';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-bash';
 import 'prismjs/components/prism-json';
-import { type Component, Show, createMemo, createSignal } from 'solid-js';
+import { type Component, Show, createMemo } from 'solid-js';
+import { useCopyToClipboard } from '../../hooks';
 import { useI18n } from '../../i18n';
 
 export interface CodeBlockProps {
@@ -15,7 +16,7 @@ export interface CodeBlockProps {
 
 export const CodeBlock: Component<CodeBlockProps> = (props) => {
   const { t } = useI18n();
-  const [copied, setCopied] = createSignal(false);
+  const { copied, copy } = useCopyToClipboard();
   let codeRef: HTMLElement | undefined;
 
   const language = () => props.language || 'json';
@@ -39,19 +40,13 @@ export const CodeBlock: Component<CodeBlockProps> = (props) => {
     });
   });
 
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(props.code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   return (
     <div class="relative group rounded-xl overflow-hidden">
       {/* Copy button */}
       <Show when={!props.hideCopyButton}>
         <button
           type="button"
-          onClick={handleCopy}
+          onClick={() => copy(props.code)}
           class="absolute top-3 right-3 z-10 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 bg-gray-100/80 dark:bg-gray-800/80 hover:bg-gray-200/80 dark:hover:bg-gray-700/80 backdrop-blur-sm rounded-lg transition-all"
         >
           <Show

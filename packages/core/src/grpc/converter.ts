@@ -97,7 +97,7 @@ function extractServiceTitle(services: GrpcService[]): string {
 
   for (let i = 0; i < parts.length - 1; i++) {
     const prefix = parts.slice(0, i + 1).join('.');
-    if (names.every((n) => n.startsWith(prefix + '.'))) {
+    if (names.every((n) => n.startsWith(`${prefix}.`))) {
       return prefix;
     }
   }

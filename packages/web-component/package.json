@@ -1,7 +1,16 @@
 {
   "name": "@wti/element",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "WTI Web Component - Use WTI with any framework",
+  "author": "plawn",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/plawn/wti.git",
+    "directory": "packages/web-component"
+  },
+  "homepage": "https://github.com/plawn/wti#readme",
+  "keywords": ["openapi", "swagger-ui", "web-component", "custom-element", "api-documentation"],
   "type": "module",
   "main": "./dist/wti-element.iife.js",
   "module": "./dist/wti-element.es.js",

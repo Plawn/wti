@@ -1,8 +1,28 @@
 {
   "name": "wti",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "description": "WTI - What The Interface: A modern Swagger UI alternative",
+  "author": "plawn",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/plawn/wti.git"
+  },
+  "homepage": "https://github.com/plawn/wti#readme",
+  "bugs": {
+    "url": "https://github.com/plawn/wti/issues"
+  },
+  "keywords": [
+    "openapi",
+    "swagger",
+    "api",
+    "documentation",
+    "grpc",
+    "solidjs",
+    "rest",
+    "api-explorer"
+  ],
   "workspaces": ["packages/*", "apps/*"],
   "scripts": {
     "dev": "bun run --filter @wti/demo dev",

@@ -180,11 +180,11 @@ export const SpecLoader: Component<SpecLoaderProps> = (props) => {
 
           {/* File Upload Section */}
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <span class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {t('specLoader.uploadFile')}
-            </label>
-            <div
-              class={`relative rounded-3xl p-10 text-center transition-all duration-300 cursor-pointer overflow-hidden group border-2 ${
+            </span>
+            <label
+              class={`relative rounded-3xl p-10 text-center transition-all duration-300 cursor-pointer overflow-hidden group border-2 block ${
                 isDragging()
                   ? 'border-blue-500 bg-blue-500/10 scale-[1.02] shadow-xl shadow-blue-500/20'
                   : 'border-dashed border-gray-300/50 dark:border-gray-600/50 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50/50 dark:hover:bg-white/5'
@@ -192,13 +192,12 @@ export const SpecLoader: Component<SpecLoaderProps> = (props) => {
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              onClick={() => fileInputRef?.click()}
             >
               <input
                 ref={fileInputRef}
                 type="file"
                 accept=".json,.yaml,.yml"
-                class="hidden"
+                class="sr-only"
                 onChange={handleFileInputChange}
               />
               <div class="flex flex-col items-center gap-4 relative z-10">
@@ -239,7 +238,7 @@ export const SpecLoader: Component<SpecLoaderProps> = (props) => {
 
               {/* Background accent for glass effect */}
               <div class="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 dark:to-transparent pointer-events-none" />
-            </div>
+            </label>
           </div>
         </div>
 
