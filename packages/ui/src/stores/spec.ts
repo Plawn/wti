@@ -69,7 +69,7 @@ export function createSpecStore() {
      * Returns true if operation was found and selected
      */
     selectOperationById(operationId: string): boolean {
-      const operation = state.spec?.operations.find((op) => op.id === operationId);
+      const operation = state.spec?.operations.find((op: Operation) => op.id === operationId);
       if (operation) {
         this.selectOperation(operation);
         return true;

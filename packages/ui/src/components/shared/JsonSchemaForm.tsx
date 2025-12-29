@@ -181,7 +181,7 @@ const EnumField: Component<EnumFieldProps> = (props) => {
     }
     // Try to preserve original type from enum values
     const enumValues = props.schema.enum || [];
-    const originalValue = enumValues.find((v) => String(v) === strValue);
+    const originalValue = enumValues.find((v: unknown) => String(v) === strValue);
     props.onChange(originalValue !== undefined ? originalValue : strValue);
   };
 

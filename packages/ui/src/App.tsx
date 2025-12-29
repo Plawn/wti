@@ -1,4 +1,4 @@
-import type { RequestValues, SpecInput } from '@wti/core';
+import type { Operation, RequestValues, SpecInput } from '@wti/core';
 import { Show, createEffect, createSignal, onMount } from 'solid-js';
 import './styles/global.css';
 import { HistoryDrawer } from './components/History';
@@ -140,7 +140,7 @@ export function WTI(props: WTIProps) {
           onReplay={(entry) => {
             // Find the operation by ID and select it
             const operation = store.state.spec?.operations.find(
-              (op) => op.id === entry.operationId,
+              (op: Operation) => op.id === entry.operationId,
             );
             if (operation) {
               // Set replay values before selecting operation
