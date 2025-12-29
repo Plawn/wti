@@ -1,4 +1,4 @@
-import { type Component, type JSX, Show, createEffect, onCleanup } from 'solid-js';
+import { type Component, type JSX, Show, createEffect, onCleanup, onMount } from 'solid-js';
 
 export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
@@ -49,7 +49,8 @@ export const Modal: Component<ModalProps> = (props) => {
   });
 
   // Handle native dialog close event (e.g., Escape key)
-  createEffect(() => {
+  // Using onMount since this only needs to run once and has no reactive dependencies
+  onMount(() => {
     if (!dialogRef) return;
 
     const handleClose = () => {

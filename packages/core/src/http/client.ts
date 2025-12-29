@@ -103,21 +103,53 @@ export async function executeRequest(
 
 /**
  * Build URL with query parameters
+ * Works in both browser and non-browser environments (Node.js, SSR, etc.)
  */
 function buildUrl(baseUrl: string, params?: Record<string, string>): string {
   if (!params || Object.keys(params).length === 0) {
     return baseUrl;
   }
 
-  const url = new URL(baseUrl, window.location.origin);
+  // Check if URL is absolute (has protocol)
+  const isAbsolute = /^https?:\/\//i.test(baseUrl);
 
-  for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined && value !== null && value !== '') {
-      url.searchParams.append(key, value);
+  // For absolute URLs, we can use URL constructor directly
+  if (isAbsolute) {
+    const url = new URL(baseUrl);
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined && value !== null && value !== '') {
+        url.searchParams.append(key, value);
+      }
     }
+    return url.toString();
   }
 
-  return url.toString();
+  // For relative URLs in browser, use window.location.origin as base
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    const url = new URL(baseUrl, window.location.origin);
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined && value !== null && value !== '') {
+        url.searchParams.append(key, value);
+      }
+    }
+    return url.toString();
+  }
+
+  // For relative URLs in non-browser environments, manually append query params
+  const filteredParams = Object.entries(params).filter(
+    ([, value]) => value !== undefined && value !== null && value !== '',
+  );
+
+  if (filteredParams.length === 0) {
+    return baseUrl;
+  }
+
+  const queryString = filteredParams
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+    .join('&');
+
+  const separator = baseUrl.includes('?') ? '&' : '?';
+  return `${baseUrl}${separator}${queryString}`;
 }
 
 /**

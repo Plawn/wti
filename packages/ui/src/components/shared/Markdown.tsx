@@ -26,6 +26,7 @@ export const Markdown: Component<MarkdownProps> = (props) => {
 
   return (
     <Show when={props.content}>
+      {/* innerHTML is the correct SolidJS pattern for sanitized HTML - content is sanitized via DOMPurify above */}
       <div
         class={`markdown-content prose prose-sm max-w-none
           prose-headings:text-gray-900 dark:prose-headings:text-white

@@ -35,10 +35,9 @@ export const SearchBar: Component<SearchBarProps> = (props) => {
 
   onMount(() => {
     window.addEventListener('keydown', handleKeyDown);
-  });
-
-  onCleanup(() => {
-    window.removeEventListener('keydown', handleKeyDown);
+    onCleanup(() => {
+      window.removeEventListener('keydown', handleKeyDown);
+    });
   });
 
   const handleClear = () => {
