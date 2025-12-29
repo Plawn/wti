@@ -7,44 +7,44 @@ interface OperationItemProps {
   onClick: () => void;
 }
 
-const methodStyles: Record<string, { background: string; boxShadow: string }> = {
+const methodConfig: Record<string, { bg: string; shadow: string }> = {
   get: {
-    background: 'linear-gradient(to right, #10b981, #059669)',
-    boxShadow: '0 2px 8px -2px rgba(16, 185, 129, 0.3)',
+    bg: 'bg-gradient-to-r from-emerald-500 to-emerald-600',
+    shadow: 'shadow-emerald-500/20',
   },
   post: {
-    background: 'linear-gradient(to right, #3b82f6, #2563eb)',
-    boxShadow: '0 2px 8px -2px rgba(59, 130, 246, 0.3)',
+    bg: 'bg-gradient-to-r from-blue-500 to-blue-600',
+    shadow: 'shadow-blue-500/20',
   },
   put: {
-    background: 'linear-gradient(to right, #f59e0b, #d97706)',
-    boxShadow: '0 2px 8px -2px rgba(245, 158, 11, 0.3)',
+    bg: 'bg-gradient-to-r from-amber-500 to-amber-600',
+    shadow: 'shadow-amber-500/20',
   },
   patch: {
-    background: 'linear-gradient(to right, #8b5cf6, #7c3aed)',
-    boxShadow: '0 2px 8px -2px rgba(139, 92, 246, 0.3)',
+    bg: 'bg-gradient-to-r from-violet-500 to-violet-600',
+    shadow: 'shadow-violet-500/20',
   },
   delete: {
-    background: 'linear-gradient(to right, #ef4444, #dc2626)',
-    boxShadow: '0 2px 8px -2px rgba(239, 68, 68, 0.3)',
+    bg: 'bg-gradient-to-r from-rose-500 to-rose-600',
+    shadow: 'shadow-rose-500/20',
   },
   head: {
-    background: 'linear-gradient(to right, #06b6d4, #0891b2)',
-    boxShadow: '0 2px 8px -2px rgba(6, 182, 212, 0.3)',
+    bg: 'bg-gradient-to-r from-cyan-500 to-cyan-600',
+    shadow: 'shadow-cyan-500/20',
   },
   options: {
-    background: 'linear-gradient(to right, #6b7280, #4b5563)',
-    boxShadow: '0 2px 8px -2px rgba(107, 114, 128, 0.3)',
+    bg: 'bg-gradient-to-r from-gray-500 to-gray-600',
+    shadow: 'shadow-gray-500/20',
   },
 };
 
-const defaultStyle = {
-  background: 'linear-gradient(to right, #6b7280, #4b5563)',
-  boxShadow: '0 2px 8px -2px rgba(107, 114, 128, 0.3)',
+const defaultConfig = {
+  bg: 'bg-gradient-to-r from-gray-500 to-gray-600',
+  shadow: 'shadow-gray-500/20',
 };
 
 export const OperationItem: Component<OperationItemProps> = (props) => {
-  const badgeStyle = () => methodStyles[props.operation.method] || defaultStyle;
+  const config = () => methodConfig[props.operation.method.toLowerCase()] || defaultConfig;
 
   const containerClasses = () => {
     const base =
@@ -64,8 +64,7 @@ export const OperationItem: Component<OperationItemProps> = (props) => {
       onClick={props.onClick}
     >
       <span
-        class="text-white text-[10px] font-bold uppercase px-2.5 py-1.5 rounded-lg flex-shrink-0"
-        style={badgeStyle()}
+        class={`${config().bg} text-white text-[10px] font-bold uppercase w-14 py-1.5 rounded-lg shadow-sm ${config().shadow} flex-shrink-0 text-center flex items-center justify-center`}
       >
         {props.operation.method}
       </span>

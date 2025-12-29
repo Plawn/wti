@@ -5,7 +5,7 @@ import solid from 'vite-plugin-solid';
 export default defineConfig({
   plugins: [solid()],
   server: {
-    port: 3000,
+    port: 5173,
   },
   resolve: {
     alias: {

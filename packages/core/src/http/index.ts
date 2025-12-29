@@ -10,3 +10,5 @@ export {
   getPreferredContentType,
 } from './builder';
 export type { RequestValues, BuildOptions } from './builder';
+
+export { generateCurlCommand } from './curl';

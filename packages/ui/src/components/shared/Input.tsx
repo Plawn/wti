@@ -99,27 +99,31 @@ export const Checkbox: Component<CheckboxProps> = (props) => {
     <label
       class={`inline-flex items-center gap-3 cursor-pointer ${props.disabled ? 'opacity-50 cursor-not-allowed' : ''} ${props.class ?? ''}`}
     >
-      <div class="relative">
+      <div
+        class={`w-5 h-5 rounded-md flex items-center justify-center transition-all duration-200 ${
+          props.checked
+            ? 'bg-blue-500 border-2 border-blue-500 shadow-sm'
+            : 'bg-gray-100 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600'
+        }`}
+      >
         <input
           type="checkbox"
           id={props.id}
           checked={props.checked}
           disabled={props.disabled}
           onChange={(e) => props.onChange(e.currentTarget.checked)}
-          class="sr-only peer"
+          class="sr-only"
         />
-        <div class="w-5 h-5 rounded-md glass-input peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-colors flex items-center justify-center">
-          <svg
-            class={`w-3 h-3 text-white transition-opacity ${props.checked ? 'opacity-100' : 'opacity-0'}`}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="3"
-            aria-hidden="true"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
+        <svg
+          class={`w-3 h-3 text-white transition-all duration-200 ${props.checked ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="3"
+          aria-hidden="true"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
       </div>
       {props.label && <span class="text-sm text-gray-700 dark:text-gray-300">{props.label}</span>}
     </label>

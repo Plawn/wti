@@ -20,7 +20,7 @@ export const Sidebar: Component<SidebarProps> = (props) => {
   return (
     <div class="flex flex-col h-screen">
       {/* Header */}
-      <header class="flex-shrink-0 px-5 py-5">
+      <header class="flex-shrink-0 px-6 py-6">
         <div class="flex items-center gap-3.5">
           <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
             <svg
@@ -53,7 +53,7 @@ export const Sidebar: Component<SidebarProps> = (props) => {
       <div class="mx-5 divider-glass" />
 
       {/* Controls */}
-      <div class="flex-shrink-0 px-5 py-4 space-y-4">
+      <div class="flex-shrink-0 px-6 py-5 space-y-5">
         <ServerSelector
           servers={spec().servers}
           selectedUrl={props.store.state.selectedServer?.url || null}
@@ -66,13 +66,15 @@ export const Sidebar: Component<SidebarProps> = (props) => {
       </div>
 
       {/* Divider */}
-      <div class="mx-5 divider-glass" />
+      <div class="mx-6 divider-glass" />
 
       {/* Auth Panel */}
-      <AuthPanel authStore={props.authStore} securitySchemes={spec().securitySchemes} />
+      <div class="px-1">
+        <AuthPanel authStore={props.authStore} securitySchemes={spec().securitySchemes} />
+      </div>
 
       {/* Divider */}
-      <div class="mx-5 divider-glass" />
+      <div class="mx-6 divider-glass" />
 
       {/* Operations list */}
       <div class="flex-1 overflow-hidden">

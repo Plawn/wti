@@ -1,4 +1,5 @@
 import { type Component, Show, createSignal } from 'solid-js';
+import { parse as parseYaml } from 'yaml';
 import { useI18n } from '../i18n';
 import type { SpecStore } from '../stores';
 import { Button, Input } from './shared';
@@ -53,17 +54,20 @@ export const SpecLoader: Component<SpecLoaderProps> = (props) => {
 
     try {
       const content = await file.text();
+      const trimmed = content.trim();
       let spec: unknown;
 
-      // Try to parse as JSON first, then as YAML
-      try {
-        spec = JSON.parse(content);
-      } catch {
-        // If JSON fails, we'd need a YAML parser
-        // For now, only JSON is supported
-        setError(t('specLoader.jsonOnly'));
-        setIsLoading(false);
-        return;
+      // Try JSON first if it looks like JSON
+      if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+        try {
+          spec = JSON.parse(content);
+        } catch {
+          // Fall through to YAML
+          spec = parseYaml(content);
+        }
+      } else {
+        // Parse as YAML (also handles JSON)
+        spec = parseYaml(content);
       }
 
       await props.store.actions.loadSpec({ type: 'openapi', spec });
@@ -224,15 +228,15 @@ export const SpecLoader: Component<SpecLoaderProps> = (props) => {
                   <p class="text-base font-medium text-gray-700 dark:text-gray-200">
                     <span class="text-blue-600 dark:text-blue-400 font-bold hover:underline">
                       {t('specLoader.clickToUpload')}
-                    </span>
-                    {' '}{t('specLoader.orDragDrop')}
+                    </span>{' '}
+                    {t('specLoader.orDragDrop')}
                   </p>
                   <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
                     {t('specLoader.supportedFormats')}
                   </p>
                 </div>
               </div>
-              
+
               {/* Background accent for glass effect */}
               <div class="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 dark:to-transparent pointer-events-none" />
             </div>

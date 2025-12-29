@@ -21,14 +21,14 @@ const defaultConfig = { bg: 'from-gray-500 to-slate-600', glow: 'shadow-gray-500
 
 export const OperationHeader: Component<OperationHeaderProps> = (props) => {
   const { t } = useI18n();
-  const config = () => methodConfig[props.operation.method] || defaultConfig;
+  const config = () => methodConfig[props.operation.method.toLowerCase()] || defaultConfig;
 
   return (
-    <div class="mb-10">
+    <div class="mb-16">
       {/* Method and Path */}
-      <div class="flex items-start gap-4 mb-5">
+      <div class="flex items-start gap-4 mb-8">
         <span
-          class={`bg-gradient-to-r ${config().bg} text-white text-sm font-bold uppercase px-5 py-2.5 rounded-2xl shadow-lg ${config().glow}`}
+          class={`bg-gradient-to-r ${config().bg} text-white text-sm font-bold uppercase min-w-[80px] py-2.5 rounded-2xl shadow-lg ${config().glow} flex items-center justify-center`}
         >
           {props.operation.method}
         </span>

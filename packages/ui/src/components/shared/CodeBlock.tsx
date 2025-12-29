@@ -1,4 +1,6 @@
+import DOMPurify from 'dompurify';
 import Prism from 'prismjs';
+import 'prismjs/components/prism-bash';
 import 'prismjs/components/prism-json';
 import { type Component, Show, createMemo, createSignal } from 'solid-js';
 import { useI18n } from '../../i18n';
@@ -7,6 +9,7 @@ export interface CodeBlockProps {
   code: string;
   language?: string;
   maxHeight?: string;
+  wrap?: boolean;
 }
 
 export const CodeBlock: Component<CodeBlockProps> = (props) => {
@@ -28,7 +31,11 @@ export const CodeBlock: Component<CodeBlockProps> = (props) => {
       return escapeHtml(code);
     }
 
-    return Prism.highlight(code, grammar, lang);
+    // Sanitize Prism output for defense-in-depth (allow span tags for highlighting)
+    return DOMPurify.sanitize(Prism.highlight(code, grammar, lang), {
+      ALLOWED_TAGS: ['span'],
+      ALLOWED_ATTR: ['class'],
+    });
   });
 
   const handleCopy = async () => {
@@ -43,7 +50,7 @@ export const CodeBlock: Component<CodeBlockProps> = (props) => {
       <button
         type="button"
         onClick={handleCopy}
-        class="absolute top-3 right-3 z-10 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 bg-gray-100/80 dark:bg-gray-800/80 hover:bg-gray-200/80 dark:hover:bg-gray-700/80 backdrop-blur-sm rounded-lg transition-all opacity-0 group-hover:opacity-100"
+        class="absolute top-3 right-3 z-10 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 bg-gray-100/80 dark:bg-gray-800/80 hover:bg-gray-200/80 dark:hover:bg-gray-700/80 backdrop-blur-sm rounded-lg transition-all"
       >
         <Show
           when={copied()}
@@ -90,7 +97,7 @@ export const CodeBlock: Component<CodeBlockProps> = (props) => {
 
       {/* Code container with syntax highlighting */}
       <pre
-        class="p-6 pt-10 text-sm font-mono overflow-auto scrollbar-thin bg-gray-50 dark:bg-gray-900/50"
+        class={`p-6 pt-10 text-sm font-mono overflow-auto scrollbar-thin bg-gray-50 dark:bg-gray-900/50 ${props.wrap ? 'whitespace-pre-wrap break-all' : ''}`}
         style={{ 'max-height': maxHeight() }}
       >
         <code ref={codeRef} class={`language-${language()}`} innerHTML={highlightedCode()} />

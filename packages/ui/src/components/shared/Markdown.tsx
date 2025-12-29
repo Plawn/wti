@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify';
 import { marked } from 'marked';
 import { type Component, Show, createMemo } from 'solid-js';
 
@@ -16,9 +17,10 @@ export const Markdown: Component<MarkdownProps> = (props) => {
   const html = createMemo(() => {
     if (!props.content) return '';
     try {
-      return marked.parse(props.content, { async: false }) as string;
+      const rawHtml = marked.parse(props.content, { async: false }) as string;
+      return DOMPurify.sanitize(rawHtml);
     } catch {
-      return props.content;
+      return DOMPurify.sanitize(props.content);
     }
   });
 

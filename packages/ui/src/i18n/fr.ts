@@ -88,6 +88,7 @@ export const fr: Translations = {
   codegen: {
     title: 'Extraits de code',
     curl: 'cURL',
+    curlPreview: 'Aperçu cURL',
     javascript: 'JavaScript',
     python: 'Python',
     go: 'Go',
@@ -111,11 +112,11 @@ export const fr: Translations = {
     or: 'ou',
     clickToUpload: 'Cliquez pour importer',
     orDragDrop: 'ou glissez-deposez',
-    supportedFormats: 'Fichiers JSON uniquement (.json)',
+    supportedFormats: 'Fichiers JSON ou YAML (.json, .yaml, .yml)',
     urlRequired: 'Veuillez entrer une URL',
     loadFailed: 'Echec du chargement de la specification',
-    invalidFileType: 'Type de fichier invalide. Veuillez importer un fichier JSON.',
-    jsonOnly: 'Seuls les fichiers JSON sont pris en charge',
+    invalidFileType: 'Type de fichier invalide. Veuillez importer un fichier JSON ou YAML.',
+    jsonOnly: 'Seuls les fichiers JSON et YAML sont pris en charge',
     tryExample: 'Essayez un exemple:',
   },
 };

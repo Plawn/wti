@@ -152,6 +152,10 @@ function applyAuth(
         headers[auth.name] = auth.value;
       } else if (auth.in === 'query') {
         params[auth.name] = auth.value;
+      } else if (auth.in === 'cookie') {
+        // Add to Cookie header (append if existing)
+        const cookieValue = `${auth.name}=${auth.value}`;
+        headers.Cookie = headers.Cookie ? `${headers.Cookie}; ${cookieValue}` : cookieValue;
       }
       break;
 

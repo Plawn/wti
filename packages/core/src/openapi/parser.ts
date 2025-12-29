@@ -3,6 +3,7 @@
  * Parses and validates OpenAPI 3.0/3.1 specifications
  */
 import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
+import { parse as parseYaml } from 'yaml';
 import type { ApiSpec, OpenApiInput } from '../types';
 import { convertOpenApiToSpec } from './converter';
 
@@ -28,6 +29,25 @@ export interface ParseResult {
 }
 
 /**
+ * Parse content as JSON or YAML
+ */
+function parseContent(text: string): object {
+  const trimmed = text.trim();
+
+  // Try JSON first if it looks like JSON
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    try {
+      return JSON.parse(text);
+    } catch {
+      // Fall through to YAML
+    }
+  }
+
+  // Parse as YAML (also handles JSON)
+  return parseYaml(text) as object;
+}
+
+/**
  * Fetch a spec from a URL using browser's fetch API
  */
 async function fetchSpec(url: string): Promise<object> {
@@ -35,20 +55,8 @@ async function fetchSpec(url: string): Promise<object> {
   if (!response.ok) {
     throw new Error(`Failed to fetch spec: ${response.status} ${response.statusText}`);
   }
-  const contentType = response.headers.get('content-type') || '';
   const text = await response.text();
-
-  // Try JSON first
-  if (contentType.includes('json') || text.trim().startsWith('{')) {
-    return JSON.parse(text);
-  }
-
-  // For YAML, we'd need a YAML parser - for now just try JSON
-  try {
-    return JSON.parse(text);
-  } catch {
-    throw new Error('YAML specs are not yet supported. Please use JSON format.');
-  }
+  return parseContent(text);
 }
 
 /**
@@ -178,14 +186,6 @@ export async function parseOpenApiFromString(
   content: string,
   options: ParseOptions = {},
 ): Promise<ParseResult> {
-  // Try to parse as JSON first, then YAML
-  let spec: unknown;
-  try {
-    spec = JSON.parse(content);
-  } catch {
-    // If JSON parsing fails, the library will handle YAML
-    spec = content;
-  }
-
+  const spec = parseContent(content);
   return parseOpenApi({ type: 'openapi', spec }, options);
 }

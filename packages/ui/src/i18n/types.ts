@@ -85,6 +85,7 @@ export interface Translations {
   codegen: {
     title: string;
     curl: string;
+    curlPreview: string;
     javascript: string;
     python: string;
     go: string;

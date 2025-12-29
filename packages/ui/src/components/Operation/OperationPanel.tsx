@@ -4,18 +4,11 @@ import {
   type ResponseData,
   buildRequestConfig,
   executeRequest,
+  generateCurlCommand,
   getDefaultValues,
   getPreferredContentType,
 } from '@wti/core';
-import {
-  type Component,
-  For,
-  type JSX,
-  Show,
-  createEffect,
-  createMemo,
-  createSignal,
-} from 'solid-js';
+import { type Component, For, type JSX, Show, createMemo, createSignal } from 'solid-js';
 import { useI18n } from '../../i18n';
 import type { AuthStore } from '../../stores';
 import {
@@ -24,8 +17,10 @@ import {
   CodeBlock,
   Input,
   JsonSchemaForm,
+  JsonViewer,
   Markdown,
   Select,
+  Tabs,
   Textarea,
 } from '../shared';
 import { OperationHeader } from './OperationHeader';
@@ -39,13 +34,13 @@ interface OperationPanelProps {
 
 export const OperationPanel: Component<OperationPanelProps> = (props) => {
   const { t } = useI18n();
-  console.log('yay');
+
   // Form state
   const [pathParams, setPathParams] = createSignal<Record<string, string>>({});
   const [queryParams, setQueryParams] = createSignal<Record<string, string>>({});
   const [headerParams, setHeaderParams] = createSignal<Record<string, string>>({});
   const [body, setBody] = createSignal<string>('');
-  const [bodyMode, setBodyMode] = createSignal<'json' | 'form'>('json');
+  const [bodyMode, setBodyMode] = createSignal<'json' | 'form'>('form');
   const [bodyFormData, setBodyFormData] = createSignal<Record<string, unknown>>({});
 
   // Response state
@@ -53,6 +48,24 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
   const [response, setResponse] = createSignal<ResponseData | null>(null);
   const [error, setError] = createSignal<string | null>(null);
   const [copied, setCopied] = createSignal(false);
+  const [showCurlPreview, setShowCurlPreview] = createSignal(true);
+
+  // Helper to get body data based on current mode
+  const getBodyData = (): unknown => {
+    if (bodyMode() === 'form') {
+      return bodyFormData();
+    }
+    return body() ? JSON.parse(body()) : undefined;
+  };
+
+  // Helper to build request values from current form state
+  const getRequestValues = (): RequestValues => ({
+    path: pathParams(),
+    query: queryParams(),
+    headers: headerParams(),
+    body: getBodyData(),
+    contentType: contentType(),
+  });
 
   const copyResponse = async (res: ResponseData) => {
     const text = typeof res.body === 'object' ? JSON.stringify(res.body, null, 2) : res.bodyText;
@@ -80,6 +93,18 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
 
   const contentType = createMemo(() => getPreferredContentType(props.operation));
 
+  // Generate curl command preview reactively
+  const curlCommand = createMemo(() => {
+    try {
+      const config = buildRequestConfig(props.operation, getRequestValues(), {
+        server: props.server,
+      });
+      return generateCurlCommand(config);
+    } catch {
+      return '# Invalid request configuration';
+    }
+  });
+
   // Get request body schema
   const bodySchema = createMemo(() => {
     const ct = contentType();
@@ -89,28 +114,9 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
     return props.operation.requestBody.content[ct].schema;
   });
 
-  createEffect(() => {
-    console.log(
-      'bodySchema:',
-      bodySchema(),
-      'hasRequestBody:',
-      hasRequestBody(),
-      'contentType:',
-      contentType(),
-    );
-  });
-
   // Check if schema is suitable for form mode (has a schema with properties or is an array)
   const canUseFormMode = createMemo(() => {
     const schema = bodySchema();
-    console.log(
-      'bodySchema:',
-      schema,
-      'hasRequestBody:',
-      hasRequestBody(),
-      'contentType:',
-      contentType(),
-    );
     if (!schema) {
       return false;
     }
@@ -184,26 +190,8 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
     setResponse(null);
 
     try {
-      // Get body based on current mode
-      let bodyData: unknown;
-      if (bodyMode() === 'form') {
-        bodyData = bodyFormData();
-      } else {
-        bodyData = body() ? JSON.parse(body()) : undefined;
-      }
-
-      const values: RequestValues = {
-        path: pathParams(),
-        query: queryParams(),
-        headers: headerParams(),
-        body: bodyData,
-        contentType: contentType(),
-      };
-
-      // Get auth with auto-refresh for OpenID tokens
       const auth = await props.authStore?.actions.getActiveAuthWithAutoRefresh();
-
-      const config = buildRequestConfig(props.operation, values, {
+      const config = buildRequestConfig(props.operation, getRequestValues(), {
         server: props.server,
         auth,
       });
@@ -232,13 +220,13 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
   };
 
   return (
-    <div class="p-8 max-w-4xl mx-auto">
+    <div class="p-12 max-w-5xl mx-auto">
       <OperationHeader operation={props.operation} />
 
       {/* Parameters Section */}
       <Show when={props.operation.parameters.length > 0}>
         <Section title={t('operations.parameters')}>
-          <div class="space-y-5">
+          <div class="space-y-4">
             <For each={paramsByLocation().path}>
               {(param) => (
                 <ParameterInput
@@ -275,7 +263,7 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
         <Section title={t('operations.requestBody')}>
           {/* Mode Toggle */}
           <Show when={canUseFormMode()}>
-            <div class="flex gap-1 mb-4 p-1 glass-input rounded-xl w-fit">
+            <div class="flex gap-1 mb-6 p-1 glass-input rounded-xl w-fit">
               <button
                 type="button"
                 onClick={switchToJsonMode}
@@ -304,7 +292,7 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
           {/* JSON Editor */}
           <Show when={bodyMode() === 'json'}>
             <div class="relative">
-              <Textarea value={body()} onInput={setBody} placeholder="{}" class="h-56 font-mono" />
+              <Textarea value={body()} onInput={setBody} placeholder="{}" class="h-64 font-mono" />
               <div class="absolute top-3 right-3">
                 <span class="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
                   JSON
@@ -333,12 +321,37 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
         </Section>
       </Show>
 
-      {/* Send Button */}
-      <div class="mt-10">
-        <Button onClick={handleSend} loading={loading()} class="px-7 py-3">
+      {/* cURL Preview Section */}
+      <div class="mt-12">
+        <button
+          type="button"
+          onClick={() => setShowCurlPreview(!showCurlPreview())}
+          class="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+        >
+          <svg
+            class={`w-4 h-4 transition-transform ${showCurlPreview() ? 'rotate-90' : ''}`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+          {t('codegen.curlPreview')}
+        </button>
+        <Show when={showCurlPreview()}>
+          <div class="mt-4">
+            <CodeBlock code={curlCommand()} language="bash" wrap />
+          </div>
+        </Show>
+      </div>
+
+      {/* Actions */}
+      <div class="mt-24">
+        <Button onClick={handleSend} loading={loading()} class="px-8 py-3.5 text-base">
           {t('common.send')}
           <svg
-            class="w-[18px] h-[18px]"
+            class="w-5 h-5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -356,11 +369,11 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
 
       {/* Error Display */}
       <Show when={error()}>
-        <div class="mt-10 p-6 glass-card rounded-2xl border-red-200/30 dark:border-red-800/20">
-          <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-red-500/15 dark:bg-red-500/20 flex items-center justify-center">
+        <div class="mt-24 p-8 glass-card rounded-2xl border-red-200/30 dark:border-red-800/20 shadow-xl shadow-red-500/5">
+          <div class="flex items-start gap-5">
+            <div class="flex-shrink-0 w-12 h-12 rounded-2xl bg-red-500/15 dark:bg-red-500/20 flex items-center justify-center">
               <svg
-                class="w-5 h-5 text-red-600 dark:text-red-400"
+                class="w-6 h-6 text-red-600 dark:text-red-400"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -375,8 +388,8 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
               </svg>
             </div>
             <div>
-              <h4 class="font-semibold text-red-800 dark:text-red-200">Request Failed</h4>
-              <p class="text-sm text-red-600 dark:text-red-400 mt-1.5">{error()}</p>
+              <h4 class="text-lg font-bold text-red-800 dark:text-red-200">Request Failed</h4>
+              <p class="text-base text-red-600 dark:text-red-400 mt-2 leading-relaxed">{error()}</p>
             </div>
           </div>
         </div>
@@ -386,22 +399,43 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
       <Show when={response()} keyed>
         {(res) => {
           const statusConfig = getStatusConfig(res.status);
+          const isJsonResponse = typeof res.body === 'object' && res.body !== null;
+          const tabItems = [
+            {
+              id: 'body',
+              label: 'Response Body',
+              content: (
+                <div class="glass-card rounded-2xl overflow-hidden mt-2">
+                  {isJsonResponse ? (
+                    <JsonViewer data={res.body} initialExpandDepth={3} />
+                  ) : (
+                    <CodeBlock code={res.bodyText} language="json" />
+                  )}
+                </div>
+              ),
+            },
+            {
+              id: 'headers',
+              label: 'Headers',
+              badge: Object.keys(res.headers).length,
+              content: (
+                <div class="mt-2">
+                  <ResponseHeaders headers={res.headers} />
+                </div>
+              ),
+            },
+          ];
+
           return (
-            <div class="mt-10 glass-card rounded-2xl overflow-hidden">
-              {/* Response header */}
-              <div class="flex items-center justify-between px-6 py-4 border-b border-white/10 dark:border-white/5">
-                <div class="flex items-center gap-3">
+            <div class="mt-32 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center gap-4">
                   <span
-                    class={`px-3.5 py-1.5 rounded-xl text-sm font-bold ${statusConfig.bg} ${statusConfig.text}`}
+                    class={`px-4 py-2 rounded-2xl text-base font-bold shadow-sm ${statusConfig.bg} ${statusConfig.text}`}
                   >
                     {res.status} {res.statusText}
                   </span>
-                  <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">
-                    {res.headers['content-type']}
-                  </span>
-                </div>
-                <div class="flex items-center gap-4">
-                  <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 font-medium">
+                  <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-100/50 dark:bg-white/5 px-3 py-1.5 rounded-xl">
                     <svg
                       class="w-4 h-4"
                       fill="none"
@@ -418,61 +452,50 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
                     </svg>
                     {Math.round(res.timing.duration)}ms
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => copyResponse(res)}
-                    class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white bg-gray-100/50 dark:bg-white/5 hover:bg-gray-200/50 dark:hover:bg-white/10 rounded-lg transition-colors"
-                  >
-                    <Show
-                      when={copied()}
-                      fallback={
-                        <>
-                          <svg
-                            class="w-3.5 h-3.5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            aria-hidden="true"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                            />
-                          </svg>
-                          {t('common.copy')}
-                        </>
-                      }
-                    >
-                      <svg
-                        class="w-3.5 h-3.5 text-emerald-500"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        aria-hidden="true"
-                      >
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span class="text-emerald-600 dark:text-emerald-400">
-                        {t('common.copied')}
-                      </span>
-                    </Show>
-                  </button>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => copyResponse(res)}
+                  class="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white bg-gray-100/80 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 rounded-xl transition-all shadow-sm"
+                >
+                  <Show
+                    when={copied()}
+                    fallback={
+                      <>
+                        <svg
+                          class="w-4 h-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          aria-hidden="true"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                          />
+                        </svg>
+                        {t('common.copy')}
+                      </>
+                    }
+                  >
+                    <svg
+                      class="w-4 h-4 text-emerald-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      aria-hidden="true"
+                    >
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span class="text-emerald-600 dark:text-emerald-400">{t('common.copied')}</span>
+                  </Show>
+                </button>
               </div>
-              {/* Response headers */}
-              <div class="px-6 pt-4">
-                <ResponseHeaders headers={res.headers} />
-              </div>
-              {/* Response body */}
-              <CodeBlock
-                code={
-                  typeof res.body === 'object' ? JSON.stringify(res.body, null, 2) : res.bodyText
-                }
-                language="json"
-              />
+
+              <Tabs items={tabItems} />
             </div>
           );
         }}
@@ -484,9 +507,11 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
 // Section component for consistent styling
 const Section: Component<{ title: string; children: JSX.Element }> = (props) => {
   return (
-    <div class="mt-10">
-      <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-4">{props.title}</h3>
-      {props.children}
+    <div class="mt-24 first:mt-12">
+      <h3 class="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-10 px-4">
+        {props.title}
+      </h3>
+      <div class="space-y-6">{props.children}</div>
     </div>
   );
 };
@@ -654,40 +679,61 @@ const ParameterInput: Component<ParameterInputProps> = (props) => {
   });
 
   return (
-    <div class="flex flex-col sm:flex-row sm:items-start gap-3">
-      <div class="flex-1 min-w-0">
+    <div class="flex flex-col sm:flex-row sm:items-start gap-8 p-4 rounded-2xl hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+      <div class="sm:w-1/3 min-w-0">
         <div class="flex items-center gap-2 mb-1">
-          <span class="font-mono text-sm font-medium text-gray-900 dark:text-white">
+          <span class="font-mono text-sm font-medium text-gray-900 dark:text-white break-all">
             {props.param.name}
           </span>
           <Show when={props.param.required}>
-            <span class="text-rose-500 text-xs font-semibold">required</span>
+            <span class="text-rose-500 text-xs font-semibold px-1.5 py-0.5 rounded bg-rose-50 dark:bg-rose-900/20">
+              req
+            </span>
           </Show>
         </div>
-        <div class="flex items-center gap-2 text-xs">
-          <span class={`font-medium ${config().color}`}>{config().label}</span>
-          <span class="text-gray-400 dark:text-gray-500">{schemaType()}</span>
+        <div class="flex items-center gap-2 text-xs mb-2">
+          <span
+            class={`font-medium px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 ${config().color}`}
+          >
+            {config().label}
+          </span>
+          <span class="text-gray-500 dark:text-gray-400 font-mono">{schemaType()}</span>
           <Show when={hasEnum()}>
-            <span class="text-gray-400 dark:text-gray-500">(enum)</span>
-          </Show>
-          <Show when={constraintsHint()}>
-            <span class="text-gray-400 dark:text-gray-500">[{constraintsHint()}]</span>
+            <span class="text-gray-400 dark:text-gray-500 italic">enum</span>
           </Show>
         </div>
         <Show when={props.param.description}>
           <Markdown
             content={props.param.description}
-            class="text-xs mt-1.5 [&_p]:text-gray-400 dark:[&_p]:text-gray-500 [&_p]:my-0"
+            class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed"
           />
         </Show>
+        <Show when={constraintsHint()}>
+          <div class="mt-2 text-[10px] font-mono text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800/50 px-2 py-1 rounded w-fit">
+            {constraintsHint()}
+          </div>
+        </Show>
       </div>
-      <div class="sm:w-64">
+      <div class="flex-1 w-full sm:w-auto">
         {renderInput()}
         <Show when={hasErrors()}>
-          <div class="mt-1.5">
-            <For each={validationErrors()}>
-              {(error) => <p class="text-xs text-rose-500 dark:text-rose-400">{error}</p>}
-            </For>
+          <div class="mt-2 flex items-start gap-1.5 text-rose-500 dark:text-rose-400">
+            <svg
+              class="w-3.5 h-3.5 mt-0.5 flex-shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+            <div class="text-xs space-y-0.5">
+              <For each={validationErrors()}>{(error) => <p>{error}</p>}</For>
+            </div>
           </div>
         </Show>
       </div>

@@ -172,9 +172,9 @@ async function refreshOpenIdTokens(
 
 export interface AuthStoreState {
   /**
-   * Map of auth scheme name to auth config
+   * Map of auth scheme name to auth config (undefined when cleared)
    */
-  configs: Record<string, AuthConfig>;
+  configs: Record<string, AuthConfig | undefined>;
   /**
    * Currently active auth scheme name
    */
@@ -333,7 +333,7 @@ export function createAuthStore() {
      * Clear OpenID Connect authentication
      */
     clearOpenIdAuth() {
-      setState('configs', 'openid', undefined as unknown as AuthConfig);
+      setState('configs', 'openid', undefined);
       if (state.activeScheme === 'openid') {
         setState('activeScheme', null);
       }
@@ -345,7 +345,7 @@ export function createAuthStore() {
      */
     clearAuth(schemeName?: string) {
       if (schemeName) {
-        setState('configs', schemeName, undefined as unknown as AuthConfig);
+        setState('configs', schemeName, undefined);
         if (state.activeScheme === schemeName) {
           setState('activeScheme', null);
         }
@@ -532,7 +532,10 @@ export function createAuthStore() {
       // Retrieve PKCE state
       const pkceState = retrievePkceState();
       if (!pkceState) {
-        return { success: false, error: 'Missing PKCE state - authorization flow may have expired' };
+        return {
+          success: false,
+          error: 'Missing PKCE state - authorization flow may have expired',
+        };
       }
 
       // Verify state parameter
@@ -589,7 +592,10 @@ export function createAuthStore() {
 
         return { success: true };
       } catch (err) {
-        return { success: false, error: err instanceof Error ? err.message : 'Token exchange failed' };
+        return {
+          success: false,
+          error: err instanceof Error ? err.message : 'Token exchange failed',
+        };
       }
     },
 

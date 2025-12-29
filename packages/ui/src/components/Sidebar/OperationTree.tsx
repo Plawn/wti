@@ -93,7 +93,7 @@ export const OperationTree: Component<OperationTreeProps> = (props) => {
           </div>
         }
       >
-        <div class="space-y-3">
+        <div class="space-y-5">
           <For each={tagGroups()}>
             {(group) => (
               <TagGroupComponent
@@ -140,7 +140,7 @@ const TagGroupComponent: Component<TagGroupComponentProps> = (props) => {
         </span>
       </button>
       <Show when={props.expanded}>
-        <div class="mt-2 ml-3 pl-4 border-l border-gray-200/50 dark:border-gray-700/30 space-y-1.5">
+        <div class="mt-3 ml-3 pl-4 border-l border-gray-200/50 dark:border-gray-700/30 space-y-3">
           <For each={props.group.operations}>
             {(operation) => (
               <OperationItem

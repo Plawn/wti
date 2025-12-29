@@ -492,15 +492,24 @@ const OpenIdForm: Component<OpenIdFormProps> = (props) => {
     const remainingMinutes = Math.floor(remainingMs / 60000);
 
     if (remainingMinutes < 5) {
-      return { status: 'expiring', text: t('auth.tokenExpiringSoon').replace('{minutes}', String(remainingMinutes)) };
+      return {
+        status: 'expiring',
+        text: t('auth.tokenExpiringSoon').replace('{minutes}', String(remainingMinutes)),
+      };
     }
 
     if (remainingMinutes < 60) {
-      return { status: 'valid', text: t('auth.tokenExpiresIn').replace('{minutes}', String(remainingMinutes)) };
+      return {
+        status: 'valid',
+        text: t('auth.tokenExpiresIn').replace('{minutes}', String(remainingMinutes)),
+      };
     }
 
     const remainingHours = Math.floor(remainingMinutes / 60);
-    return { status: 'valid', text: t('auth.tokenExpiresInHours').replace('{hours}', String(remainingHours)) };
+    return {
+      status: 'valid',
+      text: t('auth.tokenExpiresInHours').replace('{hours}', String(remainingHours)),
+    };
   };
 
   const handleLogin = async () => {
@@ -626,11 +635,7 @@ const OpenIdForm: Component<OpenIdFormProps> = (props) => {
           </div>
         </Show>
 
-        <Button
-          onClick={handleLogin}
-          class="w-full py-2 text-sm"
-          disabled={isLoggingIn()}
-        >
+        <Button onClick={handleLogin} class="w-full py-2 text-sm" disabled={isLoggingIn()}>
           {isLoggingIn() ? t('auth.loggingIn') : t('auth.loginWithOpenId')}
         </Button>
       </Show>
@@ -697,11 +702,7 @@ const OpenIdForm: Component<OpenIdFormProps> = (props) => {
               {isRefreshing() ? t('auth.refreshing') : t('auth.refreshNow')}
             </Button>
           </Show>
-          <Button
-            onClick={handleLogout}
-            variant="secondary"
-            class="flex-1 py-2 text-sm"
-          >
+          <Button onClick={handleLogout} variant="secondary" class="flex-1 py-2 text-sm">
             {t('auth.logout')}
           </Button>
         </div>
