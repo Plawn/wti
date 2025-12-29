@@ -8,6 +8,7 @@ import { ServerSelector } from './ServerSelector';
 interface SidebarProps {
   store: SpecStore;
   authStore: AuthStore;
+  onOpenHistory?: () => void;
 }
 
 export const Sidebar: Component<SidebarProps> = (props) => {
@@ -46,6 +47,28 @@ export const Sidebar: Component<SidebarProps> = (props) => {
               v{spec().info.version}
             </span>
           </div>
+          {/* History button */}
+          <button
+            type="button"
+            onClick={() => props.onOpenHistory?.()}
+            class="w-9 h-9 rounded-xl glass-button flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+            title="Request History"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </button>
         </div>
       </header>
 

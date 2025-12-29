@@ -36,6 +36,10 @@ const methodConfig: Record<string, { bg: string; shadow: string }> = {
     bg: 'bg-gradient-to-r from-gray-500 to-gray-600',
     shadow: 'shadow-gray-500/20',
   },
+  grpc: {
+    bg: 'bg-gradient-to-r from-indigo-500 to-purple-600',
+    shadow: 'shadow-indigo-500/20',
+  },
 };
 
 const defaultConfig = {

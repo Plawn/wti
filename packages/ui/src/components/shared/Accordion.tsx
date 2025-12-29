@@ -77,7 +77,7 @@ export const Accordion: Component<AccordionProps> = (props) => {
             <Show when={isOpen(item.id)}>
               <div
                 id={`accordion-content-${item.id}`}
-                class="px-5 pb-4 border-t border-white/10 dark:border-white/5 animate-in fade-in slide-in-from-top-2 duration-200"
+                class="px-5 pb-4 border-t border-gray-200 dark:border-white/5 animate-in fade-in slide-in-from-top-2 duration-200"
               >
                 <div class="pt-4">{item.content}</div>
               </div>
@@ -134,7 +134,7 @@ export const AccordionPanel: Component<AccordionSingleProps> = (props) => {
       </button>
 
       <Show when={open()}>
-        <div class="px-5 pb-4 border-t border-white/10 dark:border-white/5 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div class="px-5 pb-4 border-t border-gray-200 dark:border-white/5 animate-in fade-in slide-in-from-top-2 duration-200">
           <div class="pt-4">{props.children}</div>
         </div>
       </Show>

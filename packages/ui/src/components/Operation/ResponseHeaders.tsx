@@ -54,7 +54,7 @@ export const ResponseHeaders: Component<ResponseHeadersProps> = (props) => {
 
         {/* Headers table */}
         <Show when={expanded()}>
-          <div class="border-t border-white/10 dark:border-white/5">
+          <div class="border-t border-gray-200 dark:border-white/5">
             <table class="w-full text-sm">
               <thead>
                 <tr class="bg-gray-50/50 dark:bg-white/[0.02]">

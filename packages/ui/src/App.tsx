@@ -1,12 +1,20 @@
-import type { SpecInput } from '@wti/core';
+import type { RequestValues, SpecInput } from '@wti/core';
 import { Show, createEffect, createSignal, onMount } from 'solid-js';
 import './styles/global.css';
+import { HistoryDrawer } from './components/History';
 import { OperationPanel } from './components/Operation';
 import { Sidebar } from './components/Sidebar';
 import { SpecLoader } from './components/SpecLoader';
 import type { Locale } from './i18n';
 import { I18nProvider } from './i18n';
-import { type AuthStore, type SpecStore, createAuthStore, createSpecStore } from './stores';
+import {
+  type AuthStore,
+  type HistoryStore,
+  type SpecStore,
+  createAuthStore,
+  createHistoryStore,
+  createSpecStore,
+} from './stores';
 
 export type Theme = 'light' | 'dark';
 
@@ -21,7 +29,10 @@ export interface WTIProps {
 export function WTI(props: WTIProps) {
   const store = createSpecStore();
   const authStore = createAuthStore();
+  const historyStore = createHistoryStore();
   const [oidcError, setOidcError] = createSignal<string | null>(null);
+  const [historyOpen, setHistoryOpen] = createSignal(false);
+  const [replayValues, setReplayValues] = createSignal<RequestValues | undefined>(undefined);
 
   const themeClass = () => (props.theme === 'dark' ? 'dark' : '');
   const locale = () => props.locale ?? 'en';
@@ -91,8 +102,34 @@ export function WTI(props: WTIProps) {
         </Show>
 
         <Show when={store.state.spec}>
-          <Layout store={store} authStore={authStore} />
+          <Layout
+            store={store}
+            authStore={authStore}
+            historyStore={historyStore}
+            onOpenHistory={() => setHistoryOpen(true)}
+            replayValues={replayValues()}
+            onReplayValuesConsumed={() => setReplayValues(undefined)}
+          />
         </Show>
+
+        {/* History Drawer */}
+        <HistoryDrawer
+          store={historyStore}
+          open={historyOpen()}
+          onClose={() => setHistoryOpen(false)}
+          onReplay={(entry) => {
+            // Find the operation by ID and select it
+            const operation = store.state.spec?.operations.find(
+              (op) => op.id === entry.operationId
+            );
+            if (operation) {
+              // Set replay values before selecting operation
+              setReplayValues(entry.requestValues);
+              store.actions.selectOperation(operation);
+              setHistoryOpen(false);
+            }
+          }}
+        />
 
         {/* Show spec loader when no spec is loaded */}
         <Show when={!store.state.spec && !store.state.loading && !store.state.error}>
@@ -160,6 +197,10 @@ function ErrorScreen(props: { error: string | null; onRetry?: () => void }) {
 interface LayoutProps {
   store: SpecStore;
   authStore: AuthStore;
+  historyStore: HistoryStore;
+  onOpenHistory: () => void;
+  replayValues?: RequestValues;
+  onReplayValuesConsumed?: () => void;
 }
 
 function Layout(props: LayoutProps) {
@@ -176,7 +217,11 @@ function Layout(props: LayoutProps) {
     <div class="flex min-h-screen">
       {/* iOS 26 Glass Sidebar */}
       <aside class="w-80 flex-shrink-0 glass-sidebar border-r border-white/20 dark:border-white/5">
-        <Sidebar store={props.store} authStore={props.authStore} />
+        <Sidebar
+          store={props.store}
+          authStore={props.authStore}
+          onOpenHistory={props.onOpenHistory}
+        />
       </aside>
 
       {/* Main content */}
@@ -187,6 +232,9 @@ function Layout(props: LayoutProps) {
               operation={data.operation}
               server={data.server}
               authStore={props.authStore}
+              historyStore={props.historyStore}
+              initialValues={props.replayValues}
+              onInitialValuesConsumed={props.onReplayValuesConsumed}
             />
           )}
         </Show>

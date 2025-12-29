@@ -10,6 +10,7 @@ export interface CodeBlockProps {
   language?: string;
   maxHeight?: string;
   wrap?: boolean;
+  hideCopyButton?: boolean;
 }
 
 export const CodeBlock: Component<CodeBlockProps> = (props) => {
@@ -47,46 +48,48 @@ export const CodeBlock: Component<CodeBlockProps> = (props) => {
   return (
     <div class="relative group rounded-xl overflow-hidden">
       {/* Copy button */}
-      <button
-        type="button"
-        onClick={handleCopy}
-        class="absolute top-3 right-3 z-10 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 bg-gray-100/80 dark:bg-gray-800/80 hover:bg-gray-200/80 dark:hover:bg-gray-700/80 backdrop-blur-sm rounded-lg transition-all"
-      >
-        <Show
-          when={copied()}
-          fallback={
-            <>
-              <svg
-                class="w-3.5 h-3.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"
-                aria-hidden="true"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                />
-              </svg>
-              {t('common.copy')}
-            </>
-          }
+      <Show when={!props.hideCopyButton}>
+        <button
+          type="button"
+          onClick={handleCopy}
+          class="absolute top-3 right-3 z-10 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 bg-gray-100/80 dark:bg-gray-800/80 hover:bg-gray-200/80 dark:hover:bg-gray-700/80 backdrop-blur-sm rounded-lg transition-all"
         >
-          <svg
-            class="w-3.5 h-3.5 text-emerald-500"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-            aria-hidden="true"
+          <Show
+            when={copied()}
+            fallback={
+              <>
+                <svg
+                  class="w-3.5 h-3.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                  />
+                </svg>
+                {t('common.copy')}
+              </>
+            }
           >
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-          <span class="text-emerald-600 dark:text-emerald-400">{t('common.copied')}</span>
-        </Show>
-      </button>
+            <svg
+              class="w-3.5 h-3.5 text-emerald-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            <span class="text-emerald-600 dark:text-emerald-400">{t('common.copied')}</span>
+          </Show>
+        </button>
+      </Show>
 
       {/* Language badge */}
       <div class="absolute top-3 left-3 z-10">

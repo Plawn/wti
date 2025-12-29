@@ -1,5 +1,4 @@
 import { resolve } from 'node:path';
-import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import solid from 'vite-plugin-solid';
@@ -7,7 +6,6 @@ import solid from 'vite-plugin-solid';
 export default defineConfig({
   plugins: [
     solid(),
-    vanillaExtractPlugin(),
     dts({
       insertTypesEntry: true,
     }),
@@ -19,12 +17,16 @@ export default defineConfig({
       formats: ['es', 'iife'],
       fileName: (format) => `wti-element.${format}.js`,
     },
+    cssCodeSplit: false,
     rollupOptions: {
       output: {
         // Bundle everything for standalone use
         inlineDynamicImports: true,
+        assetFileNames: 'wti-element.[ext]',
       },
     },
+    sourcemap: true,
+    minify: 'esbuild',
   },
   define: {
     'process.env.NODE_ENV': JSON.stringify('production'),

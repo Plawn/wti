@@ -94,6 +94,12 @@ export interface Translations {
     title: string;
     empty: string;
     clearAll: string;
+    replay: string;
+    delete: string;
+    success: string;
+    failed: string;
+    export: string;
+    import: string;
   };
   sidebar: {
     allOperations: string;

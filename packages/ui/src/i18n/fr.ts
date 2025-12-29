@@ -97,6 +97,12 @@ export const fr: Translations = {
     title: 'Historique des requetes',
     empty: 'Aucune requete',
     clearAll: 'Tout effacer',
+    replay: 'Rejouer',
+    delete: 'Supprimer',
+    success: 'Succes',
+    failed: 'Echec',
+    export: 'Exporter',
+    import: 'Importer',
   },
   sidebar: {
     allOperations: 'Toutes les operations',

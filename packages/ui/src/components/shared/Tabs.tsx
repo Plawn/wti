@@ -20,7 +20,7 @@ export const Tabs: Component<TabsProps> = (props) => {
   return (
     <div class={`w-full ${props.class ?? ''}`}>
       {/* Tab List */}
-      <div class="flex items-center gap-1 p-1 rounded-xl bg-gray-100/50 dark:bg-white/5 border border-white/10 overflow-x-auto scrollbar-thin">
+      <div class="flex items-center gap-1 p-1 rounded-xl bg-gray-100/50 dark:bg-white/5 border border-gray-200 dark:border-white/10 overflow-x-auto scrollbar-thin">
         <For each={props.items}>
           {(item) => (
             <button

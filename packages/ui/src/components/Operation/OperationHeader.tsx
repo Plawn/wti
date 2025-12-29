@@ -15,6 +15,7 @@ const methodConfig: Record<string, { bg: string; glow: string }> = {
   delete: { bg: 'from-rose-500 to-red-600', glow: 'shadow-rose-500/20' },
   head: { bg: 'from-cyan-500 to-teal-600', glow: 'shadow-cyan-500/20' },
   options: { bg: 'from-gray-500 to-slate-600', glow: 'shadow-gray-500/20' },
+  grpc: { bg: 'from-indigo-500 to-purple-600', glow: 'shadow-indigo-500/20' },
 };
 
 const defaultConfig = { bg: 'from-gray-500 to-slate-600', glow: 'shadow-gray-500/20' };

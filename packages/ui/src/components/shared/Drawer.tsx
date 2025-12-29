@@ -81,11 +81,15 @@ export const Drawer: Component<DrawerProps> = (props) => {
 
   const styles = () => positionStyles[position()];
 
+  // Check if dark mode is active
+  const isDark = () => document.documentElement.classList.contains('dark') ||
+    document.querySelector('.dark') !== null;
+
   return (
     <Show when={props.open}>
       <Portal>
         <div
-          class="fixed inset-0 z-50 flex bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
+          class={`fixed inset-0 z-50 flex bg-black/50 backdrop-blur-sm animate-in fade-in duration-200 ${isDark() ? 'dark' : ''}`}
           onClick={handleBackdropClick}
           onKeyDown={(e) => e.key === 'Enter' && handleBackdropClick(e as unknown as MouseEvent)}
           aria-modal="true"
@@ -97,7 +101,7 @@ export const Drawer: Component<DrawerProps> = (props) => {
             <div class="flex flex-col h-full">
               {/* Header */}
               <Show when={props.title || showClose()}>
-                <div class="flex items-center justify-between px-6 py-4 border-b border-white/10 dark:border-white/5">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-white/5">
                   <Show when={props.title}>
                     <h2
                       id="drawer-title"
@@ -137,7 +141,7 @@ export const Drawer: Component<DrawerProps> = (props) => {
 
               {/* Footer */}
               <Show when={props.footer}>
-                <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-white/10 dark:border-white/5">
+                <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-white/5">
                   {props.footer}
                 </div>
               </Show>

@@ -6,11 +6,11 @@
 |-------|-----|--------|-------------|
 | 1 | Foundation | ✅ Done | Setup monorepo, types, themes, i18n |
 | 2 | OpenAPI Core | ✅ Done | Parser OpenAPI + UI de base |
-| 3 | UI Components | 🔄 In Progress | Composants complets + polish |
-| 4 | Auth System | 🔲 Todo | Authentification modulaire |
-| 5 | gRPC Support | 🔲 Todo | gRPC Reflection + client |
-| 6 | Distribution | 🔲 Todo | Build lib + Web Component |
-| 7 | Extras | 🔲 Todo | Code snippets, historique |
+| 3 | UI Components | ✅ Done | Composants complets + polish |
+| 4 | Auth System | ✅ Done | Authentification modulaire |
+| 5 | gRPC Support | ✅ Done | gRPC Reflection + client |
+| 6 | Distribution | ✅ Done | Build lib + Web Component |
+| 7 | Extras | ✅ Done | Code snippets, historique |
 
 ---
 

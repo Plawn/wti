@@ -7,6 +7,8 @@ export * from './openapi';
 // HTTP client
 export * from './http';
 
-// Modules will be exported as they are implemented
-// export * from './grpc';
-// export * from './codegen';
+// gRPC support
+export * from './grpc';
+
+// Code generation
+export * from './codegen';

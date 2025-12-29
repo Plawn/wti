@@ -97,6 +97,12 @@ export const en: Translations = {
     title: 'Request History',
     empty: 'No requests yet',
     clearAll: 'Clear all',
+    replay: 'Replay',
+    delete: 'Delete',
+    success: 'Success',
+    failed: 'Failed',
+    export: 'Export',
+    import: 'Import',
   },
   sidebar: {
     allOperations: 'All Operations',

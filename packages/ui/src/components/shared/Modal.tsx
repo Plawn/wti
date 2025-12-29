@@ -80,7 +80,7 @@ export const Modal: Component<ModalProps> = (props) => {
           >
             {/* Header */}
             <Show when={props.title || showClose()}>
-              <div class="flex items-center justify-between px-6 py-4 border-b border-white/10 dark:border-white/5">
+              <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-white/5">
                 <Show when={props.title}>
                   <h2 id="modal-title" class="text-lg font-semibold text-gray-900 dark:text-white">
                     {props.title}
@@ -117,7 +117,7 @@ export const Modal: Component<ModalProps> = (props) => {
 
             {/* Footer */}
             <Show when={props.footer}>
-              <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-white/10 dark:border-white/5">
+              <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-white/5">
                 {props.footer}
               </div>
             </Show>

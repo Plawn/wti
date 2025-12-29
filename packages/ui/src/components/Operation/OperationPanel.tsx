@@ -1,16 +1,15 @@
-import type { Operation, Parameter, Schema, Server } from '@wti/core';
+import type { Operation, Parameter, RequestConfig, RequestValues, Schema, Server } from '@wti/core';
 import {
-  type RequestValues,
   type ResponseData,
   buildRequestConfig,
   executeRequest,
-  generateCurlCommand,
   getDefaultValues,
   getPreferredContentType,
 } from '@wti/core';
+import { CodeSnippets } from './CodeSnippets';
 import { type Component, For, type JSX, Show, createMemo, createSignal } from 'solid-js';
 import { useI18n } from '../../i18n';
-import type { AuthStore } from '../../stores';
+import type { AuthStore, HistoryStore } from '../../stores';
 import {
   Button,
   Checkbox,
@@ -30,6 +29,11 @@ interface OperationPanelProps {
   operation: Operation;
   server: Server;
   authStore?: AuthStore;
+  historyStore?: HistoryStore;
+  /** Initial values for replay */
+  initialValues?: RequestValues;
+  /** Callback when replay values have been consumed */
+  onInitialValuesConsumed?: () => void;
 }
 
 export const OperationPanel: Component<OperationPanelProps> = (props) => {
@@ -93,15 +97,14 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
 
   const contentType = createMemo(() => getPreferredContentType(props.operation));
 
-  // Generate curl command preview reactively
-  const curlCommand = createMemo(() => {
+  // Generate request config for code snippets
+  const requestConfig = createMemo((): RequestConfig | null => {
     try {
-      const config = buildRequestConfig(props.operation, getRequestValues(), {
+      return buildRequestConfig(props.operation, getRequestValues(), {
         server: props.server,
       });
-      return generateCurlCommand(config);
     } catch {
-      return '# Invalid request configuration';
+      return null;
     }
   });
 
@@ -155,8 +158,26 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
     setBodyMode('form');
   };
 
-  // Initialize default values
-  const initDefaults = () => {
+  // Initialize with replay values or defaults
+  const initDefaults = (replayValues?: RequestValues) => {
+    if (replayValues) {
+      // Use replay values
+      if (replayValues.path) setPathParams(replayValues.path);
+      if (replayValues.query) setQueryParams(replayValues.query);
+      if (replayValues.headers) setHeaderParams(replayValues.headers);
+      if (replayValues.body !== undefined) {
+        const bodyData = replayValues.body;
+        if (typeof bodyData === 'object' && bodyData !== null) {
+          setBody(JSON.stringify(bodyData, null, 2));
+          setBodyFormData(bodyData as Record<string, unknown>);
+        } else if (typeof bodyData === 'string') {
+          setBody(bodyData);
+        }
+      }
+      return;
+    }
+
+    // Use schema defaults
     const defaults = getDefaultValues(props.operation);
     if (defaults.path) setPathParams(defaults.path);
     if (defaults.query) setQueryParams(defaults.query);
@@ -182,24 +203,53 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
     }
   };
 
-  initDefaults();
+  // Initialize on mount with replay values if provided
+  initDefaults(props.initialValues);
+  if (props.initialValues) {
+    props.onInitialValuesConsumed?.();
+  }
 
   const handleSend = async () => {
     setLoading(true);
     setError(null);
     setResponse(null);
 
+    let config: RequestConfig | null = null;
+
     try {
       const auth = await props.authStore?.actions.getActiveAuthWithAutoRefresh();
-      const config = buildRequestConfig(props.operation, getRequestValues(), {
+      config = buildRequestConfig(props.operation, getRequestValues(), {
         server: props.server,
         auth,
       });
 
       const result = await executeRequest(config);
       setResponse(result);
+
+      // Track successful request in history
+      props.historyStore?.actions.addEntry({
+        operationId: props.operation.id,
+        operationPath: props.operation.path,
+        operationMethod: props.operation.method,
+        request: config,
+        requestValues: getRequestValues(),
+        response: result,
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Request failed');
+      const errorMessage = err instanceof Error ? err.message : 'Request failed';
+      setError(errorMessage);
+
+      // Track failed request in history
+      if (config) {
+        props.historyStore?.actions.addEntry({
+          operationId: props.operation.id,
+          operationPath: props.operation.path,
+          operationMethod: props.operation.method,
+          request: config,
+          requestValues: getRequestValues(),
+          error: errorMessage,
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -321,7 +371,7 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
         </Section>
       </Show>
 
-      {/* cURL Preview Section */}
+      {/* Code Snippets Section */}
       <div class="mt-12">
         <button
           type="button"
@@ -334,15 +384,18 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
             viewBox="0 0 24 24"
             stroke="currentColor"
             stroke-width="2"
+            aria-hidden="true"
           >
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
           </svg>
-          {t('codegen.curlPreview')}
+          {t('codegen.title')}
         </button>
-        <Show when={showCurlPreview()}>
-          <div class="mt-4">
-            <CodeBlock code={curlCommand()} language="bash" wrap />
-          </div>
+        <Show when={showCurlPreview() && requestConfig()} keyed>
+          {(config) => (
+            <div class="mt-4">
+              <CodeSnippets request={config} />
+            </div>
+          )}
         </Show>
       </div>
 
