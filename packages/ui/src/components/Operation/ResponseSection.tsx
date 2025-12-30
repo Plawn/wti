@@ -1,6 +1,7 @@
 import type { ResponseData } from '@wti/core';
 import { type Component, Show, createSignal } from 'solid-js';
 import { useI18n } from '../../i18n';
+import { getStatusColorConfig } from '../../utils';
 import { CodeBlock, JsonViewer, Tabs } from '../shared';
 import { ResponseHeaders } from './ResponseHeaders';
 
@@ -24,21 +25,7 @@ export const ResponseSection: Component<ResponseSectionProps> = (props) => {
     setTimeout(() => setCopied(false), COPY_FEEDBACK_DURATION_MS);
   };
 
-  const getStatusConfig = (status: number) => {
-    if (status >= 200 && status < 300)
-      return {
-        bg: 'bg-emerald-100 dark:bg-emerald-900/30',
-        text: 'text-emerald-700 dark:text-emerald-300',
-      };
-    if (status >= 400 && status < 500)
-      return {
-        bg: 'bg-amber-100 dark:bg-amber-900/30',
-        text: 'text-amber-700 dark:text-amber-300',
-      };
-    return { bg: 'bg-rose-100 dark:bg-rose-900/30', text: 'text-rose-700 dark:text-rose-300' };
-  };
-
-  const statusConfig = () => getStatusConfig(props.response.status);
+  const statusConfig = () => getStatusColorConfig(props.response.status);
   const isJsonResponse = () =>
     typeof props.response.body === 'object' && props.response.body !== null;
 

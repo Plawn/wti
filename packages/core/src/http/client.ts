@@ -2,6 +2,7 @@
  * HTTP client for executing API requests
  */
 import type { RequestConfig, ResponseData, ResponseTiming } from '../types';
+import { combineSignals } from '../utils/signals';
 
 export interface ExecuteOptions {
   /**
@@ -153,6 +154,21 @@ function buildUrl(baseUrl: string, params?: Record<string, string>): string {
 }
 
 /**
+ * Get header value case-insensitively
+ * HTTP headers are case-insensitive per RFC 7230
+ */
+function getHeader(headers: Record<string, string> | undefined, name: string): string {
+  if (!headers) return '';
+  const lowerName = name.toLowerCase();
+  for (const [key, value] of Object.entries(headers)) {
+    if (key.toLowerCase() === lowerName) {
+      return value;
+    }
+  }
+  return '';
+}
+
+/**
  * Serialize request body based on content type
  */
 function serializeBody(body: unknown, headers?: Record<string, string>): BodyInit {
@@ -168,7 +184,7 @@ function serializeBody(body: unknown, headers?: Record<string, string>): BodyIni
     return body;
   }
 
-  const contentType = headers?.['Content-Type'] || headers?.['content-type'] || '';
+  const contentType = getHeader(headers, 'Content-Type');
 
   if (contentType.includes('application/x-www-form-urlencoded')) {
     return new URLSearchParams(body as Record<string, string>).toString();
@@ -176,21 +192,4 @@ function serializeBody(body: unknown, headers?: Record<string, string>): BodyIni
 
   // Default to JSON
   return JSON.stringify(body);
-}
-
-/**
- * Combine multiple AbortSignals into one
- */
-function combineSignals(...signals: AbortSignal[]): AbortSignal {
-  const controller = new AbortController();
-
-  for (const signal of signals) {
-    if (signal.aborted) {
-      controller.abort();
-      break;
-    }
-    signal.addEventListener('abort', () => controller.abort());
-  }
-
-  return controller.signal;
 }

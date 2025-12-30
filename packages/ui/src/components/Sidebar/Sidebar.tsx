@@ -108,6 +108,7 @@ export const Sidebar: Component<SidebarProps> = (props) => {
           searchQuery={props.store.state.searchQuery}
           onToggleTag={props.store.actions.toggleTag}
           onSelectOperation={props.store.actions.selectOperation}
+          searchFn={props.store.search.searchOperations}
         />
       </div>
     </div>

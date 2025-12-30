@@ -9,12 +9,13 @@ import {
 import { type Component, For, type JSX, Show, createMemo, createSignal } from 'solid-js';
 import { useI18n } from '../../i18n';
 import type { AuthStore, HistoryStore } from '../../stores';
+import { parseJson } from '../../utils';
 import { Button, JsonSchemaForm, Textarea } from '../shared';
 import { CodeSnippets } from './CodeSnippets';
 import { OperationHeader } from './OperationHeader';
 import { ParameterInput } from './ParameterInput';
 import { ResponseSection } from './ResponseSection';
-import { generateSchemaExample, safeJsonParse } from './schemaUtils';
+import { generateSchemaExample } from './schemaUtils';
 
 interface OperationPanelProps {
   operation: Operation;
@@ -49,7 +50,7 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
     if (bodyMode() === 'form') {
       return bodyFormData();
     }
-    return safeJsonParse(body());
+    return parseJson(body());
   };
 
   // Helper to build request values from current form state
@@ -121,7 +122,7 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
   // Switch to form mode and sync from JSON
   const switchToFormMode = () => {
     if (bodyMode() === 'json') {
-      const parsed = safeJsonParse<Record<string, unknown>>(body());
+      const parsed = parseJson<Record<string, unknown>>(body());
       setBodyFormData(parsed ?? {});
     }
     setBodyMode('form');

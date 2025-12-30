@@ -3,43 +3,8 @@
  */
 
 import type { RequestConfig } from '../types';
+import { formatJsValue } from './formatValue';
 import type { CodeGenOptions, CodeGenerator } from './types';
-
-/**
- * Format a JavaScript value for code output
- */
-function formatValue(value: unknown, indent: number, prettyPrint: boolean): string {
-  if (value === null) return 'null';
-  if (value === undefined) return 'undefined';
-  if (typeof value === 'string') return JSON.stringify(value);
-  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
-
-  if (Array.isArray(value)) {
-    if (value.length === 0) return '[]';
-    const items = value.map((v) => formatValue(v, indent + 2, prettyPrint));
-    if (prettyPrint) {
-      const pad = ' '.repeat(indent + 2);
-      return `[\n${pad}${items.join(`,\n${pad}`)}\n${' '.repeat(indent)}]`;
-    }
-    return `[${items.join(', ')}]`;
-  }
-
-  if (typeof value === 'object') {
-    const entries = Object.entries(value);
-    if (entries.length === 0) return '{}';
-    const items = entries.map(([k, v]) => {
-      const key = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(k) ? k : JSON.stringify(k);
-      return `${key}: ${formatValue(v, indent + 2, prettyPrint)}`;
-    });
-    if (prettyPrint) {
-      const pad = ' '.repeat(indent + 2);
-      return `{\n${pad}${items.join(`,\n${pad}`)}\n${' '.repeat(indent)}}`;
-    }
-    return `{ ${items.join(', ')} }`;
-  }
-
-  return String(value);
-}
 
 /**
  * Generate JavaScript fetch code from request config
@@ -84,7 +49,7 @@ function generate(request: RequestConfig, options: CodeGenOptions = {}): string 
 
   // If body is an object, define it first
   if (request.body !== undefined && request.body !== null && typeof request.body === 'object') {
-    lines.push(`${indent}const body = ${formatValue(request.body, 2, prettyPrint)};`);
+    lines.push(`${indent}const body = ${formatJsValue(request.body, 2, prettyPrint)};`);
     lines.push('');
   }
 
@@ -94,7 +59,7 @@ function generate(request: RequestConfig, options: CodeGenOptions = {}): string 
 
   if (request.headers && Object.keys(request.headers).length > 0) {
     optionsLines.push(
-      `${indent}${indent}headers: ${formatValue(request.headers, 4, prettyPrint)},`,
+      `${indent}${indent}headers: ${formatJsValue(request.headers, 4, prettyPrint)},`,
     );
   }
 

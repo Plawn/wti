@@ -66,7 +66,7 @@ export const Select: Component<SelectProps> = (props) => {
         value={props.value}
         disabled={props.disabled}
         onChange={(e) => props.onChange(e.currentTarget.value)}
-        style={{ "text-overflow": "ellipsis" }}
+        style={{ 'text-overflow': 'ellipsis' }}
       >
         {props.children}
       </select>

@@ -92,10 +92,14 @@ export const AuthPanel: Component<AuthPanelProps> = (props) => {
             </svg>
           </div>
           <div class="text-left">
-            <h3 class="text-xs md:text-sm font-semibold text-gray-900 dark:text-white">{t('auth.title')}</h3>
+            <h3 class="text-xs md:text-sm font-semibold text-gray-900 dark:text-white">
+              {t('auth.title')}
+            </h3>
             <div class="flex items-center gap-1.5 mt-0.5">
               <span class={`w-1.5 h-1.5 rounded-full ${getAuthStatus().dot}`} />
-              <span class={`text-[11px] md:text-xs ${getAuthStatus().class}`}>{getAuthStatus().text}</span>
+              <span class={`text-[11px] md:text-xs ${getAuthStatus().class}`}>
+                {getAuthStatus().text}
+              </span>
             </div>
           </div>
         </div>

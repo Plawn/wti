@@ -1,6 +1,9 @@
 import type { ApiSpec, Operation, Server, SpecInput } from '@wti/core';
 import { parseOpenApi } from '@wti/core';
+import type Fuse from 'fuse.js';
+import { createMemo } from 'solid-js';
 import { createStore } from 'solid-js/store';
+import { createOperationSearch, searchOperations } from '../utils/search';
 import { clearUrlParams, updateUrlWithParams } from '../utils/url';
 
 export interface SpecState {
@@ -25,6 +28,12 @@ const initialState: SpecState = {
 
 export function createSpecStore() {
   const [state, setState] = createStore<SpecState>(initialState);
+
+  // Memoized Fuse.js instance - shared across all components using this store
+  const fuse = createMemo(() => {
+    if (!state.spec) return null;
+    return createOperationSearch(state.spec.operations);
+  });
 
   const actions = {
     setSpec(spec: ApiSpec) {
@@ -151,7 +160,19 @@ export function createSpecStore() {
     },
   };
 
-  return { state, actions };
+  // Search utilities using the memoized Fuse instance
+  const search = {
+    /** Get the memoized Fuse instance (for advanced use cases) */
+    getFuse: () => fuse() as Fuse<Operation> | null,
+    /** Search operations with the given query */
+    searchOperations: (query: string, limit = 50) => {
+      const fuseInstance = fuse();
+      if (!fuseInstance) return [];
+      return searchOperations(fuseInstance, query, limit);
+    },
+  };
+
+  return { state, actions, search };
 }
 
 export type SpecStore = ReturnType<typeof createSpecStore>;

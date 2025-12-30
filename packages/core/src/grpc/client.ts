@@ -2,6 +2,7 @@
  * gRPC-Web client for making unary and streaming calls
  */
 
+import { combineSignals } from '../utils/signals';
 import {
   type GrpcCallOptions,
   type GrpcResponse,
@@ -243,21 +244,4 @@ function httpToGrpcStatus(httpStatus: number): GrpcStatusCode {
     default:
       return GrpcStatusCode.UNKNOWN;
   }
-}
-
-/**
- * Combine multiple AbortSignals
- */
-function combineSignals(...signals: AbortSignal[]): AbortSignal {
-  const controller = new AbortController();
-
-  for (const signal of signals) {
-    if (signal.aborted) {
-      controller.abort();
-      break;
-    }
-    signal.addEventListener('abort', () => controller.abort());
-  }
-
-  return controller.signal;
 }

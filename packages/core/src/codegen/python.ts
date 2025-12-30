@@ -3,43 +3,8 @@
  */
 
 import type { RequestConfig } from '../types';
+import { formatPythonValue } from './formatValue';
 import type { CodeGenOptions, CodeGenerator } from './types';
-
-/**
- * Convert a value to Python literal
- */
-function toPythonValue(value: unknown, indent: number, prettyPrint: boolean): string {
-  if (value === null || value === undefined) return 'None';
-  if (value === true) return 'True';
-  if (value === false) return 'False';
-  if (typeof value === 'string') return JSON.stringify(value);
-  if (typeof value === 'number') return String(value);
-
-  if (Array.isArray(value)) {
-    if (value.length === 0) return '[]';
-    const items = value.map((v) => toPythonValue(v, indent + 4, prettyPrint));
-    if (prettyPrint) {
-      const pad = ' '.repeat(indent + 4);
-      return `[\n${pad}${items.join(`,\n${pad}`)}\n${' '.repeat(indent)}]`;
-    }
-    return `[${items.join(', ')}]`;
-  }
-
-  if (typeof value === 'object') {
-    const entries = Object.entries(value);
-    if (entries.length === 0) return '{}';
-    const items = entries.map(
-      ([k, v]) => `${JSON.stringify(k)}: ${toPythonValue(v, indent + 4, prettyPrint)}`,
-    );
-    if (prettyPrint) {
-      const pad = ' '.repeat(indent + 4);
-      return `{\n${pad}${items.join(`,\n${pad}`)}\n${' '.repeat(indent)}}`;
-    }
-    return `{${items.join(', ')}}`;
-  }
-
-  return String(value);
-}
 
 /**
  * Generate Python requests code from request config
@@ -59,18 +24,18 @@ function generate(request: RequestConfig, options: CodeGenOptions = {}): string 
 
   // Query params
   if (request.params && Object.keys(request.params).length > 0) {
-    lines.push(`params = ${toPythonValue(request.params, 0, prettyPrint)}`);
+    lines.push(`params = ${formatPythonValue(request.params, 0, prettyPrint)}`);
   }
 
   // Headers
   if (request.headers && Object.keys(request.headers).length > 0) {
-    lines.push(`headers = ${toPythonValue(request.headers, 0, prettyPrint)}`);
+    lines.push(`headers = ${formatPythonValue(request.headers, 0, prettyPrint)}`);
   }
 
   // Body
   if (request.body !== undefined && request.body !== null) {
     if (typeof request.body === 'object') {
-      lines.push(`payload = ${toPythonValue(request.body, 0, prettyPrint)}`);
+      lines.push(`payload = ${formatPythonValue(request.body, 0, prettyPrint)}`);
     } else {
       lines.push(`payload = ${JSON.stringify(request.body)}`);
     }

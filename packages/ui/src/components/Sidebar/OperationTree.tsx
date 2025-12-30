@@ -1,7 +1,7 @@
 import type { Operation } from '@wti/core';
 import { type Component, For, Show, createMemo } from 'solid-js';
 import { useI18n } from '../../i18n';
-import { createOperationSearch, searchOperations } from '../../utils';
+import type { OperationSearchResult } from '../../utils';
 import { OperationItem } from './OperationItem';
 
 interface OperationTreeProps {
@@ -11,6 +11,8 @@ interface OperationTreeProps {
   searchQuery: string;
   onToggleTag: (tag: string) => void;
   onSelectOperation: (operation: Operation) => void;
+  /** Optional search function from store (uses memoized Fuse instance) */
+  searchFn?: (query: string, limit?: number) => OperationSearchResult[];
 }
 
 interface TagGroup {
@@ -21,13 +23,15 @@ interface TagGroup {
 export const OperationTree: Component<OperationTreeProps> = (props) => {
   const { t } = useI18n();
 
-  const fuse = createMemo(() => createOperationSearch(props.operations));
-
   const filteredOperations = createMemo(() => {
     const query = props.searchQuery.trim();
     if (!query) return props.operations;
 
-    return searchOperations(fuse(), query).map((result) => result.operation);
+    // Use store's memoized search if available, otherwise return all
+    if (props.searchFn) {
+      return props.searchFn(query).map((result) => result.operation);
+    }
+    return props.operations;
   });
 
   const tagGroups = createMemo(() => {

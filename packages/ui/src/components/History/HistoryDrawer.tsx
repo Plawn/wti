@@ -8,6 +8,7 @@ import type { Component } from 'solid-js';
 import { For, Show, createSignal } from 'solid-js';
 import { useI18n } from '../../i18n';
 import type { HistoryEntry, HistoryStore } from '../../stores';
+import { getStatusIndicatorColor, getStatusTextColor } from '../../utils';
 import { Drawer } from '../shared';
 
 interface HistoryDrawerProps {
@@ -36,15 +37,8 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
     return date.toLocaleDateString();
   };
 
-  const getStatusColor = (entry: HistoryEntry): string => {
-    if (entry.error) return 'bg-rose-500';
-    if (!entry.response) return 'bg-gray-400';
-    const status = entry.response.status;
-    if (status >= 200 && status < 300) return 'bg-emerald-500';
-    if (status >= 400 && status < 500) return 'bg-amber-500';
-    if (status >= 500) return 'bg-rose-500';
-    return 'bg-gray-400';
-  };
+  const getStatusColor = (entry: HistoryEntry): string =>
+    getStatusIndicatorColor(entry.response?.status, !!entry.error);
 
   const getMethodStyle = (method: string): { bg: string; shadow: string } => {
     const styles: Record<string, { bg: string; shadow: string }> = {
@@ -213,11 +207,7 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
                               {(response) => (
                                 <>
                                   <span>·</span>
-                                  <span
-                                    class={
-                                      response.status >= 400 ? 'text-rose-500' : 'text-emerald-500'
-                                    }
-                                  >
+                                  <span class={getStatusTextColor(response.status)}>
                                     {response.status}
                                   </span>
                                   <span>·</span>

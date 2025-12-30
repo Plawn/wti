@@ -11,6 +11,18 @@ export function formatJson(value: unknown, indent = 2): string {
 }
 
 /**
+ * Safely parse a JSON string, returning undefined on error.
+ */
+export function parseJson<T = unknown>(json: string): T | undefined {
+  if (!json) return undefined;
+  try {
+    return JSON.parse(json) as T;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * Safely parse a JSON string, returning the fallback value on error.
  */
 export function parseJsonSafe<T>(json: string, fallback: T): T {

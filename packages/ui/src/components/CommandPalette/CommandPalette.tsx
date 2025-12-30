@@ -1,13 +1,11 @@
 import type { Operation } from '@wti/core';
 import { type Component, For, Show, createEffect, createMemo, createSignal } from 'solid-js';
 import { Portal } from 'solid-js/web';
+import { useIsDark } from '../../hooks/useIsDark';
 import { useI18n } from '../../i18n';
-import { type OperationSearchResult, createOperationSearch, searchOperations } from '../../utils';
+import { getLocalStorageItem, setLocalStorageItem } from '../../storage';
+import type { OperationSearchResult } from '../../utils';
 import { CommandPaletteItem } from './CommandPaletteItem';
-
-// Check if dark mode is active (needed for Portal which renders outside the dark class container)
-const isDark = () =>
-  document.documentElement.classList.contains('dark') || document.querySelector('.dark') !== null;
 
 const RECENT_STORAGE_KEY = 'wti:recent-operations';
 const MAX_RECENT = 8;
@@ -15,23 +13,12 @@ const MAX_RECENT = 8;
 // Get unique key for an operation
 const getOperationKey = (op: Operation) => `${op.method}:${op.path}`;
 
-// Load recent operation keys from localStorage
-const loadRecentKeys = (): string[] => {
-  try {
-    const stored = localStorage.getItem(RECENT_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
-};
+// Load recent operation keys from storage
+const loadRecentKeys = (): string[] => getLocalStorageItem<string[]>(RECENT_STORAGE_KEY, []);
 
-// Save recent operation keys to localStorage
+// Save recent operation keys to storage
 const saveRecentKeys = (keys: string[]) => {
-  try {
-    localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(keys.slice(0, MAX_RECENT)));
-  } catch {
-    // Ignore storage errors
-  }
+  setLocalStorageItem(RECENT_STORAGE_KEY, keys.slice(0, MAX_RECENT));
 };
 
 // Add an operation to recent list
@@ -50,19 +37,19 @@ interface CommandPaletteProps {
   onClose: () => void;
   operations: Operation[];
   onSelectOperation: (operation: Operation) => void;
+  /** Optional search function from store (uses memoized Fuse instance) */
+  searchFn?: (query: string, limit?: number) => OperationSearchResult[];
 }
 
 export const CommandPalette: Component<CommandPaletteProps> = (props) => {
   const { t } = useI18n();
+  const isDark = useIsDark();
   const [query, setQuery] = createSignal('');
   const [selectedIndex, setSelectedIndex] = createSignal(0);
   const [recentKeys, setRecentKeys] = createSignal<string[]>(loadRecentKeys());
   const [mouseEnabled, setMouseEnabled] = createSignal(false);
   let inputRef: HTMLInputElement | undefined;
   let listRef: HTMLDivElement | undefined;
-
-  // Create fuse instance when operations change
-  const fuse = createMemo(() => createOperationSearch(props.operations));
 
   // Build a map for quick operation lookup
   const operationByKey = createMemo(() => {
@@ -100,7 +87,11 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
       return [...recentOps, ...remaining];
     }
 
-    return searchOperations(fuse(), q);
+    // Use store's memoized search if available
+    if (props.searchFn) {
+      return props.searchFn(q);
+    }
+    return [];
   });
 
   // Reset selection when results change

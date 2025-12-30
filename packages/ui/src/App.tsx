@@ -179,6 +179,7 @@ export function WTI(props: WTIProps) {
               store.actions.selectOperation(op);
               setCommandPaletteOpen(false);
             }}
+            searchFn={store.search.searchOperations}
           />
         </Show>
 
@@ -378,7 +379,6 @@ function Layout(props: LayoutProps) {
           />
         </aside>
       </Show>
-
 
       {/* Main content - add top padding on mobile for fixed header */}
       <main class="flex-1 overflow-y-auto pt-14 md:pt-0">

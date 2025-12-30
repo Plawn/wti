@@ -36,16 +36,3 @@ export function generateSchemaExample(schema: {
       return null;
   }
 }
-
-/**
- * Safely parse JSON with error handling
- * Returns undefined if parsing fails
- */
-export function safeJsonParse<T = unknown>(json: string): T | undefined {
-  if (!json) return undefined;
-  try {
-    return JSON.parse(json) as T;
-  } catch {
-    return undefined;
-  }
-}

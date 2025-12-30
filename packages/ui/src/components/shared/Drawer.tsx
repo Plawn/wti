@@ -1,6 +1,7 @@
 import { type Component, type JSX, Show, createEffect, createSignal, onCleanup } from 'solid-js';
-import { useI18n } from '../../i18n';
 import { Portal } from 'solid-js/web';
+import { useIsDark } from '../../hooks/useIsDark';
+import { useI18n } from '../../i18n';
 
 export type DrawerPosition = 'left' | 'right';
 export type DrawerSize = 'sm' | 'md' | 'lg' | 'xl';
@@ -107,9 +108,8 @@ export const Drawer: Component<DrawerProps> = (props) => {
 
   const styles = () => positionStyles[position()];
 
-  // Check if dark mode is active
-  const isDark = () =>
-    document.documentElement.classList.contains('dark') || document.querySelector('.dark') !== null;
+  // Check if dark mode is active (needed for Portal which renders outside the dark class container)
+  const isDark = useIsDark();
 
   const backdropClasses = () =>
     isClosing() ? 'animate-out fade-out duration-200' : 'animate-in fade-in duration-200';
@@ -169,7 +169,11 @@ export const Drawer: Component<DrawerProps> = (props) => {
               </Show>
 
               {/* Content */}
-              <div class={`flex-1 overflow-y-auto overflow-x-hidden ${props.noPadding ? '' : 'p-6'}`}>{props.children}</div>
+              <div
+                class={`flex-1 overflow-y-auto overflow-x-hidden ${props.noPadding ? '' : 'p-6'}`}
+              >
+                {props.children}
+              </div>
 
               {/* Footer */}
               <Show when={props.footer}>
