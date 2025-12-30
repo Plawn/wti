@@ -156,11 +156,21 @@ export const ParameterInput: Component<ParameterInputProps> = (props) => {
     const hints: string[] = [];
     const s = props.param.schema;
 
-    if (s.minLength !== undefined) hints.push(`min: ${s.minLength}`);
-    if (s.maxLength !== undefined) hints.push(`max: ${s.maxLength}`);
-    if (s.minimum !== undefined) hints.push(`>= ${s.minimum}`);
-    if (s.maximum !== undefined) hints.push(`<= ${s.maximum}`);
-    if (s.pattern) hints.push('pattern');
+    if (s.minLength !== undefined) {
+      hints.push(`min: ${s.minLength}`);
+    }
+    if (s.maxLength !== undefined) {
+      hints.push(`max: ${s.maxLength}`);
+    }
+    if (s.minimum !== undefined) {
+      hints.push(`>= ${s.minimum}`);
+    }
+    if (s.maximum !== undefined) {
+      hints.push(`<= ${s.maximum}`);
+    }
+    if (s.pattern) {
+      hints.push('pattern');
+    }
 
     return hints.length > 0 ? hints.join(', ') : null;
   });

@@ -242,7 +242,9 @@ export function createReflectionClient(baseUrl: string) {
 
         for (const fd of fileDescriptors) {
           const fileName = fd.name || '';
-          if (processedFiles.has(fileName)) continue;
+          if (processedFiles.has(fileName)) {
+            continue;
+          }
           processedFiles.add(fileName);
 
           const packageName = fd.package || '';
@@ -332,7 +334,9 @@ function processNestedTypes(
   if (msg.nestedType) {
     for (const nested of msg.nestedType) {
       // Skip map entry types
-      if (nested.options?.mapEntry) continue;
+      if (nested.options?.mapEntry) {
+        continue;
+      }
 
       const fullName = `${parentName}.${nested.name}`;
       messageTypes.set(fullName, parseMessageType(nested, parentName, sourceInfo));
@@ -405,7 +409,9 @@ function parseMethod(method: MethodDescriptorProto, serviceName: string): GrpcMe
  * Parse default value string
  */
 function parseDefaultValue(value: string | undefined, type: GrpcFieldType): unknown {
-  if (value === undefined) return undefined;
+  if (value === undefined) {
+    return undefined;
+  }
 
   switch (type) {
     case 'bool':

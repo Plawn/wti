@@ -25,7 +25,9 @@ export const OperationTree: Component<OperationTreeProps> = (props) => {
 
   const filteredOperations = createMemo(() => {
     const query = props.searchQuery.trim();
-    if (!query) return props.operations;
+    if (!query) {
+      return props.operations;
+    }
 
     // Use store's memoized search if available, otherwise return all
     if (props.searchFn) {
@@ -50,8 +52,12 @@ export const OperationTree: Component<OperationTreeProps> = (props) => {
 
     const result: TagGroup[] = [];
     const sortedKeys = Array.from(groups.keys()).sort((a, b) => {
-      if (a === defaultTag) return 1;
-      if (b === defaultTag) return -1;
+      if (a === defaultTag) {
+        return 1;
+      }
+      if (b === defaultTag) {
+        return -1;
+      }
       return a.localeCompare(b);
     });
 

@@ -44,7 +44,7 @@ const HighlightedText: Component<{
   return (
     <For each={getHighlightedParts()}>
       {(part) => (
-        <Show when={part.highlight} fallback={<>{part.text}</>}>
+        <Show when={part.highlight} fallback={part.text}>
           <span class="text-accent-500 font-semibold">{part.text}</span>
         </Show>
       )}

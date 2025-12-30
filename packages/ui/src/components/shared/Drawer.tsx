@@ -76,7 +76,9 @@ export const Drawer: Component<DrawerProps> = (props) => {
 
   // Handle escape key
   createEffect(() => {
-    if (!props.open || !closeOnEscape()) return;
+    if (!props.open || !closeOnEscape()) {
+      return;
+    }
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {

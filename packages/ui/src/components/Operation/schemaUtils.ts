@@ -6,7 +6,9 @@ export function generateSchemaExample(schema: {
   properties?: Record<string, unknown>;
   items?: unknown;
 }): unknown {
-  if (!schema.type) return {};
+  if (!schema.type) {
+    return {};
+  }
 
   switch (schema.type) {
     case 'object':

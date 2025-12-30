@@ -90,7 +90,9 @@ export function createHistoryStore(): HistoryStore {
    * Initialize store by loading first page from storage
    */
   const init = async (): Promise<void> => {
-    if (initialized()) return;
+    if (initialized()) {
+      return;
+    }
 
     setLoading(true);
     try {
@@ -119,7 +121,9 @@ export function createHistoryStore(): HistoryStore {
    * Load more entries (pagination)
    */
   const loadMore = async (): Promise<void> => {
-    if (loading() || !hasMore()) return;
+    if (loading() || !hasMore()) {
+      return;
+    }
 
     setLoading(true);
     try {

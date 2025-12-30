@@ -15,7 +15,9 @@ marked.setOptions({
 
 export const Markdown: Component<MarkdownProps> = (props) => {
   const html = createMemo(() => {
-    if (!props.content) return '';
+    if (!props.content) {
+      return '';
+    }
     try {
       const rawHtml = marked.parse(props.content, { async: false }) as string;
       return DOMPurify.sanitize(rawHtml);

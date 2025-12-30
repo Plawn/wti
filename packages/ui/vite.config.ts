@@ -29,7 +29,9 @@ export default defineConfig({
           'solid-js/store': 'SolidJSStore',
         },
         assetFileNames: (assetInfo) => {
-          if (assetInfo.name === 'style.css') return 'index.css';
+          if (assetInfo.name === 'style.css') {
+            return 'index.css';
+          }
           return assetInfo.name || 'asset';
         },
       },

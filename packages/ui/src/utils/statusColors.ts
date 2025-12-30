@@ -35,11 +35,21 @@ export function getStatusColorConfig(status: number): StatusColorConfig {
  * Used for compact status indicators in history lists.
  */
 export function getStatusIndicatorColor(status: number | undefined, hasError: boolean): string {
-  if (hasError) return 'bg-rose-500';
-  if (status === undefined) return 'bg-gray-400';
-  if (status >= 200 && status < 300) return 'bg-emerald-500';
-  if (status >= 400 && status < 500) return 'bg-amber-500';
-  if (status >= 500) return 'bg-rose-500';
+  if (hasError) {
+    return 'bg-rose-500';
+  }
+  if (status === undefined) {
+    return 'bg-gray-400';
+  }
+  if (status >= 200 && status < 300) {
+    return 'bg-emerald-500';
+  }
+  if (status >= 400 && status < 500) {
+    return 'bg-amber-500';
+  }
+  if (status >= 500) {
+    return 'bg-rose-500';
+  }
   return 'bg-gray-400';
 }
 
@@ -47,6 +57,8 @@ export function getStatusIndicatorColor(status: number | undefined, hasError: bo
  * Get text color class for status code display.
  */
 export function getStatusTextColor(status: number): string {
-  if (status >= 400) return 'text-rose-500';
+  if (status >= 400) {
+    return 'text-rose-500';
+  }
   return 'text-emerald-500';
 }

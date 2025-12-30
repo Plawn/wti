@@ -12,11 +12,15 @@ interface OpenIdFormProps {
  * Decode a JWT ID token and extract the username from common claims
  */
 function getUsernameFromIdToken(idToken: string | undefined): string | null {
-  if (!idToken) return null;
+  if (!idToken) {
+    return null;
+  }
 
   try {
     const parts = idToken.split('.');
-    if (parts.length !== 3) return null;
+    if (parts.length !== 3) {
+      return null;
+    }
 
     // Decode the payload (second part)
     const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
@@ -50,7 +54,9 @@ export const OpenIdForm: Component<OpenIdFormProps> = (props) => {
     const currentTime = now();
 
     // Only auto-refresh if we have tokens, a refresh token, and an expiration time
-    if (!config?.accessToken || !config?.refreshToken || !config?.expiresAt) return;
+    if (!config?.accessToken || !config?.refreshToken || !config?.expiresAt) {
+      return;
+    }
 
     // Check if token is expiring within 60 seconds or already expired
     const timeUntilExpiry = config.expiresAt - currentTime;
@@ -75,7 +81,9 @@ export const OpenIdForm: Component<OpenIdFormProps> = (props) => {
 
   const getTokenExpirationStatus = () => {
     const config = existingConfig();
-    if (!config?.expiresAt) return null;
+    if (!config?.expiresAt) {
+      return null;
+    }
 
     const currentTime = now(); // Use reactive signal instead of Date.now()
     const expiresAt = config.expiresAt;

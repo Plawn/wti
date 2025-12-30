@@ -88,8 +88,12 @@ export function convertGrpcToSpec(
  * Extract a title from service names
  */
 function extractServiceTitle(services: GrpcService[]): string {
-  if (services.length === 0) return 'gRPC API';
-  if (services.length === 1) return services[0].name;
+  if (services.length === 0) {
+    return 'gRPC API';
+  }
+  if (services.length === 1) {
+    return services[0].name;
+  }
 
   // Find common package prefix
   const names = services.map((s) => s.name);

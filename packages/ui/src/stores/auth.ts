@@ -119,7 +119,9 @@ function storePkceState(pkceState: OidcPkceState): void {
  */
 function retrievePkceState(): OidcPkceState | null {
   const stored = sessionStorage.getItem(OIDC_STATE_KEY);
-  if (!stored) return null;
+  if (!stored) {
+    return null;
+  }
   sessionStorage.removeItem(OIDC_STATE_KEY);
   try {
     return JSON.parse(stored) as OidcPkceState;
@@ -211,7 +213,9 @@ export function createAuthStore() {
      * Initialize store by loading from IndexedDB
      */
     async init() {
-      if (initialized()) return;
+      if (initialized()) {
+        return;
+      }
 
       setLoading(true);
       try {
@@ -395,7 +399,9 @@ export function createAuthStore() {
      * Get the currently active auth config
      */
     getActiveAuth(): AuthConfig | undefined {
-      if (!state.activeScheme) return undefined;
+      if (!state.activeScheme) {
+        return undefined;
+      }
       return state.configs[state.activeScheme];
     },
 
@@ -420,7 +426,9 @@ export function createAuthStore() {
      */
     isOpenIdTokenExpiringSoon(): boolean {
       const config = state.configs.openid as OpenIdAuth | undefined;
-      if (!config?.expiresAt) return false;
+      if (!config?.expiresAt) {
+        return false;
+      }
       return Date.now() >= config.expiresAt - TOKEN_REFRESH_BUFFER_MS;
     },
 
@@ -459,10 +467,14 @@ export function createAuthStore() {
      * @returns AuthConfig if valid, undefined if no auth or token is expired and refresh failed
      */
     async getActiveAuthWithAutoRefresh(): Promise<AuthConfig | undefined> {
-      if (!state.activeScheme) return undefined;
+      if (!state.activeScheme) {
+        return undefined;
+      }
 
       const config = state.configs[state.activeScheme];
-      if (!config) return undefined;
+      if (!config) {
+        return undefined;
+      }
 
       // Auto-refresh OpenID tokens if expiring soon
       if (config.type === 'openid' && config.refreshToken && config.expiresAt) {

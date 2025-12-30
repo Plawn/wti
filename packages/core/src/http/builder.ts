@@ -111,7 +111,9 @@ function resolveServerUrl(server: Server, variables?: Record<string, string>): s
  * Substitute path parameters in the path template
  */
 function substitutePathParams(path: string, params?: Record<string, string>): string {
-  if (!params) return path;
+  if (!params) {
+    return path;
+  }
 
   let result = path;
   for (const [name, value] of Object.entries(params)) {

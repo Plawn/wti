@@ -76,7 +76,9 @@ export const CodeSnippets: Component<CodeSnippetsProps> = (props) => {
           type="button"
           onClick={() => {
             const code = generatedCode();
-            if (code) copy(code.code);
+            if (code) {
+              copy(code.code);
+            }
           }}
           class="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white glass-button rounded-lg transition-all"
         >

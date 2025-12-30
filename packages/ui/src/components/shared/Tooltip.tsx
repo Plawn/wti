@@ -46,7 +46,9 @@ export const Tooltip: Component<TooltipProps> = (props) => {
   };
 
   onCleanup(() => {
-    if (timeoutId) clearTimeout(timeoutId);
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
   });
 
   return (

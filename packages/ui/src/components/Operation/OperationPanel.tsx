@@ -104,10 +104,18 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
   // Check if schema is suitable for form mode
   const canUseFormMode = createMemo(() => {
     const schema = bodySchema();
-    if (!schema) return false;
-    if (schema.properties && Object.keys(schema.properties).length > 0) return true;
-    if (schema.type === 'object') return true;
-    if (schema.type === 'array' && schema.items) return true;
+    if (!schema) {
+      return false;
+    }
+    if (schema.properties && Object.keys(schema.properties).length > 0) {
+      return true;
+    }
+    if (schema.type === 'object') {
+      return true;
+    }
+    if (schema.type === 'array' && schema.items) {
+      return true;
+    }
     return false;
   });
 
@@ -131,9 +139,15 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
   // Initialize with replay values or defaults
   const initDefaults = (replayValues?: RequestValues) => {
     if (replayValues) {
-      if (replayValues.path) setPathParams(replayValues.path);
-      if (replayValues.query) setQueryParams(replayValues.query);
-      if (replayValues.headers) setHeaderParams(replayValues.headers);
+      if (replayValues.path) {
+        setPathParams(replayValues.path);
+      }
+      if (replayValues.query) {
+        setQueryParams(replayValues.query);
+      }
+      if (replayValues.headers) {
+        setHeaderParams(replayValues.headers);
+      }
       if (replayValues.body !== undefined) {
         const bodyData = replayValues.body;
         if (typeof bodyData === 'object' && bodyData !== null) {
@@ -148,9 +162,15 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
 
     // Use schema defaults
     const defaults = getDefaultValues(props.operation);
-    if (defaults.path) setPathParams(defaults.path);
-    if (defaults.query) setQueryParams(defaults.query);
-    if (defaults.headers) setHeaderParams(defaults.headers);
+    if (defaults.path) {
+      setPathParams(defaults.path);
+    }
+    if (defaults.query) {
+      setQueryParams(defaults.query);
+    }
+    if (defaults.headers) {
+      setHeaderParams(defaults.headers);
+    }
 
     const ct = contentType();
     if (hasRequestBody() && ct) {

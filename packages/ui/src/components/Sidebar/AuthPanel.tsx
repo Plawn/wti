@@ -18,11 +18,21 @@ export const AuthPanel: Component<AuthPanelProps> = (props) => {
   const availableAuthTypes = () => {
     const types = new Set<AuthTab>();
     for (const scheme of Object.values(props.securitySchemes)) {
-      if (scheme.type === 'apiKey') types.add('apiKey');
-      if (scheme.type === 'bearer') types.add('bearer');
-      if (scheme.type === 'basic') types.add('basic');
-      if (scheme.type === 'oauth2') types.add('oauth2');
-      if (scheme.type === 'openIdConnect') types.add('openid');
+      if (scheme.type === 'apiKey') {
+        types.add('apiKey');
+      }
+      if (scheme.type === 'bearer') {
+        types.add('bearer');
+      }
+      if (scheme.type === 'basic') {
+        types.add('basic');
+      }
+      if (scheme.type === 'oauth2') {
+        types.add('oauth2');
+      }
+      if (scheme.type === 'openIdConnect') {
+        types.add('openid');
+      }
     }
     // If no schemes defined, show all types
     if (types.size === 0) {

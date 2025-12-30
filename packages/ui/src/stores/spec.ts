@@ -31,7 +31,9 @@ export function createSpecStore() {
 
   // Memoized Fuse.js instance - shared across all components using this store
   const fuse = createMemo(() => {
-    if (!state.spec) return null;
+    if (!state.spec) {
+      return null;
+    }
     return createOperationSearch(state.spec.operations);
   });
 
@@ -167,7 +169,9 @@ export function createSpecStore() {
     /** Search operations with the given query */
     searchOperations: (query: string, limit = 50) => {
       const fuseInstance = fuse();
-      if (!fuseInstance) return [];
+      if (!fuseInstance) {
+        return [];
+      }
       return searchOperations(fuseInstance, query, limit);
     },
   };

@@ -37,7 +37,9 @@ export const SpecLoader: Component<SpecLoaderProps> = (props) => {
   };
 
   const handleFileSelect = async (file: File) => {
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     // Validate file type
     const validTypes = ['application/json', 'application/x-yaml', 'text/yaml', 'text/plain'];

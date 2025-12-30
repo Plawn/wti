@@ -8,11 +8,15 @@ const isClient = typeof window !== 'undefined' && typeof localStorage !== 'undef
  * Safely get a value from localStorage
  */
 export function getLocalStorageItem<T>(key: string, defaultValue: T): T {
-  if (!isClient) return defaultValue;
+  if (!isClient) {
+    return defaultValue;
+  }
 
   try {
     const stored = localStorage.getItem(key);
-    if (stored === null) return defaultValue;
+    if (stored === null) {
+      return defaultValue;
+    }
     return JSON.parse(stored) as T;
   } catch {
     return defaultValue;
@@ -23,7 +27,9 @@ export function getLocalStorageItem<T>(key: string, defaultValue: T): T {
  * Safely set a value in localStorage
  */
 export function setLocalStorageItem<T>(key: string, value: T): boolean {
-  if (!isClient) return false;
+  if (!isClient) {
+    return false;
+  }
 
   try {
     localStorage.setItem(key, JSON.stringify(value));
@@ -38,7 +44,9 @@ export function setLocalStorageItem<T>(key: string, value: T): boolean {
  * Safely remove a value from localStorage
  */
 export function removeLocalStorageItem(key: string): boolean {
-  if (!isClient) return false;
+  if (!isClient) {
+    return false;
+  }
 
   try {
     localStorage.removeItem(key);

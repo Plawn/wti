@@ -16,7 +16,9 @@ export interface UrlParams {
  */
 export function getParamsFromUrl(): UrlParams {
   const hash = window.location.hash.slice(1); // Remove leading #
-  if (!hash) return {};
+  if (!hash) {
+    return {};
+  }
 
   const params = new URLSearchParams(hash);
   const operationId = params.get('op') || undefined;

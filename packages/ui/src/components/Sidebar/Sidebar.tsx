@@ -14,7 +14,9 @@ interface SidebarProps {
 export const Sidebar: Component<SidebarProps> = (props) => {
   const spec = () => {
     const s = props.store.state.spec;
-    if (!s) throw new Error('Sidebar rendered without spec');
+    if (!s) {
+      throw new Error('Sidebar rendered without spec');
+    }
     return s;
   };
 

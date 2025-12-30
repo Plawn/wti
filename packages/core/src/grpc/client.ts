@@ -161,7 +161,9 @@ export function createGrpcClient(options: GrpcClientOptions) {
       while (reader) {
         const { done, value } = await reader.read();
 
-        if (done) break;
+        if (done) {
+          break;
+        }
 
         buffer += decoder.decode(value, { stream: true });
 

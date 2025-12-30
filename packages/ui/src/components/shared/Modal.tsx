@@ -35,7 +35,9 @@ export const Modal: Component<ModalProps> = (props) => {
 
   // Sync dialog open state with props.open
   createEffect(() => {
-    if (!dialogRef) return;
+    if (!dialogRef) {
+      return;
+    }
 
     if (props.open) {
       if (!dialogRef.open) {
@@ -51,7 +53,9 @@ export const Modal: Component<ModalProps> = (props) => {
   // Handle native dialog close event (e.g., Escape key)
   // Using onMount since this only needs to run once and has no reactive dependencies
   onMount(() => {
-    if (!dialogRef) return;
+    if (!dialogRef) {
+      return;
+    }
 
     const handleClose = () => {
       if (props.open) {

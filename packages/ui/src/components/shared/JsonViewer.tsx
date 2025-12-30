@@ -22,8 +22,12 @@ interface JsonNodeProps {
 }
 
 const getValueType = (value: unknown): string => {
-  if (value === null) return 'null';
-  if (Array.isArray(value)) return 'array';
+  if (value === null) {
+    return 'null';
+  }
+  if (Array.isArray(value)) {
+    return 'array';
+  }
   return typeof value;
 };
 

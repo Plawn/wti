@@ -18,7 +18,9 @@ export const Accordion: Component<AccordionProps> = (props) => {
   const getDefaultOpen = () => {
     const defaults: string[] = [];
     for (const item of props.items) {
-      if (item.defaultOpen) defaults.push(item.id);
+      if (item.defaultOpen) {
+        defaults.push(item.id);
+      }
     }
     return defaults;
   };

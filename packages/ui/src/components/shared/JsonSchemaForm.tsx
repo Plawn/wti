@@ -27,9 +27,15 @@ export interface JsonSchemaFormProps {
 export const JsonSchemaForm: Component<JsonSchemaFormProps> = (props) => {
   const schemaType = createMemo(() => {
     const schema = props.schema;
-    if (schema.enum && schema.enum.length > 0) return 'enum';
-    if (schema.oneOf && schema.oneOf.length > 0) return 'oneOf';
-    if (schema.anyOf && schema.anyOf.length > 0) return 'anyOf';
+    if (schema.enum && schema.enum.length > 0) {
+      return 'enum';
+    }
+    if (schema.oneOf && schema.oneOf.length > 0) {
+      return 'oneOf';
+    }
+    if (schema.anyOf && schema.anyOf.length > 0) {
+      return 'anyOf';
+    }
     return schema.type || 'string';
   });
 
@@ -327,7 +333,9 @@ const ArrayField: Component<ArrayFieldProps> = (props) => {
   };
 
   const moveItem = (fromIndex: number, toIndex: number) => {
-    if (toIndex < 0 || toIndex >= currentValue().length) return;
+    if (toIndex < 0 || toIndex >= currentValue().length) {
+      return;
+    }
     const newArray = [...currentValue()];
     const [item] = newArray.splice(fromIndex, 1);
     newArray.splice(toIndex, 0, item);
@@ -571,7 +579,9 @@ const SchemaField: Component<SchemaFieldProps> = (props) => {
  * Get default value for a schema type
  */
 function getDefaultValue(schema: Schema): unknown {
-  if (schema.default !== undefined) return schema.default;
+  if (schema.default !== undefined) {
+    return schema.default;
+  }
 
   const type = schema.type || 'string';
   switch (type) {

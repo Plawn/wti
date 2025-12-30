@@ -102,7 +102,9 @@ function convertServerVariable(
 }
 
 function convertTags(tags?: (OpenAPIV3.TagObject | OpenAPIV3_1.TagObject)[]): Tag[] {
-  if (!tags) return [];
+  if (!tags) {
+    return [];
+  }
 
   return tags.map((tag) => ({
     name: tag.name,
@@ -121,7 +123,9 @@ function extractOperations(doc: OpenAPIDocument): Operation[] {
   const paths = doc.paths || {};
 
   for (const [path, pathItem] of Object.entries(paths)) {
-    if (!pathItem) continue;
+    if (!pathItem) {
+      continue;
+    }
 
     const item = pathItem as OpenAPIPathItem;
 
@@ -221,36 +225,69 @@ function convertSchema(schema: OpenAPISchema): Schema {
   if (schema.type) {
     result.type = Array.isArray(schema.type) ? schema.type[0] : (schema.type as Schema['type']);
   }
-  if (schema.format) result.format = schema.format;
-  if (schema.title) result.title = schema.title;
-  if (schema.description) result.description = schema.description;
-  if (schema.default !== undefined) result.default = schema.default;
-  if (schema.enum) result.enum = schema.enum;
-  if ('const' in schemaAny && schemaAny.const !== undefined) result.const = schemaAny.const;
-  if ('nullable' in schemaAny && schemaAny.nullable)
+  if (schema.format) {
+    result.format = schema.format;
+  }
+  if (schema.title) {
+    result.title = schema.title;
+  }
+  if (schema.description) {
+    result.description = schema.description;
+  }
+  if (schema.default !== undefined) {
+    result.default = schema.default;
+  }
+  if (schema.enum) {
+    result.enum = schema.enum;
+  }
+  if ('const' in schemaAny && schemaAny.const !== undefined) {
+    result.const = schemaAny.const;
+  }
+  if ('nullable' in schemaAny && schemaAny.nullable) {
     result.nullable = schemaAny.nullable as boolean;
+  }
 
   // String constraints
-  if (schema.minLength !== undefined) result.minLength = schema.minLength;
-  if (schema.maxLength !== undefined) result.maxLength = schema.maxLength;
-  if (schema.pattern) result.pattern = schema.pattern;
+  if (schema.minLength !== undefined) {
+    result.minLength = schema.minLength;
+  }
+  if (schema.maxLength !== undefined) {
+    result.maxLength = schema.maxLength;
+  }
+  if (schema.pattern) {
+    result.pattern = schema.pattern;
+  }
 
   // Number constraints
-  if (schema.minimum !== undefined) result.minimum = schema.minimum;
-  if (schema.maximum !== undefined) result.maximum = schema.maximum;
-  if (schema.exclusiveMinimum !== undefined)
+  if (schema.minimum !== undefined) {
+    result.minimum = schema.minimum;
+  }
+  if (schema.maximum !== undefined) {
+    result.maximum = schema.maximum;
+  }
+  if (schema.exclusiveMinimum !== undefined) {
     result.exclusiveMinimum = schema.exclusiveMinimum as number;
-  if (schema.exclusiveMaximum !== undefined)
+  }
+  if (schema.exclusiveMaximum !== undefined) {
     result.exclusiveMaximum = schema.exclusiveMaximum as number;
-  if (schema.multipleOf !== undefined) result.multipleOf = schema.multipleOf;
+  }
+  if (schema.multipleOf !== undefined) {
+    result.multipleOf = schema.multipleOf;
+  }
 
   // Array constraints
   if ('items' in schemaAny && schemaAny.items && !isReference(schemaAny.items)) {
     result.items = convertSchema(schemaAny.items as OpenAPISchema);
   }
-  if (schema.minItems !== undefined) result.minItems = schema.minItems;
-  if (schema.maxItems !== undefined) result.maxItems = schema.maxItems;
-  if (schema.uniqueItems) result.uniqueItems = schema.uniqueItems;
+  if (schema.minItems !== undefined) {
+    result.minItems = schema.minItems;
+  }
+  if (schema.maxItems !== undefined) {
+    result.maxItems = schema.maxItems;
+  }
+  if (schema.uniqueItems) {
+    result.uniqueItems = schema.uniqueItems;
+  }
 
   // Object constraints
   if (schema.properties) {
@@ -260,7 +297,9 @@ function convertSchema(schema: OpenAPISchema): Schema {
         .map(([key, prop]) => [key, convertSchema(prop as OpenAPISchema)]),
     );
   }
-  if (schema.required) result.required = schema.required;
+  if (schema.required) {
+    result.required = schema.required;
+  }
   if (schema.additionalProperties !== undefined) {
     result.additionalProperties =
       typeof schema.additionalProperties === 'boolean'
@@ -335,7 +374,9 @@ function convertExample(example: OpenAPIV3.ExampleObject): Example {
 function convertResponses(
   responses?: OpenAPIV3.ResponsesObject | OpenAPIV3_1.ResponsesObject,
 ): Response[] {
-  if (!responses) return [];
+  if (!responses) {
+    return [];
+  }
 
   return Object.entries(responses)
     .filter(([, response]) => !isReference(response))
@@ -387,7 +428,9 @@ function convertSchemas(
     OpenAPIV3.SchemaObject | OpenAPIV3_1.SchemaObject | OpenAPIV3.ReferenceObject
   >,
 ): Record<string, Schema> {
-  if (!schemas) return {};
+  if (!schemas) {
+    return {};
+  }
 
   return Object.fromEntries(
     Object.entries(schemas)
@@ -399,7 +442,9 @@ function convertSchemas(
 function convertSecuritySchemes(
   schemes?: Record<string, OpenAPISecurityScheme | OpenAPIV3.ReferenceObject>,
 ): Record<string, SecurityRequirement> {
-  if (!schemes) return {};
+  if (!schemes) {
+    return {};
+  }
 
   return Object.fromEntries(
     Object.entries(schemes)

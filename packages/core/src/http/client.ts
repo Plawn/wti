@@ -158,7 +158,9 @@ function buildUrl(baseUrl: string, params?: Record<string, string>): string {
  * HTTP headers are case-insensitive per RFC 7230
  */
 function getHeader(headers: Record<string, string> | undefined, name: string): string {
-  if (!headers) return '';
+  if (!headers) {
+    return '';
+  }
   const lowerName = name.toLowerCase();
   for (const [key, value] of Object.entries(headers)) {
     if (key.toLowerCase() === lowerName) {

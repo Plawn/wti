@@ -41,17 +41,31 @@ export function formatValue(
   prettyPrint: boolean,
   keywords: LanguageKeywords,
 ): string {
-  if (value === null) return keywords.null;
-  if (value === undefined) return keywords.undefined;
-  if (value === true) return keywords.true;
-  if (value === false) return keywords.false;
-  if (typeof value === 'string') return JSON.stringify(value);
-  if (typeof value === 'number') return String(value);
+  if (value === null) {
+    return keywords.null;
+  }
+  if (value === undefined) {
+    return keywords.undefined;
+  }
+  if (value === true) {
+    return keywords.true;
+  }
+  if (value === false) {
+    return keywords.false;
+  }
+  if (typeof value === 'string') {
+    return JSON.stringify(value);
+  }
+  if (typeof value === 'number') {
+    return String(value);
+  }
 
   const nextIndent = indent + keywords.indentSize;
 
   if (Array.isArray(value)) {
-    if (value.length === 0) return '[]';
+    if (value.length === 0) {
+      return '[]';
+    }
     const items = value.map((v) => formatValue(v, nextIndent, prettyPrint, keywords));
     if (prettyPrint) {
       const pad = ' '.repeat(nextIndent);
@@ -62,7 +76,9 @@ export function formatValue(
 
   if (typeof value === 'object') {
     const entries = Object.entries(value);
-    if (entries.length === 0) return '{}';
+    if (entries.length === 0) {
+      return '{}';
+    }
     const items = entries.map(
       ([k, v]) => `${keywords.formatKey(k)}: ${formatValue(v, nextIndent, prettyPrint, keywords)}`,
     );
