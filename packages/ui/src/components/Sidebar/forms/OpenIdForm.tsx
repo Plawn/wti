@@ -172,7 +172,7 @@ export const OpenIdForm: Component<OpenIdFormProps> = (props) => {
         <div>
           <label
             for="auth-openid-issuer"
-            class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1.5"
+            class="block text-xs font-medium text-surface-600 dark:text-surface-300 mb-1.5"
           >
             {t('auth.issuerUrl')}
           </label>
@@ -188,7 +188,7 @@ export const OpenIdForm: Component<OpenIdFormProps> = (props) => {
         <div>
           <label
             for="auth-openid-client-id"
-            class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1.5"
+            class="block text-xs font-medium text-surface-600 dark:text-surface-300 mb-1.5"
           >
             {t('auth.clientId')}
           </label>
@@ -204,7 +204,7 @@ export const OpenIdForm: Component<OpenIdFormProps> = (props) => {
         <div>
           <label
             for="auth-openid-client-secret"
-            class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1.5"
+            class="block text-xs font-medium text-surface-600 dark:text-surface-300 mb-1.5"
           >
             {t('auth.clientSecret')}
           </label>
@@ -220,7 +220,7 @@ export const OpenIdForm: Component<OpenIdFormProps> = (props) => {
         <div>
           <label
             for="auth-openid-scopes"
-            class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1.5"
+            class="block text-xs font-medium text-surface-600 dark:text-surface-300 mb-1.5"
           >
             {t('auth.scopes')}
           </label>
@@ -258,10 +258,10 @@ export const OpenIdForm: Component<OpenIdFormProps> = (props) => {
               </Show>
             </p>
           </div>
-          <p class="text-xs text-gray-600 dark:text-gray-300 truncate">
+          <p class="text-xs text-surface-600 dark:text-surface-300 truncate">
             <span class="font-medium">{t('auth.issuerUrl')}:</span> {existingConfig()?.issuerUrl}
           </p>
-          <p class="text-xs text-gray-600 dark:text-gray-300 truncate mt-1">
+          <p class="text-xs text-surface-600 dark:text-surface-300 truncate mt-1">
             <span class="font-medium">{t('auth.clientId')}:</span> {existingConfig()?.clientId}
           </p>
         </div>
@@ -275,7 +275,7 @@ export const OpenIdForm: Component<OpenIdFormProps> = (props) => {
                   ? 'bg-red-50 dark:bg-red-900/20'
                   : status().status === 'expiring'
                     ? 'bg-amber-50 dark:bg-amber-900/20'
-                    : 'bg-gray-50 dark:bg-gray-800/50'
+                    : 'bg-surface-50 dark:bg-surface-800/50'
               }`}
             >
               <p
@@ -284,7 +284,7 @@ export const OpenIdForm: Component<OpenIdFormProps> = (props) => {
                     ? 'text-red-600 dark:text-red-400'
                     : status().status === 'expiring'
                       ? 'text-amber-600 dark:text-amber-400'
-                      : 'text-gray-600 dark:text-gray-400'
+                      : 'text-surface-600 dark:text-surface-400'
                 }`}
               >
                 {status().text}

@@ -51,7 +51,9 @@ export const SearchBar: Component<SearchBarProps> = (props) => {
       <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors duration-200">
         <svg
           class={`w-[18px] h-[18px] ${
-            isFocused() ? 'text-blue-500 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'
+            isFocused()
+              ? 'text-accent-500 dark:text-accent-400'
+              : 'text-surface-400 dark:text-surface-500'
           }`}
           fill="none"
           viewBox="0 0 24 24"
@@ -71,8 +73,8 @@ export const SearchBar: Component<SearchBarProps> = (props) => {
       <input
         ref={inputRef}
         type="text"
-        class={`w-full py-2.5 glass-input text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-500 outline-none transition-all duration-200 ${
-          isFocused() ? 'shadow-lg shadow-blue-500/10' : ''
+        class={`w-full py-3 sm:py-2.5 glass-input text-base sm:text-sm text-surface-900 dark:text-surface-100 placeholder-surface-500 dark:placeholder-surface-500 outline-none transition-all duration-200 ${
+          isFocused() ? 'shadow-lg shadow-accent-500/10' : ''
         }`}
         style="padding-left: 44px !important; padding-right: 40px !important;"
         placeholder={t('common.search')}
@@ -92,7 +94,7 @@ export const SearchBar: Component<SearchBarProps> = (props) => {
                 isFocused() ? 'opacity-100' : 'opacity-70 group-hover:opacity-100'
               }`}
             >
-              <kbd class="hidden sm:inline-flex items-center justify-center h-5 px-1.5 text-[10px] font-sans font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
+              <kbd class="hidden sm:inline-flex items-center justify-center h-5 px-1.5 text-[10px] font-sans font-medium text-surface-500 dark:text-surface-400 bg-surface-100 dark:bg-surface-800 rounded border border-surface-200 dark:border-surface-700">
                 /
               </kbd>
             </div>
@@ -101,7 +103,7 @@ export const SearchBar: Component<SearchBarProps> = (props) => {
           <button
             type="button"
             onClick={handleClear}
-            class="p-1 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+            class="p-1 rounded-md text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors focus:outline-none focus:ring-2 focus:ring-accent-500/40"
             aria-label="Clear search"
           >
             <svg

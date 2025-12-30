@@ -47,7 +47,7 @@ export const CodeBlock: Component<CodeBlockProps> = (props) => {
         <button
           type="button"
           onClick={() => copy(props.code)}
-          class="absolute top-2 right-2 sm:top-3 sm:right-3 z-10 flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 text-xs font-medium text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 glass-button rounded-lg transition-all"
+          class="absolute top-2 right-2 sm:top-3 sm:right-3 z-10 flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 text-xs font-medium text-surface-400 dark:text-surface-500 hover:text-surface-600 dark:hover:text-surface-300 glass-button rounded-lg transition-all"
           aria-label={copied() ? t('common.copied') : t('common.copy')}
         >
           <Show
@@ -82,7 +82,7 @@ export const CodeBlock: Component<CodeBlockProps> = (props) => {
             >
               <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
             </svg>
-            <span class="hidden sm:inline text-emerald-600 dark:text-emerald-400">
+            <span class="hidden sm:inline text-emerald-500 dark:text-emerald-400">
               {t('common.copied')}
             </span>
           </Show>
@@ -91,7 +91,7 @@ export const CodeBlock: Component<CodeBlockProps> = (props) => {
 
       {/* Language badge */}
       <div class="absolute top-3 left-3 z-10">
-        <span class="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+        <span class="text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider">
           {language()}
         </span>
       </div>

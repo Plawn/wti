@@ -1,7 +1,6 @@
 import { type Component, type JSX, Show, createEffect, createSignal, onCleanup } from 'solid-js';
 import { Portal } from 'solid-js/web';
 import { useDialogState, useIsDark } from '../../hooks';
-import { useI18n } from '../../i18n';
 
 export type DrawerPosition = 'left' | 'right';
 export type DrawerSize = 'sm' | 'md' | 'lg' | 'xl';
@@ -47,7 +46,6 @@ const positionStyles: Record<DrawerPosition, { panel: string; enter: string; exi
 const ANIMATION_DURATION = 200;
 
 export const Drawer: Component<DrawerProps> = (props) => {
-  const { t } = useI18n();
   const position = () => props.position ?? 'right';
   const size = () => props.size ?? 'md';
   const showClose = () => props.showClose ?? true;
@@ -144,7 +142,7 @@ export const Drawer: Component<DrawerProps> = (props) => {
 
               {/* Content */}
               <div
-                class={`flex-1 overflow-y-auto overflow-x-hidden ${props.noPadding ? '' : 'p-6'}`}
+                class={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden flex flex-col scrollbar-thin ${props.noPadding ? '' : 'p-6'}`}
               >
                 {props.children}
               </div>
@@ -155,17 +153,6 @@ export const Drawer: Component<DrawerProps> = (props) => {
                   {props.footer}
                 </div>
               </Show>
-
-              {/* Mobile close button - in thumb zone */}
-              <div class="md:hidden px-4 py-2 border-t border-gray-200 dark:border-white/5">
-                <button
-                  type="button"
-                  onClick={props.onClose}
-                  class="w-full py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-white/10 active:bg-gray-200 dark:active:bg-white/20 transition-colors touch-manipulation"
-                >
-                  {t('common.close')}
-                </button>
-              </div>
             </div>
           </div>
         </div>

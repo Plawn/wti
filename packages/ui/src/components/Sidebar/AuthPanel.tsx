@@ -1,7 +1,8 @@
 import type { SecurityRequirement } from '@wti/core';
-import { type Component, For, Show, createSignal } from 'solid-js';
+import { type Component, Show, createSignal } from 'solid-js';
 import { useI18n } from '../../i18n';
 import type { AuthStore } from '../../stores';
+import { SegmentedControl } from '../shared';
 import { ApiKeyForm, BasicForm, BearerForm, OAuth2Form, OpenIdForm } from './forms';
 
 interface AuthPanelProps {
@@ -60,8 +61,8 @@ export const AuthPanel: Component<AuthPanelProps> = (props) => {
     }
     return {
       text: t('auth.notConfigured'),
-      class: 'text-gray-500 dark:text-gray-400',
-      dot: 'bg-gray-400 dark:bg-gray-500',
+      class: 'text-surface-500 dark:text-surface-400',
+      dot: 'bg-surface-400 dark:bg-surface-500',
     };
   };
 
@@ -102,7 +103,7 @@ export const AuthPanel: Component<AuthPanelProps> = (props) => {
             </svg>
           </div>
           <div class="text-left">
-            <h3 class="text-xs md:text-sm font-semibold text-gray-900 dark:text-white">
+            <h3 class="text-xs md:text-sm font-semibold text-surface-900 dark:text-white">
               {t('auth.title')}
             </h3>
             <div class="flex items-center gap-1.5 mt-0.5">
@@ -114,7 +115,7 @@ export const AuthPanel: Component<AuthPanelProps> = (props) => {
           </div>
         </div>
         <svg
-          class={`w-4 h-4 text-gray-400 transition-transform ${expanded() ? 'rotate-180' : ''}`}
+          class={`w-4 h-4 text-surface-400 transition-transform ${expanded() ? 'rotate-180' : ''}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -133,23 +134,15 @@ export const AuthPanel: Component<AuthPanelProps> = (props) => {
       <Show when={expanded()}>
         <div class="mt-3 space-y-3">
           {/* Auth type tabs */}
-          <div class="flex gap-1 p-1 glass-input rounded-xl">
-            <For each={availableAuthTypes()}>
-              {(authType) => (
-                <button
-                  type="button"
-                  onClick={() => setActiveTab(authType)}
-                  class={`flex-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
-                    activeTab() === authType
-                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                  }`}
-                >
-                  {getTabLabel(authType)}
-                </button>
-              )}
-            </For>
-          </div>
+          <SegmentedControl
+            value={activeTab()}
+            onChange={(val) => setActiveTab(val as AuthTab)}
+            options={availableAuthTypes().map((type) => ({
+              value: type,
+              label: getTabLabel(type),
+            }))}
+            className="w-full"
+          />
 
           {/* Auth forms */}
           <Show when={activeTab() === 'apiKey'}>

@@ -160,7 +160,7 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
         </div>
 
         {/* History list */}
-        <div class="flex-1 overflow-y-auto">
+        <div class="flex-1 overflow-y-auto scrollbar-thin">
           <Show
             when={props.store.state.entries.length > 0}
             fallback={

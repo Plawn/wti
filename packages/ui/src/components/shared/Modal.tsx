@@ -138,7 +138,7 @@ export const Modal: Component<ModalProps> = (props) => {
         </Show>
 
         {/* Content */}
-        <div class="p-6 max-h-[70vh] overflow-y-auto">{props.children}</div>
+        <div class="p-6 max-h-[70vh] overflow-y-auto scrollbar-thin">{props.children}</div>
 
         {/* Footer */}
         <Show when={props.footer}>

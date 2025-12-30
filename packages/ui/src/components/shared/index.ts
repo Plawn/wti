@@ -36,3 +36,9 @@ export type { TooltipProps, TooltipPosition } from './Tooltip';
 
 export { JsonViewer } from './JsonViewer';
 export type { JsonViewerProps } from './JsonViewer';
+export { SegmentedControl } from './SegmentedControl';
+export type { SegmentedControlProps, SegmentedControlOption } from './SegmentedControl';
+export { ErrorDisplay } from './ErrorDisplay';
+export type { ErrorDisplayProps } from './ErrorDisplay';
+export { Section } from './Section';
+export type { SectionProps } from './Section';

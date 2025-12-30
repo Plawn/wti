@@ -10,6 +10,8 @@ interface ServerSelectorProps {
   serverVariables: Record<string, string>;
   onChange: (server: Server) => void;
   onVariableChange: (name: string, value: string) => void;
+  hideLabel?: boolean;
+  className?: string;
 }
 
 export const ServerSelector: Component<ServerSelectorProps> = (props) => {
@@ -42,14 +44,16 @@ export const ServerSelector: Component<ServerSelectorProps> = (props) => {
 
   return (
     <Show when={props.servers.length > 0}>
-      <div class="space-y-3">
+      <div class={`space-y-3 ${props.className ?? ''}`}>
         <div>
-          <label
-            class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-2"
-            for="server-selector"
-          >
-            {t('sidebar.servers')}
-          </label>
+          <Show when={!props.hideLabel}>
+            <label
+              class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-2"
+              for="server-selector"
+            >
+              {t('sidebar.servers')}
+            </label>
+          </Show>
           <Select id="server-selector" value={props.selectedUrl || ''} onChange={handleChange}>
             <For each={props.servers}>
               {(server) => <option value={server.url}>{server.description || server.url}</option>}

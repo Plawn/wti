@@ -56,8 +56,8 @@ export const ResponseSection: Component<ResponseSectionProps> = (props) => {
   ];
 
   return (
-    <div class="mt-8 md:mt-12 lg:mt-16 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 md:mb-5">
+    <div class="mt-4 md:mt-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-2 sm:mb-3">
         <div class="flex flex-wrap items-center gap-2 sm:gap-4">
           <span
             class={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl text-sm sm:text-base font-bold shadow-sm ${statusConfig().bg} ${statusConfig().text}`}

@@ -10,10 +10,10 @@ import {
   generateCode,
   getAvailableLanguages,
 } from '@wti/core';
-import { type Component, For, Show, createMemo, createSignal } from 'solid-js';
+import { type Component, Show, createMemo, createSignal } from 'solid-js';
 import { useCopyToClipboard } from '../../hooks';
 import { useI18n } from '../../i18n';
-import { CodeBlock } from '../shared';
+import { CodeBlock, SegmentedControl } from '../shared';
 
 interface CodeSnippetsProps {
   request: RequestConfig;
@@ -52,24 +52,15 @@ export const CodeSnippets: Component<CodeSnippetsProps> = (props) => {
   return (
     <div class="glass-card rounded-2xl overflow-hidden">
       {/* Header with language tabs */}
-      <div class="flex items-center justify-between p-4 border-b border-gray-200/50 dark:border-gray-700/50">
-        <div class="flex items-center gap-1 p-1 bg-gray-100/50 dark:bg-gray-800/50 rounded-xl">
-          <For each={LANGUAGES}>
-            {(lang) => (
-              <button
-                type="button"
-                onClick={() => setSelectedLang(lang.language)}
-                class={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
-                  selectedLang() === lang.language
-                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                }`}
-              >
-                {lang.displayName}
-              </button>
-            )}
-          </For>
-        </div>
+      <div class="flex items-center justify-between p-4 border-b border-surface-200/50 dark:border-surface-700/50">
+        <SegmentedControl
+          value={selectedLang()}
+          onChange={(lang) => setSelectedLang(lang as CodeLanguage)}
+          options={LANGUAGES.map((lang) => ({
+            value: lang.language,
+            label: lang.displayName,
+          }))}
+        />
 
         {/* Copy button */}
         <button
@@ -80,7 +71,7 @@ export const CodeSnippets: Component<CodeSnippetsProps> = (props) => {
               copy(code.code);
             }
           }}
-          class="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white glass-button rounded-lg transition-all"
+          class="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-50 glass-button rounded-lg transition-all"
         >
           <Show
             when={copied()}
@@ -105,7 +96,7 @@ export const CodeSnippets: Component<CodeSnippetsProps> = (props) => {
             }
           >
             <svg
-              class="w-4 h-4 text-green-500"
+              class="w-4 h-4 text-emerald-500"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -124,20 +115,19 @@ export const CodeSnippets: Component<CodeSnippetsProps> = (props) => {
       </div>
 
       {/* Code content */}
-      <div class="max-h-96 overflow-auto">
-        <Show
-          when={generatedCode()}
-          fallback={<div class="p-4 text-gray-500">Failed to generate code</div>}
-        >
-          {(code) => (
-            <CodeBlock
-              code={code().code}
-              language={languageToHighlight(code().language)}
-              hideCopyButton
-            />
-          )}
-        </Show>
-      </div>
+      <Show
+        when={generatedCode()}
+        fallback={<div class="p-4 text-surface-500">Failed to generate code</div>}
+      >
+        {(code) => (
+          <CodeBlock
+            code={code().code}
+            language={languageToHighlight(code().language)}
+            hideCopyButton
+            maxHeight="400px"
+          />
+        )}
+      </Show>
     </div>
   );
 };

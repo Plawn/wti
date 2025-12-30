@@ -5,12 +5,25 @@
   --color-surface-50: oklch(0.99 0.002 240);
   --color-surface-100: oklch(0.97 0.004 240);
   --color-surface-200: oklch(0.93 0.006 240);
+  --color-surface-300: oklch(0.88 0.008 240);
+  --color-surface-400: oklch(0.8 0.01 240);
+  --color-surface-500: oklch(0.6 0.015 240);
+  --color-surface-600: oklch(0.45 0.02 250);
+  --color-surface-700: oklch(0.35 0.02 260);
   --color-surface-800: oklch(0.25 0.015 260);
   --color-surface-900: oklch(0.18 0.02 260);
   --color-surface-950: oklch(0.12 0.02 260);
 
-  --color-accent-500: oklch(0.65 0.2 250);
-  --color-accent-600: oklch(0.55 0.22 250);
+  --color-accent-50: oklch(0.97 0.02 250);
+  --color-accent-100: oklch(0.92 0.04 250);
+  --color-accent-200: oklch(0.85 0.08 250);
+  --color-accent-300: oklch(0.75 0.12 250);
+  --color-accent-400: oklch(0.65 0.16 250);
+  --color-accent-500: oklch(0.55 0.2 250);
+  --color-accent-600: oklch(0.45 0.22 250);
+  --color-accent-700: oklch(0.35 0.2 250);
+  --color-accent-800: oklch(0.25 0.18 250);
+  --color-accent-900: oklch(0.15 0.15 250);
 }
 
 /* Base styles */
@@ -30,20 +43,20 @@
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: oklch(0.6 0.01 250 / 0.2);
+  background: color-mix(in oklch, var(--color-surface-500), transparent 80%);
   border-radius: 999px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.5 0.02 250 / 0.35);
+  background: color-mix(in oklch, var(--color-surface-600), transparent 65%);
 }
 
 .dark .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: oklch(0.5 0.02 250 / 0.25);
+  background: color-mix(in oklch, var(--color-surface-400), transparent 75%);
 }
 
 .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.55 0.02 250 / 0.4);
+  background: color-mix(in oklch, var(--color-surface-300), transparent 60%);
 }
 
 /* iOS 26 Glass Effect - Primary */
@@ -126,6 +139,17 @@
   border-color: oklch(1 0 0 / 0.08);
   box-shadow: 0 2px 8px -2px oklch(0 0 0 / 0.3), 0 8px 24px -4px oklch(0 0 0 / 0.25), inset 0 1px
     1px oklch(1 0 0 / 0.05);
+}
+
+/* iOS 26 Glass - Surface (sticky headers/controls) */
+.glass-surface {
+  background: rgb(255 255 255 / 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.dark .glass-surface {
+  background: rgb(17 24 39 / 0.8);
 }
 
 /* iOS 26 Input fields */

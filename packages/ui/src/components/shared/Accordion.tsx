@@ -38,20 +38,20 @@ export const Accordion: Component<AccordionProps> = (props) => {
   };
 
   return (
-    <div class={`space-y-2 ${props.class ?? ''}`}>
+    <div class={`space-y-1.5 ${props.class ?? ''}`}>
       <For each={props.items}>
         {(item) => (
-          <div class="glass-card rounded-xl overflow-hidden">
+          <div class="glass-card rounded-lg overflow-hidden">
             <button
               type="button"
               onClick={() => toggle(item.id)}
-              class="w-full flex items-center justify-between px-5 py-4 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors"
+              class="w-full flex items-center justify-between px-3 py-2.5 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors"
               aria-expanded={isOpen(item.id)}
               aria-controls={`accordion-content-${item.id}`}
             >
-              <div class="flex items-center gap-3 text-left">
+              <div class="flex items-center gap-2 text-left">
                 <svg
-                  class={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform duration-200 ${isOpen(item.id) ? 'rotate-90' : ''}`}
+                  class={`w-3.5 h-3.5 text-gray-500 dark:text-gray-400 transition-transform duration-200 ${isOpen(item.id) ? 'rotate-90' : ''}`}
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -60,12 +60,12 @@ export const Accordion: Component<AccordionProps> = (props) => {
                 >
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-200">
+                <span class="text-xs font-medium text-gray-700 dark:text-gray-200">
                   {item.title}
                 </span>
               </div>
               <svg
-                class={`w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform duration-200 ${isOpen(item.id) ? 'rotate-180' : ''}`}
+                class={`w-3.5 h-3.5 text-gray-400 dark:text-gray-500 transition-transform duration-200 ${isOpen(item.id) ? 'rotate-180' : ''}`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -79,9 +79,9 @@ export const Accordion: Component<AccordionProps> = (props) => {
             <Show when={isOpen(item.id)}>
               <div
                 id={`accordion-content-${item.id}`}
-                class="px-5 pb-4 border-t border-gray-200 dark:border-white/5 animate-in fade-in slide-in-from-top-2 duration-200"
+                class="px-3 pb-3 border-t border-gray-200 dark:border-white/5 animate-in fade-in slide-in-from-top-2 duration-200"
               >
-                <div class="pt-4">{item.content}</div>
+                <div class="pt-3">{item.content}</div>
               </div>
             </Show>
           </div>
@@ -103,16 +103,16 @@ export const AccordionPanel: Component<AccordionSingleProps> = (props) => {
   const [open, setOpen] = createSignal(props.defaultOpen ?? false);
 
   return (
-    <div class={`glass-card rounded-xl overflow-hidden ${props.class ?? ''}`}>
+    <div class={`glass-card rounded-lg overflow-hidden ${props.class ?? ''}`}>
       <button
         type="button"
         onClick={() => setOpen(!open())}
-        class="w-full flex items-center justify-between px-5 py-4 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors"
+        class="w-full flex items-center justify-between px-3 py-2.5 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors"
         aria-expanded={open()}
       >
-        <div class="flex items-center gap-3 text-left">
+        <div class="flex items-center gap-2 text-left">
           <svg
-            class={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform duration-200 ${open() ? 'rotate-90' : ''}`}
+            class={`w-3.5 h-3.5 text-gray-500 dark:text-gray-400 transition-transform duration-200 ${open() ? 'rotate-90' : ''}`}
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -121,10 +121,10 @@ export const AccordionPanel: Component<AccordionSingleProps> = (props) => {
           >
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
           </svg>
-          <span class="text-sm font-medium text-gray-700 dark:text-gray-200">{props.title}</span>
+          <span class="text-xs font-medium text-gray-700 dark:text-gray-200">{props.title}</span>
         </div>
         <svg
-          class={`w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform duration-200 ${open() ? 'rotate-180' : ''}`}
+          class={`w-3.5 h-3.5 text-gray-400 dark:text-gray-500 transition-transform duration-200 ${open() ? 'rotate-180' : ''}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -136,8 +136,8 @@ export const AccordionPanel: Component<AccordionSingleProps> = (props) => {
       </button>
 
       <Show when={open()}>
-        <div class="px-5 pb-4 border-t border-gray-200 dark:border-white/5 animate-in fade-in slide-in-from-top-2 duration-200">
-          <div class="pt-4">{props.children}</div>
+        <div class="px-3 pb-3 border-t border-gray-200 dark:border-white/5 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div class="pt-3">{props.children}</div>
         </div>
       </Show>
     </div>

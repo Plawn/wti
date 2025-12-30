@@ -16,7 +16,7 @@ export const AuthFormField: Component<AuthFormFieldProps> = (props) => {
     <div>
       <label
         for={props.id}
-        class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1.5"
+        class="block text-xs font-medium text-surface-600 dark:text-surface-300 mb-1.5"
       >
         {props.label}
       </label>

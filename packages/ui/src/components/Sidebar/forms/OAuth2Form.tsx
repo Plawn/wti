@@ -35,7 +35,7 @@ export const OAuth2Form: Component<OAuth2FormProps> = (props) => {
         onInput={setAccessToken}
         placeholder="Enter access token..."
         hint={
-          <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+          <p class="text-xs text-surface-400 dark:text-surface-500 mt-1">
             Paste your OAuth2 access token obtained from your identity provider
           </p>
         }

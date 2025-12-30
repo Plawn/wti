@@ -379,12 +379,13 @@ function Layout(props: LayoutProps) {
             setMobileMenuOpen(false);
             props.onOpenHistory();
           }}
+          onClose={() => setMobileMenuOpen(false)}
         />
       </Drawer>
 
       {/* Desktop Sidebar - hidden on mobile */}
       <Show when={!isMobile()}>
-        <aside class="w-80 flex-shrink-0 glass-sidebar border-r border-white/20 dark:border-white/5 h-screen sticky top-0">
+        <aside class="w-80 flex-shrink-0 glass-sidebar border-r border-white/20 dark:border-white/5 h-screen sticky top-0 flex flex-col">
           <Sidebar
             store={props.store}
             authStore={props.authStore}

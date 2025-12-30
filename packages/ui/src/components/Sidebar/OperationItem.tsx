@@ -33,8 +33,8 @@ const methodConfig: Record<string, { bg: string; shadow: string }> = {
     shadow: 'shadow-cyan-500/20',
   },
   options: {
-    bg: 'bg-gradient-to-r from-gray-500 to-gray-600',
-    shadow: 'shadow-gray-500/20',
+    bg: 'bg-gradient-to-r from-surface-500 to-surface-600',
+    shadow: 'shadow-surface-500/20',
   },
   grpc: {
     bg: 'bg-gradient-to-r from-indigo-500 to-purple-600',
@@ -43,8 +43,8 @@ const methodConfig: Record<string, { bg: string; shadow: string }> = {
 };
 
 const defaultConfig = {
-  bg: 'bg-gradient-to-r from-gray-500 to-gray-600',
-  shadow: 'shadow-gray-500/20',
+  bg: 'bg-gradient-to-r from-surface-500 to-surface-600',
+  shadow: 'shadow-surface-500/20',
 };
 
 export const OperationItem: Component<OperationItemProps> = (props) => {
@@ -52,11 +52,11 @@ export const OperationItem: Component<OperationItemProps> = (props) => {
 
   const containerClasses = () => {
     const base =
-      'w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-xl transition-all duration-200 cursor-pointer group border border-transparent';
+      'w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-lg transition-all duration-200 cursor-pointer group border border-transparent';
     if (props.selected) {
-      return `${base} glass-active scale-[1.02]`;
+      return `${base} glass-active scale-[1.01]`;
     }
-    return `${base} hover:bg-white/40 dark:hover:bg-white/5 hover:scale-[1.01] hover:shadow-sm`;
+    return `${base} hover:bg-white/40 dark:hover:bg-white/5 hover:shadow-sm`;
   };
 
   const deprecatedClasses = () => (props.operation.deprecated ? 'opacity-50' : '');
@@ -68,18 +68,18 @@ export const OperationItem: Component<OperationItemProps> = (props) => {
       onClick={props.onClick}
     >
       <span
-        class={`${config().bg} text-white text-[10px] font-bold uppercase w-14 py-1.5 rounded-lg shadow-sm ${config().shadow} flex-shrink-0 text-center flex items-center justify-center`}
+        class={`${config().bg} text-white text-[9px] font-bold uppercase w-12 py-1 rounded-md shadow-sm ${config().shadow} flex-shrink-0 text-center flex items-center justify-center`}
       >
         {props.operation.method}
       </span>
       <div class="flex-1 min-w-0 overflow-hidden">
         <span
-          class={`block font-mono text-xs truncate ${props.selected ? 'text-gray-900 dark:text-white font-medium' : 'text-gray-600 dark:text-gray-300'} ${props.operation.deprecated ? 'line-through' : ''}`}
+          class={`block font-mono text-[11px] truncate ${props.selected ? 'text-surface-900 dark:text-white font-medium' : 'text-surface-600 dark:text-surface-300'} ${props.operation.deprecated ? 'line-through' : ''}`}
         >
           {props.operation.path}
         </span>
         {props.operation.summary && (
-          <span class="block text-[11px] text-gray-400 dark:text-gray-500 truncate mt-1">
+          <span class="block text-[10px] text-surface-400 dark:text-surface-500 truncate mt-0.5">
             {props.operation.summary}
           </span>
         )}
