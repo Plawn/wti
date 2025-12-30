@@ -5,7 +5,7 @@
  * ```html
  * <link rel="stylesheet" href="wti-element.css">
  * <script src="wti-element.iife.js"></script>
- * <wti-explorer spec-url="https://petstore.swagger.io/v2/swagger.json"></wti-explorer>
+ * <wti-element spec-url="https://petstore.swagger.io/v2/swagger.json"></wti-element>
  * ```
  *
  * Attributes:
@@ -16,7 +16,7 @@
  */
 import './styles.css';
 import { type Locale, type Theme, WTI } from '@wti/ui';
-import { customElement } from 'solid-element';
+import { customElement, noShadowDOM } from 'solid-element';
 
 interface WTIElementProps {
   'spec-url': string;
@@ -26,7 +26,7 @@ interface WTIElementProps {
 }
 
 customElement<WTIElementProps>(
-  'wti-explorer',
+  'wti-element',
   {
     'spec-url': '',
     'spec-type': 'openapi',
@@ -34,6 +34,9 @@ customElement<WTIElementProps>(
     locale: 'en',
   },
   (props) => {
+    // Disable Shadow DOM so external CSS can style the component
+    noShadowDOM();
+
     const specInput = () => {
       if (!props['spec-url']) {
         return undefined;
@@ -61,7 +64,7 @@ customElement<WTIElementProps>(
 // Type declaration for global usage
 declare global {
   interface HTMLElementTagNameMap {
-    'wti-explorer': HTMLElement & WTIElementProps;
+    'wti-element': HTMLElement & WTIElementProps;
   }
 }
 
