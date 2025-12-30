@@ -7,6 +7,7 @@ import { OperationPanel } from './components/Operation';
 import { Sidebar } from './components/Sidebar';
 import { SpecLoader } from './components/SpecLoader';
 import { Drawer } from './components/shared';
+import { ThemeProvider, useTheme } from './context';
 import type { Locale } from './i18n';
 import { I18nProvider } from './i18n';
 import {
@@ -30,6 +31,19 @@ export interface WTIProps {
 }
 
 export function WTI(props: WTIProps) {
+  const locale = () => props.locale ?? 'en';
+
+  return (
+    <ThemeProvider initialTheme={props.theme}>
+      <I18nProvider locale={locale()}>
+        <WTIContent className={props.className} spec={props.spec} />
+      </I18nProvider>
+    </ThemeProvider>
+  );
+}
+
+function WTIContent(props: { className?: string; spec?: SpecInput }) {
+  const { theme } = useTheme();
   const store = createSpecStore();
   const authStore = createAuthStore();
   const historyStore = createHistoryStore();
@@ -38,8 +52,7 @@ export function WTI(props: WTIProps) {
   const [replayValues, setReplayValues] = createSignal<RequestValues | undefined>(undefined);
   const [commandPaletteOpen, setCommandPaletteOpen] = createSignal(false);
 
-  const themeClass = () => (props.theme === 'dark' ? 'dark' : '');
-  const locale = () => props.locale ?? 'en';
+  const themeClass = () => (theme() === 'dark' ? 'dark' : '');
 
   // Global keyboard shortcut for command palette (Cmd/Ctrl+P)
   onMount(() => {
@@ -74,8 +87,9 @@ export function WTI(props: WTIProps) {
 
   // Load spec from props if provided
   createEffect(() => {
-    if (props.spec) {
-      store.actions.loadSpec(props.spec);
+    const spec = props.spec;
+    if (spec) {
+      store.actions.loadSpec(spec);
     }
   });
 
@@ -95,100 +109,98 @@ export function WTI(props: WTIProps) {
   });
 
   return (
-    <I18nProvider locale={locale()}>
-      <div
-        class={`${themeClass()} font-sans text-sm text-gray-800 dark:text-gray-100 min-h-screen w-full ${props.className ?? ''}`}
-      >
-        {/* iOS 26 Mesh gradient background */}
-        <div class="fixed inset-0 bg-mesh -z-10" />
-        <div class="fixed inset-0 pattern-dots -z-10" />
+    <div
+      class={`${themeClass()} font-sans text-sm text-gray-800 dark:text-gray-100 min-h-screen w-full ${props.className ?? ''}`}
+    >
+      {/* iOS 26 Mesh gradient background */}
+      <div class="fixed inset-0 bg-mesh -z-10" />
+      <div class="fixed inset-0 pattern-dots -z-10" />
 
-        {/* OIDC Error Toast */}
-        <Show when={oidcError()}>
-          <div class="fixed top-4 right-4 z-50 glass-card rounded-xl p-4 border border-red-200/30 dark:border-red-800/20 shadow-lg max-w-md animate-slide-in">
-            <div class="flex items-start gap-3">
-              <div class="shrink-0 w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                <svg
-                  class="w-4 h-4 text-red-600 dark:text-red-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-gray-900 dark:text-white">OpenID Login Failed</p>
-                <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">{oidcError()}</p>
-              </div>
+      {/* OIDC Error Toast */}
+      <Show when={oidcError()}>
+        <div class="fixed top-4 right-4 z-50 glass-card rounded-xl p-4 border border-red-200/30 dark:border-red-800/20 shadow-lg max-w-md animate-slide-in">
+          <div class="flex items-start gap-3">
+            <div class="shrink-0 w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+              <svg
+                class="w-4 h-4 text-red-600 dark:text-red-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-900 dark:text-white">OpenID Login Failed</p>
+              <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">{oidcError()}</p>
             </div>
           </div>
-        </Show>
+        </div>
+      </Show>
 
-        <Show when={store.state.loading}>
-          <LoadingScreen />
-        </Show>
+      <Show when={store.state.loading}>
+        <LoadingScreen />
+      </Show>
 
-        <Show when={store.state.error}>
-          <ErrorScreen error={store.state.error} onRetry={() => store.actions.clearError()} />
-        </Show>
+      <Show when={store.state.error}>
+        <ErrorScreen error={store.state.error} onRetry={() => store.actions.clearError()} />
+      </Show>
 
-        <Show when={store.state.spec}>
-          <Layout
-            store={store}
-            authStore={authStore}
-            historyStore={historyStore}
-            onOpenHistory={() => setHistoryOpen(true)}
-            replayValues={replayValues()}
-            onReplayValuesConsumed={() => setReplayValues(undefined)}
-          />
-        </Show>
-
-        {/* History Drawer */}
-        <HistoryDrawer
-          store={historyStore}
-          open={historyOpen()}
-          onClose={() => setHistoryOpen(false)}
-          onReplay={(entry) => {
-            // Find the operation by ID and select it
-            const operation = store.state.spec?.operations.find(
-              (op: Operation) => op.id === entry.operationId,
-            );
-            if (operation) {
-              // Set replay values before selecting operation
-              setReplayValues(entry.requestValues);
-              store.actions.selectOperation(operation);
-              setHistoryOpen(false);
-            }
-          }}
+      <Show when={store.state.spec}>
+        <Layout
+          store={store}
+          authStore={authStore}
+          historyStore={historyStore}
+          onOpenHistory={() => setHistoryOpen(true)}
+          replayValues={replayValues()}
+          onReplayValuesConsumed={() => setReplayValues(undefined)}
         />
+      </Show>
 
-        {/* Command Palette */}
-        <Show when={store.state.spec}>
-          <CommandPalette
-            open={commandPaletteOpen()}
-            onClose={() => setCommandPaletteOpen(false)}
-            operations={store.state.spec?.operations ?? []}
-            onSelectOperation={(op) => {
-              store.actions.selectOperation(op);
-              setCommandPaletteOpen(false);
-            }}
-            searchFn={store.search.searchOperations}
-          />
-        </Show>
+      {/* History Drawer */}
+      <HistoryDrawer
+        store={historyStore}
+        open={historyOpen()}
+        onClose={() => setHistoryOpen(false)}
+        onReplay={(entry) => {
+          // Find the operation by ID and select it
+          const operation = store.state.spec?.operations.find(
+            (op: Operation) => op.id === entry.operationId,
+          );
+          if (operation) {
+            // Set replay values before selecting operation
+            setReplayValues(entry.requestValues);
+            store.actions.selectOperation(operation);
+            setHistoryOpen(false);
+          }
+        }}
+      />
 
-        {/* Show spec loader when no spec is loaded */}
-        <Show when={!store.state.spec && !store.state.loading && !store.state.error}>
-          <SpecLoader store={store} />
-        </Show>
-      </div>
-    </I18nProvider>
+      {/* Command Palette */}
+      <Show when={store.state.spec}>
+        <CommandPalette
+          open={commandPaletteOpen()}
+          onClose={() => setCommandPaletteOpen(false)}
+          operations={store.state.spec?.operations ?? []}
+          onSelectOperation={(op) => {
+            store.actions.selectOperation(op);
+            setCommandPaletteOpen(false);
+          }}
+          searchFn={store.search.searchOperations}
+        />
+      </Show>
+
+      {/* Show spec loader when no spec is loaded */}
+      <Show when={!store.state.spec && !store.state.loading && !store.state.error}>
+        <SpecLoader store={store} />
+      </Show>
+    </div>
   );
 }
 
@@ -262,8 +274,9 @@ function Layout(props: LayoutProps) {
   const selectedData = () => {
     const op = props.store.state.selectedOperation;
     const server = props.store.state.selectedServer;
+    const serverVariables = props.store.state.serverVariables;
     if (op && server) {
-      return { operation: op, server };
+      return { operation: op, server, serverVariables };
     }
     return null;
   };
@@ -387,6 +400,7 @@ function Layout(props: LayoutProps) {
             <OperationPanel
               operation={data.operation}
               server={data.server}
+              serverVariables={data.serverVariables}
               authStore={props.authStore}
               historyStore={props.historyStore}
               initialValues={props.replayValues}

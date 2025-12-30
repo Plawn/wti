@@ -12,6 +12,7 @@ export interface SpecState {
   error: string | null;
   selectedOperation: Operation | null;
   selectedServer: Server | null;
+  serverVariables: Record<string, string>;
   searchQuery: string;
   expandedTags: Set<string>;
 }
@@ -22,9 +23,24 @@ const initialState: SpecState = {
   error: null,
   selectedOperation: null,
   selectedServer: null,
+  serverVariables: {},
   searchQuery: '',
   expandedTags: new Set(),
 };
+
+/**
+ * Extract default variable values from a server
+ */
+function getDefaultServerVariables(server: Server | null): Record<string, string> {
+  if (!server?.variables) {
+    return {};
+  }
+  const defaults: Record<string, string> = {};
+  for (const [name, variable] of Object.entries(server.variables)) {
+    defaults[name] = variable.default;
+  }
+  return defaults;
+}
 
 export function createSpecStore() {
   const [state, setState] = createStore<SpecState>(initialState);
@@ -39,11 +55,13 @@ export function createSpecStore() {
 
   const actions = {
     setSpec(spec: ApiSpec) {
+      const firstServer = spec.servers[0] || null;
       setState({
         spec,
         loading: false,
         error: null,
-        selectedServer: spec.servers[0] || null,
+        selectedServer: firstServer,
+        serverVariables: getDefaultServerVariables(firstServer),
       });
       // Expand all tags by default
       actions.expandAllTags();
@@ -89,12 +107,22 @@ export function createSpecStore() {
     },
 
     selectServer(server: Server) {
-      setState({ selectedServer: server });
+      setState({
+        selectedServer: server,
+        serverVariables: getDefaultServerVariables(server),
+      });
       // Update URL with new server index
       if (state.selectedOperation) {
         const serverIndex = state.spec?.servers.indexOf(server) ?? 0;
         updateUrlWithParams({ operationId: state.selectedOperation.id, serverIndex });
       }
+    },
+
+    /**
+     * Set a server variable value
+     */
+    setServerVariable(name: string, value: string) {
+      setState('serverVariables', name, value);
     },
 
     /**

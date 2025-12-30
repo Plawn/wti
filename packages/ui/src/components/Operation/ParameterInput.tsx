@@ -1,78 +1,7 @@
-import type { Parameter, Schema } from '@wti/core';
+import { type Parameter, type ValidationError, validateParameterValue } from '@wti/core';
 import { type Component, For, Show, createMemo } from 'solid-js';
 import { useI18n } from '../../i18n';
 import { Checkbox, Input, Markdown, Select } from '../shared';
-
-/**
- * Validate a value against a schema and return error messages
- */
-export function validateValue(value: string, schema: Schema, required: boolean): string[] {
-  const errors: string[] = [];
-
-  // Skip validation if empty and not required
-  if (!value && !required) {
-    return errors;
-  }
-
-  // Required validation
-  if (required && !value) {
-    errors.push('This field is required');
-    return errors;
-  }
-
-  const type = schema.type || 'string';
-
-  // String validations
-  if (type === 'string') {
-    if (schema.minLength !== undefined && value.length < schema.minLength) {
-      errors.push(`Minimum length is ${schema.minLength}`);
-    }
-    if (schema.maxLength !== undefined && value.length > schema.maxLength) {
-      errors.push(`Maximum length is ${schema.maxLength}`);
-    }
-    if (schema.pattern) {
-      try {
-        const regex = new RegExp(schema.pattern);
-        if (!regex.test(value)) {
-          errors.push(`Must match pattern: ${schema.pattern}`);
-        }
-      } catch {
-        // Invalid regex pattern in schema
-      }
-    }
-  }
-
-  // Number validations
-  if (type === 'number' || type === 'integer') {
-    const num = Number(value);
-    if (value && Number.isNaN(num)) {
-      errors.push('Must be a valid number');
-      return errors;
-    }
-
-    if (type === 'integer' && !Number.isInteger(num)) {
-      errors.push('Must be an integer');
-    }
-
-    if (schema.minimum !== undefined && num < schema.minimum) {
-      errors.push(`Minimum value is ${schema.minimum}`);
-    }
-    if (schema.maximum !== undefined && num > schema.maximum) {
-      errors.push(`Maximum value is ${schema.maximum}`);
-    }
-    if (schema.exclusiveMinimum !== undefined && num <= schema.exclusiveMinimum) {
-      errors.push(`Must be greater than ${schema.exclusiveMinimum}`);
-    }
-    if (schema.exclusiveMaximum !== undefined && num >= schema.exclusiveMaximum) {
-      errors.push(`Must be less than ${schema.exclusiveMaximum}`);
-    }
-    if (schema.multipleOf !== undefined && num % schema.multipleOf !== 0) {
-      errors.push(`Must be a multiple of ${schema.multipleOf}`);
-    }
-  }
-
-  return errors;
-}
 
 interface ParameterInputProps {
   param: Parameter;
@@ -94,11 +23,62 @@ export const ParameterInput: Component<ParameterInputProps> = (props) => {
   const schemaType = () => props.param.schema.type || 'string';
   const hasEnum = () => props.param.schema.enum && props.param.schema.enum.length > 0;
 
-  // Validation errors
-  const validationErrors = createMemo(() =>
-    validateValue(props.value, props.param.schema, props.param.required),
+  /**
+   * Convert ValidationError to localized string
+   */
+  const formatValidationError = (error: ValidationError): string => {
+    const params = error.params;
+
+    switch (error.keyword) {
+      case 'required':
+        return t('validation.required');
+      case 'type':
+        return t('validation.type').replace('{type}', String(params.type || ''));
+      case 'minLength':
+        return t('validation.minLength').replace('{limit}', String(params.limit || ''));
+      case 'maxLength':
+        return t('validation.maxLength').replace('{limit}', String(params.limit || ''));
+      case 'minimum':
+        return t('validation.minimum').replace('{limit}', String(params.limit || ''));
+      case 'maximum':
+        return t('validation.maximum').replace('{limit}', String(params.limit || ''));
+      case 'exclusiveMinimum':
+        return t('validation.exclusiveMinimum').replace('{limit}', String(params.limit || ''));
+      case 'exclusiveMaximum':
+        return t('validation.exclusiveMaximum').replace('{limit}', String(params.limit || ''));
+      case 'multipleOf':
+        return t('validation.multipleOf').replace('{value}', String(params.multipleOf || ''));
+      case 'pattern':
+        return t('validation.pattern').replace('{pattern}', String(params.pattern || ''));
+      case 'enum':
+        return t('validation.enum').replace(
+          '{values}',
+          (params.allowedValues as unknown[])?.join(', ') || '',
+        );
+      case 'const':
+        return t('validation.const').replace('{value}', JSON.stringify(params.allowedValue));
+      case 'minItems':
+        return t('validation.minItems').replace('{limit}', String(params.limit || ''));
+      case 'maxItems':
+        return t('validation.maxItems').replace('{limit}', String(params.limit || ''));
+      case 'uniqueItems':
+        return t('validation.uniqueItems');
+      case 'format':
+        return t('validation.format').replace('{format}', String(params.format || ''));
+      default:
+        // For unhandled keywords, return the original message
+        return error.message;
+    }
+  };
+
+  // Validation errors using ajv from @wti/core
+  const validationResult = createMemo(() =>
+    validateParameterValue(props.value, props.param.schema, props.param.required),
   );
-  const hasErrors = () => validationErrors().length > 0;
+
+  const validationErrors = createMemo(() => validationResult().errors.map(formatValidationError));
+
+  const hasErrors = () => validationResult().errors.length > 0;
   const errorClass = () => (hasErrors() ? 'border-rose-400 dark:border-rose-500' : '');
 
   const renderInput = () => {

@@ -13,6 +13,7 @@ import { ResponseSection } from './ResponseSection';
 interface OperationPanelProps {
   operation: Operation;
   server: Server;
+  serverVariables?: Record<string, string>;
   authStore?: AuthStore;
   historyStore?: HistoryStore;
   /** Initial values for replay */
@@ -56,6 +57,7 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
     try {
       return buildRequestConfig(props.operation, form.getRequestValues(), {
         server: props.server,
+        serverVariables: props.serverVariables,
       });
     } catch {
       return null;
@@ -73,6 +75,7 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
       const auth = await props.authStore?.actions.getActiveAuthWithAutoRefresh();
       config = buildRequestConfig(props.operation, form.getRequestValues(), {
         server: props.server,
+        serverVariables: props.serverVariables,
         auth,
       });
 

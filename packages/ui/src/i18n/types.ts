@@ -107,6 +107,9 @@ export interface Translations {
   sidebar: {
     allOperations: string;
     servers: string;
+    serverVariables: string;
+    toggleThemeLight: string;
+    toggleThemeDark: string;
   };
   specLoader: {
     title: string;
@@ -130,6 +133,26 @@ export interface Translations {
     noResults: string;
     navigate: string;
     select: string;
+  };
+  validation: {
+    required: string;
+    type: string;
+    minLength: string;
+    maxLength: string;
+    minimum: string;
+    maximum: string;
+    exclusiveMinimum: string;
+    exclusiveMaximum: string;
+    multipleOf: string;
+    pattern: string;
+    enum: string;
+    const: string;
+    minItems: string;
+    maxItems: string;
+    uniqueItems: string;
+    missingProperty: string;
+    format: string;
+    invalidNumber: string;
   };
 }
 

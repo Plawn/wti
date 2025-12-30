@@ -12,3 +12,6 @@ export * from './grpc';
 
 // Code generation
 export * from './codegen';
+
+// Validation
+export * from './validation';
