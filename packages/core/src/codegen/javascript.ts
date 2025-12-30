@@ -3,7 +3,7 @@
  */
 
 import type { RequestConfig } from '../types';
-import { formatJsValue } from './formatValue';
+import { buildUrlWithParams, formatJsValue } from './formatValue';
 import type { CodeGenOptions, CodeGenerator } from './types';
 
 /**
@@ -20,12 +20,7 @@ function generate(request: RequestConfig, options: CodeGenOptions = {}): string 
   }
 
   // Build URL with query params
-  let url = request.url;
-  if (request.params && Object.keys(request.params).length > 0) {
-    const searchParams = new URLSearchParams(request.params);
-    const separator = url.includes('?') ? '&' : '?';
-    url = `${url}${separator}${searchParams.toString()}`;
-  }
+  const url = buildUrlWithParams(request.url, request.params);
 
   // Build options object
   const fetchOptions: Record<string, unknown> = {

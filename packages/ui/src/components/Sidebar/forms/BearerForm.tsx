@@ -1,8 +1,9 @@
-import { type Component, Show, createSignal } from 'solid-js';
+import { type Component, createSignal } from 'solid-js';
 import { useAuthConfig } from '../../../hooks';
 import { useI18n } from '../../../i18n';
 import type { AuthStore } from '../../../stores';
-import { Button, Input } from '../../shared';
+import { AuthFormActions } from './AuthFormActions';
+import { AuthFormField } from './AuthFormField';
 
 interface BearerFormProps {
   authStore: AuthStore;
@@ -26,32 +27,19 @@ export const BearerForm: Component<BearerFormProps> = (props) => {
 
   return (
     <div class="space-y-3">
-      <div>
-        <label
-          for="auth-bearer-token"
-          class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1.5"
-        >
-          {t('auth.token')}
-        </label>
-        <Input
-          id="auth-bearer-token"
-          type="password"
-          value={existingConfig()?.token || token()}
-          onInput={setToken}
-          placeholder="Enter bearer token..."
-        />
-      </div>
-
-      <div class="flex gap-2">
-        <Button onClick={handleAuthorize} class="flex-1 py-2 text-sm">
-          {t('auth.authorize')}
-        </Button>
-        <Show when={existingConfig()}>
-          <Button onClick={handleLogout} variant="secondary" class="py-2 text-sm">
-            {t('auth.logout')}
-          </Button>
-        </Show>
-      </div>
+      <AuthFormField
+        id="auth-bearer-token"
+        label={t('auth.token')}
+        type="password"
+        value={existingConfig()?.token || token()}
+        onInput={setToken}
+        placeholder="Enter bearer token..."
+      />
+      <AuthFormActions
+        onAuthorize={handleAuthorize}
+        onLogout={handleLogout}
+        isAuthorized={() => !!existingConfig()}
+      />
     </div>
   );
 };

@@ -8,172 +8,25 @@ import type {
 } from '@wti/core';
 import { createSignal } from 'solid-js';
 import { createStore, unwrap } from 'solid-js/store';
+import {
+  type OidcPkceState,
+  buildAuthorizationUrl,
+  exchangeCodeForTokens,
+  generateCodeChallenge,
+  generateCodeVerifier,
+  generateRandomString,
+  getOidcDiscovery,
+  refreshOpenIdTokens,
+  retrievePkceState,
+  storePkceState,
+} from '../auth/oidc';
 import { storage } from '../storage';
 
 const STORAGE_STORE = 'auth';
 const STORAGE_KEY = 'state';
-const OIDC_STATE_KEY = 'wti-oidc-state';
 
 // Refresh tokens 60 seconds before expiration
 const TOKEN_REFRESH_BUFFER_MS = 60 * 1000;
-
-// Cache for OIDC discovery documents
-interface OidcDiscovery {
-  authorizationEndpoint: string;
-  tokenEndpoint: string;
-  fetchedAt: number;
-}
-const discoveryCache = new Map<string, OidcDiscovery>();
-const DISCOVERY_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
-
-// PKCE state stored during authorization flow
-interface OidcPkceState {
-  issuerUrl: string;
-  clientId: string;
-  clientSecret?: string;
-  scopes: string[];
-  codeVerifier: string;
-  redirectUri: string;
-  state: string;
-}
-
-/**
- * Generate a cryptographically random string for PKCE
- */
-function generateRandomString(length: number): string {
-  const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
-  const values = crypto.getRandomValues(new Uint8Array(length));
-  return Array.from(values)
-    .map((v) => charset[v % charset.length])
-    .join('');
-}
-
-/**
- * Generate PKCE code verifier (43-128 characters)
- */
-function generateCodeVerifier(): string {
-  return generateRandomString(64);
-}
-
-/**
- * Generate PKCE code challenge from verifier using SHA-256
- */
-async function generateCodeChallenge(verifier: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(verifier);
-  const hash = await crypto.subtle.digest('SHA-256', data);
-  // Base64url encode the hash
-  return btoa(String.fromCharCode(...new Uint8Array(hash)))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
-}
-
-/**
- * Fetch OIDC discovery document
- */
-async function getOidcDiscovery(issuerUrl: string): Promise<OidcDiscovery> {
-  const cached = discoveryCache.get(issuerUrl);
-  if (cached && Date.now() - cached.fetchedAt < DISCOVERY_CACHE_TTL_MS) {
-    return cached;
-  }
-
-  const discoveryUrl = `${issuerUrl.replace(/\/$/, '')}/.well-known/openid-configuration`;
-  const response = await fetch(discoveryUrl);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch OIDC discovery document: ${response.status}`);
-  }
-
-  const doc = await response.json();
-  if (!doc.authorization_endpoint || !doc.token_endpoint) {
-    throw new Error('OIDC discovery document missing required endpoints');
-  }
-
-  const discovery: OidcDiscovery = {
-    authorizationEndpoint: doc.authorization_endpoint,
-    tokenEndpoint: doc.token_endpoint,
-    fetchedAt: Date.now(),
-  };
-
-  discoveryCache.set(issuerUrl, discovery);
-  return discovery;
-}
-
-/**
- * Get token endpoint from discovery (for refresh)
- */
-async function getTokenEndpoint(issuerUrl: string): Promise<string> {
-  const discovery = await getOidcDiscovery(issuerUrl);
-  return discovery.tokenEndpoint;
-}
-
-/**
- * Store PKCE state for the callback (uses sessionStorage - session-scoped)
- */
-function storePkceState(pkceState: OidcPkceState): void {
-  sessionStorage.setItem(OIDC_STATE_KEY, JSON.stringify(pkceState));
-}
-
-/**
- * Retrieve and clear PKCE state
- */
-function retrievePkceState(): OidcPkceState | null {
-  const stored = sessionStorage.getItem(OIDC_STATE_KEY);
-  if (!stored) {
-    return null;
-  }
-  sessionStorage.removeItem(OIDC_STATE_KEY);
-  try {
-    return JSON.parse(stored) as OidcPkceState;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Refresh OpenID Connect tokens using refresh token
- */
-async function refreshOpenIdTokens(
-  config: OpenIdAuth,
-): Promise<{ accessToken: string; refreshToken?: string; expiresAt?: number; idToken?: string }> {
-  if (!config.refreshToken) {
-    throw new Error('No refresh token available');
-  }
-
-  const tokenEndpoint = await getTokenEndpoint(config.issuerUrl);
-
-  const body = new URLSearchParams({
-    grant_type: 'refresh_token',
-    refresh_token: config.refreshToken,
-    client_id: config.clientId,
-  });
-
-  if (config.clientSecret) {
-    body.set('client_secret', config.clientSecret);
-  }
-
-  const response = await fetch(tokenEndpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: body.toString(),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Token refresh failed: ${response.status} - ${errorText}`);
-  }
-
-  const tokens = await response.json();
-
-  return {
-    accessToken: tokens.access_token,
-    refreshToken: tokens.refresh_token || config.refreshToken, // Keep old refresh token if not rotated
-    expiresAt: tokens.expires_in ? Date.now() + tokens.expires_in * 1000 : undefined,
-    idToken: tokens.id_token,
-  };
-}
 
 export interface AuthStoreState {
   /**
@@ -543,18 +396,17 @@ export function createAuthStore() {
       };
       storePkceState(pkceState);
 
-      // Build authorization URL
-      const authUrl = new URL(discovery.authorizationEndpoint);
-      authUrl.searchParams.set('response_type', 'code');
-      authUrl.searchParams.set('client_id', clientId);
-      authUrl.searchParams.set('redirect_uri', redirectUri);
-      authUrl.searchParams.set('scope', pkceState.scopes.join(' '));
-      authUrl.searchParams.set('state', stateParam);
-      authUrl.searchParams.set('code_challenge', codeChallenge);
-      authUrl.searchParams.set('code_challenge_method', 'S256');
+      // Build and redirect to authorization URL
+      const authUrl = buildAuthorizationUrl({
+        authorizationEndpoint: discovery.authorizationEndpoint,
+        clientId,
+        redirectUri,
+        scopes: pkceState.scopes,
+        state: stateParam,
+        codeChallenge,
+      });
 
-      // Redirect to OIDC provider
-      window.location.href = authUrl.toString();
+      window.location.href = authUrl;
     },
 
     /**
@@ -600,44 +452,24 @@ export function createAuthStore() {
 
       try {
         // Exchange authorization code for tokens
-        const tokenEndpoint = await getTokenEndpoint(pkceState.issuerUrl);
-
-        const body = new URLSearchParams({
-          grant_type: 'authorization_code',
+        const tokens = await exchangeCodeForTokens({
+          issuerUrl: pkceState.issuerUrl,
+          clientId: pkceState.clientId,
+          clientSecret: pkceState.clientSecret,
           code,
-          redirect_uri: pkceState.redirectUri,
-          client_id: pkceState.clientId,
-          code_verifier: pkceState.codeVerifier,
+          redirectUri: pkceState.redirectUri,
+          codeVerifier: pkceState.codeVerifier,
         });
-
-        if (pkceState.clientSecret) {
-          body.set('client_secret', pkceState.clientSecret);
-        }
-
-        const response = await fetch(tokenEndpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: body.toString(),
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          return { success: false, error: `Token exchange failed: ${errorText}` };
-        }
-
-        const tokens = await response.json();
 
         // Store the tokens
         await this.setOpenIdAuth(pkceState.issuerUrl, pkceState.clientId, {
           clientSecret: pkceState.clientSecret,
           scopes: pkceState.scopes,
-          accessToken: tokens.access_token,
-          refreshToken: tokens.refresh_token,
-          idToken: tokens.id_token,
-          expiresAt: tokens.expires_in ? Date.now() + tokens.expires_in * 1000 : undefined,
-          tokenType: tokens.token_type || 'Bearer',
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+          idToken: tokens.idToken,
+          expiresAt: tokens.expiresAt,
+          tokenType: tokens.tokenType,
         });
 
         // Clean up URL (remove code and state params)

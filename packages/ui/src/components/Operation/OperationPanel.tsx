@@ -1,21 +1,14 @@
 import type { Operation, Parameter, RequestConfig, RequestValues, Server } from '@wti/core';
-import {
-  type ResponseData,
-  buildRequestConfig,
-  executeRequest,
-  getDefaultValues,
-  getPreferredContentType,
-} from '@wti/core';
+import { type ResponseData, buildRequestConfig, executeRequest } from '@wti/core';
 import { type Component, For, type JSX, Show, createMemo, createSignal } from 'solid-js';
+import { useOperationForm } from '../../hooks';
 import { useI18n } from '../../i18n';
 import type { AuthStore, HistoryStore } from '../../stores';
-import { parseJson } from '../../utils';
 import { Button, JsonSchemaForm, Textarea } from '../shared';
 import { CodeSnippets } from './CodeSnippets';
 import { OperationHeader } from './OperationHeader';
 import { ParameterInput } from './ParameterInput';
 import { ResponseSection } from './ResponseSection';
-import { generateSchemaExample } from './schemaUtils';
 
 interface OperationPanelProps {
   operation: Operation;
@@ -31,36 +24,18 @@ interface OperationPanelProps {
 export const OperationPanel: Component<OperationPanelProps> = (props) => {
   const { t } = useI18n();
 
-  // Form state
-  const [pathParams, setPathParams] = createSignal<Record<string, string>>({});
-  const [queryParams, setQueryParams] = createSignal<Record<string, string>>({});
-  const [headerParams, setHeaderParams] = createSignal<Record<string, string>>({});
-  const [body, setBody] = createSignal<string>('');
-  const [bodyMode, setBodyMode] = createSignal<'json' | 'form'>('form');
-  const [bodyFormData, setBodyFormData] = createSignal<Record<string, unknown>>({});
+  // Use the form hook
+  const form = useOperationForm({
+    operation: () => props.operation,
+    initialValues: props.initialValues,
+    onInitialValuesConsumed: props.onInitialValuesConsumed,
+  });
 
   // Response state
   const [loading, setLoading] = createSignal(false);
   const [response, setResponse] = createSignal<ResponseData | null>(null);
   const [error, setError] = createSignal<string | null>(null);
   const [showCurlPreview, setShowCurlPreview] = createSignal(true);
-
-  // Helper to get body data based on current mode (with safe JSON parsing)
-  const getBodyData = (): unknown => {
-    if (bodyMode() === 'form') {
-      return bodyFormData();
-    }
-    return parseJson(body());
-  };
-
-  // Helper to build request values from current form state
-  const getRequestValues = (): RequestValues => ({
-    path: pathParams(),
-    query: queryParams(),
-    headers: headerParams(),
-    body: getBodyData(),
-    contentType: contentType(),
-  });
 
   // Group parameters by location
   const paramsByLocation = createMemo(() => {
@@ -76,127 +51,16 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
     return groups;
   });
 
-  const hasRequestBody = () =>
-    props.operation.requestBody && Object.keys(props.operation.requestBody.content).length > 0;
-
-  const contentType = createMemo(() => getPreferredContentType(props.operation));
-
   // Generate request config for code snippets
   const requestConfig = createMemo((): RequestConfig | null => {
     try {
-      return buildRequestConfig(props.operation, getRequestValues(), {
+      return buildRequestConfig(props.operation, form.getRequestValues(), {
         server: props.server,
       });
     } catch {
       return null;
     }
   });
-
-  // Get request body schema
-  const bodySchema = createMemo(() => {
-    const ct = contentType();
-    if (!ct || !props.operation.requestBody?.content[ct]?.schema) {
-      return null;
-    }
-    return props.operation.requestBody.content[ct].schema;
-  });
-
-  // Check if schema is suitable for form mode
-  const canUseFormMode = createMemo(() => {
-    const schema = bodySchema();
-    if (!schema) {
-      return false;
-    }
-    if (schema.properties && Object.keys(schema.properties).length > 0) {
-      return true;
-    }
-    if (schema.type === 'object') {
-      return true;
-    }
-    if (schema.type === 'array' && schema.items) {
-      return true;
-    }
-    return false;
-  });
-
-  // Switch to JSON mode and sync from form data
-  const switchToJsonMode = () => {
-    if (bodyMode() === 'form') {
-      setBody(JSON.stringify(bodyFormData(), null, 2));
-    }
-    setBodyMode('json');
-  };
-
-  // Switch to form mode and sync from JSON
-  const switchToFormMode = () => {
-    if (bodyMode() === 'json') {
-      const parsed = parseJson<Record<string, unknown>>(body());
-      setBodyFormData(parsed ?? {});
-    }
-    setBodyMode('form');
-  };
-
-  // Initialize with replay values or defaults
-  const initDefaults = (replayValues?: RequestValues) => {
-    if (replayValues) {
-      if (replayValues.path) {
-        setPathParams(replayValues.path);
-      }
-      if (replayValues.query) {
-        setQueryParams(replayValues.query);
-      }
-      if (replayValues.headers) {
-        setHeaderParams(replayValues.headers);
-      }
-      if (replayValues.body !== undefined) {
-        const bodyData = replayValues.body;
-        if (typeof bodyData === 'object' && bodyData !== null) {
-          setBody(JSON.stringify(bodyData, null, 2));
-          setBodyFormData(bodyData as Record<string, unknown>);
-        } else if (typeof bodyData === 'string') {
-          setBody(bodyData);
-        }
-      }
-      return;
-    }
-
-    // Use schema defaults
-    const defaults = getDefaultValues(props.operation);
-    if (defaults.path) {
-      setPathParams(defaults.path);
-    }
-    if (defaults.query) {
-      setQueryParams(defaults.query);
-    }
-    if (defaults.headers) {
-      setHeaderParams(defaults.headers);
-    }
-
-    const ct = contentType();
-    if (hasRequestBody() && ct) {
-      const mediaType = props.operation.requestBody?.content[ct];
-      let exampleData: unknown = null;
-
-      if (mediaType?.example) {
-        exampleData = mediaType.example;
-      } else if (mediaType?.schema) {
-        exampleData = generateSchemaExample(mediaType.schema);
-      }
-
-      if (exampleData) {
-        setBody(JSON.stringify(exampleData, null, 2));
-        if (typeof exampleData === 'object' && exampleData !== null) {
-          setBodyFormData(exampleData as Record<string, unknown>);
-        }
-      }
-    }
-  };
-
-  // Initialize on mount
-  initDefaults(props.initialValues);
-  if (props.initialValues) {
-    props.onInitialValuesConsumed?.();
-  }
 
   const handleSend = async () => {
     setLoading(true);
@@ -207,7 +71,7 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
 
     try {
       const auth = await props.authStore?.actions.getActiveAuthWithAutoRefresh();
-      config = buildRequestConfig(props.operation, getRequestValues(), {
+      config = buildRequestConfig(props.operation, form.getRequestValues(), {
         server: props.server,
         auth,
       });
@@ -220,7 +84,7 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
         operationPath: props.operation.path,
         operationMethod: props.operation.method,
         request: config,
-        requestValues: getRequestValues(),
+        requestValues: form.getRequestValues(),
         response: result,
       });
     } catch (err) {
@@ -233,7 +97,7 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
           operationPath: props.operation.path,
           operationMethod: props.operation.method,
           request: config,
-          requestValues: getRequestValues(),
+          requestValues: form.getRequestValues(),
           error: errorMessage,
         });
       }
@@ -254,8 +118,8 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
               {(param) => (
                 <ParameterInput
                   param={param}
-                  value={pathParams()[param.name] || ''}
-                  onChange={(v) => setPathParams((p) => ({ ...p, [param.name]: v }))}
+                  value={form.pathParams()[param.name] || ''}
+                  onChange={(v) => form.setPathParams((p) => ({ ...p, [param.name]: v }))}
                 />
               )}
             </For>
@@ -263,8 +127,8 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
               {(param) => (
                 <ParameterInput
                   param={param}
-                  value={queryParams()[param.name] || ''}
-                  onChange={(v) => setQueryParams((p) => ({ ...p, [param.name]: v }))}
+                  value={form.queryParams()[param.name] || ''}
+                  onChange={(v) => form.setQueryParams((p) => ({ ...p, [param.name]: v }))}
                 />
               )}
             </For>
@@ -272,8 +136,8 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
               {(param) => (
                 <ParameterInput
                   param={param}
-                  value={headerParams()[param.name] || ''}
-                  onChange={(v) => setHeaderParams((p) => ({ ...p, [param.name]: v }))}
+                  value={form.headerParams()[param.name] || ''}
+                  onChange={(v) => form.setHeaderParams((p) => ({ ...p, [param.name]: v }))}
                 />
               )}
             </For>
@@ -282,19 +146,24 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
       </Show>
 
       {/* Request Body Section */}
-      <Show when={hasRequestBody()}>
+      <Show when={form.hasRequestBody()}>
         <Section title={t('operations.requestBody')}>
-          <Show when={canUseFormMode()}>
+          <Show when={form.canUseFormMode()}>
             <BodyModeToggle
-              mode={bodyMode()}
-              onJsonMode={switchToJsonMode}
-              onFormMode={switchToFormMode}
+              mode={form.bodyMode()}
+              onJsonMode={form.switchToJsonMode}
+              onFormMode={form.switchToFormMode}
             />
           </Show>
 
-          <Show when={bodyMode() === 'json'}>
+          <Show when={form.bodyMode() === 'json'}>
             <div class="relative">
-              <Textarea value={body()} onInput={setBody} placeholder="{}" class="h-64 font-mono" />
+              <Textarea
+                value={form.body()}
+                onInput={form.setBody}
+                placeholder="{}"
+                class="h-64 font-mono"
+              />
               <div class="absolute top-3 right-3">
                 <span class="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
                   JSON
@@ -303,16 +172,16 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
             </div>
           </Show>
 
-          <Show when={bodyMode() === 'form' && bodySchema()} keyed>
+          <Show when={form.bodyMode() === 'form' && form.bodySchema()} keyed>
             {(schema) => (
               <JsonSchemaForm
                 schema={schema}
-                value={bodyFormData()}
+                value={form.bodyFormData()}
                 onChange={(value) => {
                   if (Array.isArray(value)) {
-                    setBodyFormData(value as unknown as Record<string, unknown>);
+                    form.setBodyFormData(value as unknown as Record<string, unknown>);
                   } else {
-                    setBodyFormData((value as Record<string, unknown>) || {});
+                    form.setBodyFormData((value as Record<string, unknown>) || {});
                   }
                 }}
               />
@@ -354,8 +223,8 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
       </div>
 
       {/* Error Display */}
-      <Show when={error()}>
-        <ErrorDisplay message={error()!} />
+      <Show when={error()} keyed>
+        {(errMsg) => <ErrorDisplay message={errMsg} />}
       </Show>
 
       {/* Response Display */}

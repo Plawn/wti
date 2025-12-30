@@ -56,7 +56,12 @@ async function fetchSpec(url: string): Promise<object> {
     throw new Error(`Failed to fetch spec: ${response.status} ${response.statusText}`);
   }
   const text = await response.text();
-  return parseContent(text);
+  try {
+    return parseContent(text);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown parse error';
+    throw new Error(`Failed to parse spec from ${url}: ${message}`);
+  }
 }
 
 /**
@@ -186,6 +191,12 @@ export async function parseOpenApiFromString(
   content: string,
   options: ParseOptions = {},
 ): Promise<ParseResult> {
-  const spec = parseContent(content);
+  let spec: object;
+  try {
+    spec = parseContent(content);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown parse error';
+    throw new Error(`Failed to parse spec content: ${message}`);
+  }
   return parseOpenApi({ type: 'openapi', spec }, options);
 }

@@ -105,3 +105,15 @@ export function formatJsValue(value: unknown, indent: number, prettyPrint: boole
 export function formatPythonValue(value: unknown, indent: number, prettyPrint: boolean): string {
   return formatValue(value, indent, prettyPrint, pythonKeywords);
 }
+
+/**
+ * Build a URL with query parameters appended
+ */
+export function buildUrlWithParams(baseUrl: string, params?: Record<string, string>): string {
+  if (!params || Object.keys(params).length === 0) {
+    return baseUrl;
+  }
+  const searchParams = new URLSearchParams(params);
+  const separator = baseUrl.includes('?') ? '&' : '?';
+  return `${baseUrl}${separator}${searchParams.toString()}`;
+}

@@ -3,7 +3,9 @@ import { type Component, For, Show, createSignal } from 'solid-js';
 import { useAuthConfig } from '../../../hooks';
 import { useI18n } from '../../../i18n';
 import type { AuthStore } from '../../../stores';
-import { Button, Input, Select } from '../../shared';
+import { Select } from '../../shared';
+import { AuthFormActions } from './AuthFormActions';
+import { AuthFormField } from './AuthFormField';
 
 interface ApiKeyFormProps {
   authStore: AuthStore;
@@ -14,7 +16,6 @@ export const ApiKeyForm: Component<ApiKeyFormProps> = (props) => {
   const { t } = useI18n();
   const existingConfig = useAuthConfig(props.authStore, 'apiKey');
 
-  // Get API key schemes from security schemes
   const apiKeySchemes = () => {
     const schemes: Array<{ name: string; in: 'header' | 'query' | 'cookie' }> = [];
     for (const [name, scheme] of Object.entries(props.securitySchemes)) {
@@ -22,7 +23,6 @@ export const ApiKeyForm: Component<ApiKeyFormProps> = (props) => {
         schemes.push({ name: scheme.name || name, in: scheme.in });
       }
     }
-    // Default if none defined
     if (schemes.length === 0) {
       schemes.push({ name: 'X-API-Key', in: 'header' });
     }
@@ -66,32 +66,20 @@ export const ApiKeyForm: Component<ApiKeyFormProps> = (props) => {
         </div>
       </Show>
 
-      <div>
-        <label
-          for="auth-apikey-value"
-          class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1.5"
-        >
-          {t('auth.apiKey')}
-        </label>
-        <Input
-          id="auth-apikey-value"
-          type="password"
-          value={existingConfig()?.value || apiKeyValue()}
-          onInput={setApiKeyValue}
-          placeholder="Enter API key..."
-        />
-      </div>
+      <AuthFormField
+        id="auth-apikey-value"
+        label={t('auth.apiKey')}
+        type="password"
+        value={existingConfig()?.value || apiKeyValue()}
+        onInput={setApiKeyValue}
+        placeholder="Enter API key..."
+      />
 
-      <div class="flex gap-2">
-        <Button onClick={handleAuthorize} class="flex-1 py-2 text-sm">
-          {t('auth.authorize')}
-        </Button>
-        <Show when={existingConfig()}>
-          <Button onClick={handleLogout} variant="secondary" class="py-2 text-sm">
-            {t('auth.logout')}
-          </Button>
-        </Show>
-      </div>
+      <AuthFormActions
+        onAuthorize={handleAuthorize}
+        onLogout={handleLogout}
+        isAuthorized={() => !!existingConfig()}
+      />
     </div>
   );
 };

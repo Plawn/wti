@@ -1,6 +1,6 @@
 import { type Component, type JSX, Show, createEffect, createSignal, onCleanup } from 'solid-js';
 import { Portal } from 'solid-js/web';
-import { useIsDark } from '../../hooks/useIsDark';
+import { useDialogState, useIsDark } from '../../hooks';
 import { useI18n } from '../../i18n';
 
 export type DrawerPosition = 'left' | 'right';
@@ -51,12 +51,18 @@ export const Drawer: Component<DrawerProps> = (props) => {
   const position = () => props.position ?? 'right';
   const size = () => props.size ?? 'md';
   const showClose = () => props.showClose ?? true;
-  const closeOnBackdrop = () => props.closeOnBackdrop ?? true;
-  const closeOnEscape = () => props.closeOnEscape ?? true;
 
   // Track visibility separately from open state for exit animation
   const [visible, setVisible] = createSignal(false);
   const [isClosing, setIsClosing] = createSignal(false);
+
+  // Use shared dialog state hook for escape, scroll lock, and backdrop
+  const { handleBackdropClick } = useDialogState({
+    open: visible,
+    onClose: props.onClose,
+    closeOnEscape: () => props.closeOnEscape ?? true,
+    closeOnBackdrop: () => props.closeOnBackdrop ?? true,
+  });
 
   // Handle open/close transitions
   createEffect(() => {
@@ -74,40 +80,6 @@ export const Drawer: Component<DrawerProps> = (props) => {
     }
   });
 
-  // Handle escape key
-  createEffect(() => {
-    if (!props.open || !closeOnEscape()) {
-      return;
-    }
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        props.onClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    onCleanup(() => document.removeEventListener('keydown', handleKeyDown));
-  });
-
-  // Prevent body scroll when drawer is open
-  createEffect(() => {
-    if (visible()) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    onCleanup(() => {
-      document.body.style.overflow = '';
-    });
-  });
-
-  const handleBackdropClick = (e: MouseEvent) => {
-    if (closeOnBackdrop() && e.target === e.currentTarget) {
-      props.onClose();
-    }
-  };
-
   const styles = () => positionStyles[position()];
 
   // Check if dark mode is active (needed for Portal which renders outside the dark class container)
@@ -124,7 +96,7 @@ export const Drawer: Component<DrawerProps> = (props) => {
       <Portal>
         <div
           class={`fixed inset-0 z-50 bg-black/50 backdrop-blur-sm ${backdropClasses()} ${isDark() ? 'dark' : ''}`}
-          onClick={handleBackdropClick}
+          onClick={(e) => handleBackdropClick(e)}
           onKeyDown={(e) => e.key === 'Enter' && handleBackdropClick(e as unknown as MouseEvent)}
           aria-modal="true"
           aria-labelledby={props.title ? 'drawer-title' : undefined}

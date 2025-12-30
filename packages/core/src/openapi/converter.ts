@@ -216,11 +216,11 @@ function convertParameter(param: OpenAPIParameter): Parameter {
   };
 }
 
-function convertSchema(schema: OpenAPISchema): Schema {
+function convertSchemaBaseProperties(
+  schema: OpenAPISchema,
+  schemaAny: Record<string, unknown>,
+): Schema {
   const result: Schema = {};
-
-  // Use type assertions for properties that exist on specific schema variants
-  const schemaAny = schema as Record<string, unknown>;
 
   if (schema.type) {
     result.type = Array.isArray(schema.type) ? schema.type[0] : (schema.type as Schema['type']);
@@ -247,7 +247,10 @@ function convertSchema(schema: OpenAPISchema): Schema {
     result.nullable = schemaAny.nullable as boolean;
   }
 
-  // String constraints
+  return result;
+}
+
+function applyStringConstraints(result: Schema, schema: OpenAPISchema): void {
   if (schema.minLength !== undefined) {
     result.minLength = schema.minLength;
   }
@@ -257,8 +260,9 @@ function convertSchema(schema: OpenAPISchema): Schema {
   if (schema.pattern) {
     result.pattern = schema.pattern;
   }
+}
 
-  // Number constraints
+function applyNumberConstraints(result: Schema, schema: OpenAPISchema): void {
   if (schema.minimum !== undefined) {
     result.minimum = schema.minimum;
   }
@@ -274,8 +278,13 @@ function convertSchema(schema: OpenAPISchema): Schema {
   if (schema.multipleOf !== undefined) {
     result.multipleOf = schema.multipleOf;
   }
+}
 
-  // Array constraints
+function applyArrayConstraints(
+  result: Schema,
+  schema: OpenAPISchema,
+  schemaAny: Record<string, unknown>,
+): void {
   if ('items' in schemaAny && schemaAny.items && !isReference(schemaAny.items)) {
     result.items = convertSchema(schemaAny.items as OpenAPISchema);
   }
@@ -288,8 +297,9 @@ function convertSchema(schema: OpenAPISchema): Schema {
   if (schema.uniqueItems) {
     result.uniqueItems = schema.uniqueItems;
   }
+}
 
-  // Object constraints
+function applyObjectConstraints(result: Schema, schema: OpenAPISchema): void {
   if (schema.properties) {
     result.properties = Object.fromEntries(
       Object.entries(schema.properties)
@@ -308,8 +318,9 @@ function convertSchema(schema: OpenAPISchema): Schema {
           ? convertSchema(schema.additionalProperties as OpenAPISchema)
           : true;
   }
+}
 
-  // Composition
+function applySchemaComposition(result: Schema, schema: OpenAPISchema): void {
   if (schema.allOf) {
     result.allOf = schema.allOf
       .filter((s): s is OpenAPISchema => !isReference(s))
@@ -328,6 +339,17 @@ function convertSchema(schema: OpenAPISchema): Schema {
   if (schema.not && !isReference(schema.not)) {
     result.not = convertSchema(schema.not as OpenAPISchema);
   }
+}
+
+function convertSchema(schema: OpenAPISchema): Schema {
+  const schemaAny = schema as Record<string, unknown>;
+  const result = convertSchemaBaseProperties(schema, schemaAny);
+
+  applyStringConstraints(result, schema);
+  applyNumberConstraints(result, schema);
+  applyArrayConstraints(result, schema, schemaAny);
+  applyObjectConstraints(result, schema);
+  applySchemaComposition(result, schema);
 
   return result;
 }
