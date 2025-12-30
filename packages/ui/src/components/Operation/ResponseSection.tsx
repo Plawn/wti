@@ -49,7 +49,7 @@ export const ResponseSection: Component<ResponseSectionProps> = (props) => {
       content: (
         <div class="glass-card rounded-2xl overflow-hidden mt-2">
           {isJsonResponse() ? (
-            <JsonViewer data={props.response.body} initialExpandDepth={3} />
+            <JsonViewer data={props.response.body} initialExpandDepth={3} maxHeight="none" />
           ) : (
             <CodeBlock code={props.response.bodyText} language="json" />
           )}

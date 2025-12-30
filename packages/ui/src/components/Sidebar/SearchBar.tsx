@@ -71,7 +71,7 @@ export const SearchBar: Component<SearchBarProps> = (props) => {
       <input
         ref={inputRef}
         type="text"
-        class={`w-full pl-11 pr-10 py-2.5 glass-input text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-500 outline-none transition-all duration-200 ${
+        class={`w-full !pl-11 !pr-10 py-2.5 glass-input text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-500 outline-none transition-all duration-200 ${
           isFocused() ? 'shadow-lg shadow-blue-500/10' : ''
         }`}
         placeholder={t('common.search')}

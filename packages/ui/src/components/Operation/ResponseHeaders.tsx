@@ -7,7 +7,7 @@ interface ResponseHeadersProps {
 
 export const ResponseHeaders: Component<ResponseHeadersProps> = (props) => {
   const { t } = useI18n();
-  const [expanded, setExpanded] = createSignal(false);
+  const [expanded, setExpanded] = createSignal(true);
 
   const headerEntries = () => Object.entries(props.headers);
   const headerCount = () => headerEntries().length;
