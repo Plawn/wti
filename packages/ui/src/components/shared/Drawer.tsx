@@ -179,11 +179,11 @@ export const Drawer: Component<DrawerProps> = (props) => {
               </Show>
 
               {/* Mobile close button - in thumb zone */}
-              <div class="md:hidden p-4 border-t border-gray-200 dark:border-white/5">
+              <div class="md:hidden px-4 py-2 border-t border-gray-200 dark:border-white/5">
                 <button
                   type="button"
                   onClick={props.onClose}
-                  class="w-full py-3 rounded-xl font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-white/10 active:bg-gray-200 dark:active:bg-white/20 transition-colors touch-manipulation"
+                  class="w-full py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-white/10 active:bg-gray-200 dark:active:bg-white/20 transition-colors touch-manipulation"
                 >
                   {t('common.close')}
                 </button>

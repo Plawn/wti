@@ -33,9 +33,9 @@ export const OperationHeader: Component<OperationHeaderProps> = (props) => {
   };
 
   return (
-    <div class="mb-16">
+    <div class="mb-8 md:mb-10">
       {/* Method and Path */}
-      <div class="flex items-start gap-4 mb-8">
+      <div class="flex items-start gap-4 mb-4">
         <span
           class={`bg-gradient-to-r ${config().bg} text-white text-sm font-bold uppercase min-w-[80px] py-2.5 rounded-2xl shadow-lg ${config().glow} flex items-center justify-center`}
         >
@@ -92,7 +92,7 @@ export const OperationHeader: Component<OperationHeaderProps> = (props) => {
 
       {/* Summary */}
       <Show when={props.operation.summary}>
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-3 leading-tight">
           {props.operation.summary}
         </h2>
       </Show>
@@ -103,7 +103,7 @@ export const OperationHeader: Component<OperationHeaderProps> = (props) => {
       </Show>
 
       {/* Tags and badges */}
-      <div class="flex flex-wrap items-center gap-2.5 mt-6">
+      <div class="flex flex-wrap items-center gap-2 mt-4">
         <Show when={props.operation.deprecated}>
           <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-red-500/15 dark:bg-red-500/20 text-red-600 dark:text-red-400 text-xs font-semibold rounded-full">
             <svg

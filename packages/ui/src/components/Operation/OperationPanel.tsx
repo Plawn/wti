@@ -222,7 +222,7 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
   };
 
   return (
-    <div class="p-4 sm:p-6 md:p-8 lg:p-12 w-full lg:max-w-5xl mx-auto">
+    <div class="p-4 sm:p-5 md:p-6 lg:p-8 w-full lg:max-w-5xl mx-auto">
       <OperationHeader operation={props.operation} />
 
       {/* Parameters Section */}
@@ -308,7 +308,7 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
       />
 
       {/* Actions */}
-      <div class="mt-8 md:mt-16 lg:mt-24">
+      <div class="mt-6 md:mt-10 lg:mt-12">
         <Button
           onClick={handleSend}
           loading={loading()}
@@ -347,11 +347,11 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
 
 // Section component for consistent styling
 const Section: Component<{ title: string; children: JSX.Element }> = (props) => (
-  <div class="mt-8 md:mt-16 lg:mt-24 first:mt-4 first:md:mt-8 first:lg:mt-12">
-    <h3 class="text-xs md:text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4 md:mb-6 lg:mb-10 px-2 md:px-4">
+  <div class="mt-6 md:mt-10 lg:mt-12 first:mt-2 first:md:mt-4 first:lg:mt-6">
+    <h3 class="text-xs md:text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 md:mb-4 lg:mb-5 px-2 md:px-4">
       {props.title}
     </h3>
-    <div class="space-y-4 md:space-y-6">{props.children}</div>
+    <div class="space-y-3 md:space-y-4">{props.children}</div>
   </div>
 );
 
@@ -370,7 +370,7 @@ const BodyModeToggle: Component<{
     }`;
 
   return (
-    <div class="flex gap-1 mb-6 p-1 glass-input rounded-xl w-fit">
+    <div class="flex gap-1 mb-4 p-1 glass-input rounded-xl w-fit">
       <button type="button" onClick={props.onJsonMode} class={buttonClass(props.mode === 'json')}>
         {t('operations.jsonMode')}
       </button>
@@ -390,7 +390,7 @@ const CodeSnippetsToggle: Component<{
   const { t } = useI18n();
 
   return (
-    <div class="mt-6 md:mt-8 lg:mt-12">
+    <div class="mt-4 md:mt-6 lg:mt-8">
       <button
         type="button"
         onClick={props.onToggle}
@@ -421,7 +421,7 @@ const CodeSnippetsToggle: Component<{
 
 // Error display component
 const ErrorDisplay: Component<{ message: string }> = (props) => (
-  <div class="mt-8 md:mt-16 lg:mt-24 p-4 md:p-6 lg:p-8 glass-card rounded-2xl border-red-200/30 dark:border-red-800/20 shadow-xl shadow-red-500/5">
+  <div class="mt-6 md:mt-10 lg:mt-12 p-4 md:p-5 lg:p-6 glass-card rounded-2xl border-red-200/30 dark:border-red-800/20 shadow-xl shadow-red-500/5">
     <div class="flex items-start gap-3 md:gap-5">
       <div class="flex-shrink-0 w-12 h-12 rounded-2xl bg-red-500/15 dark:bg-red-500/20 flex items-center justify-center">
         <svg

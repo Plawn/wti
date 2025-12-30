@@ -67,15 +67,15 @@ export const AuthPanel: Component<AuthPanelProps> = (props) => {
   };
 
   return (
-    <div class="px-5 py-4">
+    <div class="px-3 md:px-4 py-2 md:py-3">
       {/* Header - clickable to expand/collapse */}
       <button
         type="button"
         onClick={() => setExpanded(!expanded())}
         class="w-full flex items-center justify-between group"
       >
-        <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
+        <div class="flex items-center gap-2.5 md:gap-3">
+          <div class="w-7 h-7 md:w-8 md:h-8 rounded-lg md:rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
             <svg
               class="w-4 h-4 text-white"
               fill="none"
@@ -92,10 +92,10 @@ export const AuthPanel: Component<AuthPanelProps> = (props) => {
             </svg>
           </div>
           <div class="text-left">
-            <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{t('auth.title')}</h3>
+            <h3 class="text-xs md:text-sm font-semibold text-gray-900 dark:text-white">{t('auth.title')}</h3>
             <div class="flex items-center gap-1.5 mt-0.5">
               <span class={`w-1.5 h-1.5 rounded-full ${getAuthStatus().dot}`} />
-              <span class={`text-xs ${getAuthStatus().class}`}>{getAuthStatus().text}</span>
+              <span class={`text-[11px] md:text-xs ${getAuthStatus().class}`}>{getAuthStatus().text}</span>
             </div>
           </div>
         </div>
@@ -117,7 +117,7 @@ export const AuthPanel: Component<AuthPanelProps> = (props) => {
 
       {/* Expanded content */}
       <Show when={expanded()}>
-        <div class="mt-4 space-y-4">
+        <div class="mt-3 space-y-3">
           {/* Auth type tabs */}
           <div class="flex gap-1 p-1 glass-input rounded-xl">
             <For each={availableAuthTypes()}>

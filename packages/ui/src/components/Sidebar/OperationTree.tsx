@@ -62,11 +62,11 @@ export const OperationTree: Component<OperationTreeProps> = (props) => {
   });
 
   return (
-    <div class="h-full overflow-y-auto scrollbar-thin py-4 px-5">
+    <div class="h-full overflow-y-auto scrollbar-thin py-3 px-4">
       <Show
         when={filteredOperations().length > 0}
         fallback={
-          <div class="flex flex-col items-center justify-center py-12 text-center">
+          <div class="flex flex-col items-center justify-center py-8 text-center">
             <div class="w-14 h-14 rounded-2xl glass-button flex items-center justify-center mb-4">
               <svg
                 class="w-7 h-7 text-gray-400"
@@ -89,7 +89,7 @@ export const OperationTree: Component<OperationTreeProps> = (props) => {
           </div>
         }
       >
-        <div class="space-y-5">
+        <div class="space-y-3">
           <For each={tagGroups()}>
             {(group) => (
               <TagGroupComponent
@@ -120,7 +120,7 @@ const TagGroupComponent: Component<TagGroupComponentProps> = (props) => {
     <div>
       <button
         type="button"
-        class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-white/40 dark:hover:bg-white/5 transition-smooth group"
+        class="w-full flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/40 dark:hover:bg-white/5 transition-smooth group"
         onClick={props.onToggle}
       >
         <div
@@ -136,7 +136,7 @@ const TagGroupComponent: Component<TagGroupComponentProps> = (props) => {
         </span>
       </button>
       <Show when={props.expanded}>
-        <div class="mt-3 ml-3 pl-4 border-l border-gray-200/50 dark:border-gray-700/30 space-y-3">
+        <div class="mt-2 ml-3 pl-3 border-l border-gray-200/50 dark:border-gray-700/30 space-y-1.5">
           <For each={props.group.operations}>
             {(operation) => (
               <OperationItem

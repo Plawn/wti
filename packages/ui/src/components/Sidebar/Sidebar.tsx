@@ -20,12 +20,12 @@ export const Sidebar: Component<SidebarProps> = (props) => {
 
   return (
     <div class="flex flex-col h-full overflow-hidden">
-      {/* Header */}
-      <header class="flex-shrink-0 px-6 py-6 overflow-hidden">
-        <div class="flex items-center gap-3.5 flex-nowrap">
-          <div class="w-11 h-11 shrink-0 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+      {/* Header - bottom on mobile, top on desktop */}
+      <header class="order-last md:order-first flex-shrink-0 px-4 md:px-5 py-3 md:py-4 overflow-hidden border-t md:border-t-0 border-gray-200 dark:border-white/5">
+        <div class="flex items-center gap-2.5 md:gap-3 flex-nowrap">
+          <div class="w-9 h-9 md:w-11 md:h-11 shrink-0 rounded-xl md:rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
             <svg
-              class="w-6 h-6 text-white"
+              class="w-5 h-5 md:w-6 md:h-6 text-white"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -40,10 +40,10 @@ export const Sidebar: Component<SidebarProps> = (props) => {
             </svg>
           </div>
           <div class="flex-1 min-w-0">
-            <h1 class="font-semibold text-gray-900 dark:text-white truncate leading-tight text-base">
+            <h1 class="font-semibold text-gray-900 dark:text-white truncate leading-tight text-sm md:text-base">
               {spec().info.title}
             </h1>
-            <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">
+            <span class="text-[11px] md:text-xs text-gray-500 dark:text-gray-400 font-medium">
               v{spec().info.version}
             </span>
           </div>
@@ -51,11 +51,11 @@ export const Sidebar: Component<SidebarProps> = (props) => {
           <button
             type="button"
             onClick={() => props.onOpenHistory?.()}
-            class="w-9 h-9 shrink-0 rounded-xl glass-button flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+            class="w-8 h-8 md:w-9 md:h-9 shrink-0 rounded-lg md:rounded-xl glass-button flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
             title="Request History"
           >
             <svg
-              class="w-5 h-5"
+              class="w-4 h-4 md:w-5 md:h-5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -72,11 +72,11 @@ export const Sidebar: Component<SidebarProps> = (props) => {
         </div>
       </header>
 
-      {/* Divider */}
-      <div class="mx-5 divider-glass" />
+      {/* Divider - hidden on mobile since header is at bottom */}
+      <div class="hidden md:block mx-5 divider-glass" />
 
       {/* Controls */}
-      <div class="flex-shrink-0 px-6 py-5 space-y-5">
+      <div class="flex-shrink-0 px-4 md:px-5 py-2 md:py-3 space-y-2 md:space-y-3">
         <ServerSelector
           servers={spec().servers}
           selectedUrl={props.store.state.selectedServer?.url || null}
@@ -89,7 +89,7 @@ export const Sidebar: Component<SidebarProps> = (props) => {
       </div>
 
       {/* Divider */}
-      <div class="mx-6 divider-glass" />
+      <div class="mx-4 md:mx-6 divider-glass" />
 
       {/* Auth Panel */}
       <div class="px-1">
@@ -97,7 +97,7 @@ export const Sidebar: Component<SidebarProps> = (props) => {
       </div>
 
       {/* Divider */}
-      <div class="mx-6 divider-glass" />
+      <div class="mx-4 md:mx-6 divider-glass" />
 
       {/* Operations list */}
       <div class="flex-1 overflow-hidden">
