@@ -140,6 +140,54 @@ wti/
 | `@wti/ui` | SolidJS UI components with Tailwind CSS |
 | `@wti/element` | Web Component for vanilla HTML usage |
 
+## Releasing
+
+### Prerequisites
+
+- Ensure you're logged in to npm: `npm login`
+- Ensure all tests pass: `bun test`
+- Ensure the build succeeds: `bun run build`
+
+### Release Process
+
+1. **Update versions** in each package you want to release:
+   ```bash
+   # Update version in packages/core/package.json
+   # Update version in packages/ui/package.json
+   # Update version in packages/web-component/package.json
+   ```
+
+2. **Ensure dependency versions are aligned** - if `@wti/ui` depends on `@wti/core`, update that dependency version too.
+
+3. **Build all packages**:
+   ```bash
+   bun run build
+   ```
+
+4. **Publish packages in order** (respecting dependencies):
+   ```bash
+   # 1. Core first (no internal dependencies)
+   cd packages/core && npm publish --access public
+
+   # 2. UI second (depends on core)
+   cd packages/ui && npm publish --access public
+
+   # 3. Web component last (depends on ui)
+   cd packages/web-component && npm publish --access public
+   ```
+
+5. **Create a git tag**:
+   ```bash
+   git tag v0.x.x
+   git push origin v0.x.x
+   ```
+
+### Version Bump Guidelines
+
+- **Patch** (0.0.x): Bug fixes, documentation updates
+- **Minor** (0.x.0): New features, non-breaking changes
+- **Major** (x.0.0): Breaking API changes
+
 ## License
 
 MIT
