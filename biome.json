@@ -16,7 +16,8 @@
         "noForEach": "off"
       },
       "style": {
-        "noNonNullAssertion": "warn"
+        "noNonNullAssertion": "warn",
+        "useBlockStatements": "error"
       }
     }
   },

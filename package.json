@@ -25,6 +25,7 @@
   ],
   "workspaces": ["packages/*", "apps/*"],
   "scripts": {
+    "prepare": "lefthook install",
     "dev": "bun run --filter @wti/demo dev",
     "build": "bun run --filter './packages/*' build",
     "build:demo": "bun run --filter @wti/demo build",
@@ -35,6 +36,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
+    "lefthook": "2.0.13",
     "typescript": "^5.7.2"
   }
 }
