@@ -137,6 +137,17 @@
   transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
+/* Force hide native select styling on iOS Safari */
+select.glass-input {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: none;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
 .dark .glass-input {
   background: oklch(1 0 0 / 0.08);
   border-color: oklch(1 0 0 / 0.12);

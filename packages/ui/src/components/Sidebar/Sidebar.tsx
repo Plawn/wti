@@ -19,11 +19,11 @@ export const Sidebar: Component<SidebarProps> = (props) => {
   };
 
   return (
-    <div class="flex flex-col h-full">
+    <div class="flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <header class="flex-shrink-0 px-6 py-6">
-        <div class="flex items-center gap-3.5">
-          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+      <header class="flex-shrink-0 px-6 py-6 overflow-hidden">
+        <div class="flex items-center gap-3.5 flex-nowrap">
+          <div class="w-11 h-11 shrink-0 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
             <svg
               class="w-6 h-6 text-white"
               fill="none"
@@ -51,7 +51,7 @@ export const Sidebar: Component<SidebarProps> = (props) => {
           <button
             type="button"
             onClick={() => props.onOpenHistory?.()}
-            class="w-9 h-9 rounded-xl glass-button flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+            class="w-9 h-9 shrink-0 rounded-xl glass-button flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
             title="Request History"
           >
             <svg

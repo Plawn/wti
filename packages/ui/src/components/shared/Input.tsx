@@ -59,13 +59,14 @@ export interface SelectProps {
 
 export const Select: Component<SelectProps> = (props) => {
   return (
-    <div class="relative">
+    <div class="relative overflow-hidden">
       <select
         id={props.id}
-        class={`w-full px-4 py-3 sm:py-2.5 glass-input text-base sm:text-sm text-gray-700 dark:text-gray-200 focus:outline-none cursor-pointer appearance-none pr-9 disabled:opacity-50 disabled:cursor-not-allowed ${props.class ?? ''}`}
+        class={`w-full px-4 py-3 sm:py-2.5 glass-input text-base sm:text-sm text-gray-700 dark:text-gray-200 focus:outline-none cursor-pointer appearance-none pr-9 disabled:opacity-50 disabled:cursor-not-allowed truncate ${props.class ?? ''}`}
         value={props.value}
         disabled={props.disabled}
         onChange={(e) => props.onChange(e.currentTarget.value)}
+        style={{ "text-overflow": "ellipsis" }}
       >
         {props.children}
       </select>
