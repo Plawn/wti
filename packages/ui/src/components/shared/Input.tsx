@@ -16,7 +16,7 @@ export const Input: Component<InputProps> = (props) => {
     <input
       type={props.type ?? 'text'}
       id={props.id}
-      class={`w-full px-5 py-2.5 glass-input text-sm text-gray-900 dark:text-gray-100 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${props.class ?? ''}`}
+      class={`w-full px-4 sm:px-5 py-3 sm:py-2.5 glass-input text-base sm:text-sm text-gray-900 dark:text-gray-100 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${props.class ?? ''}`}
       placeholder={props.placeholder}
       value={props.value}
       disabled={props.disabled}
@@ -38,7 +38,7 @@ export interface TextareaProps {
 export const Textarea: Component<TextareaProps> = (props) => {
   return (
     <textarea
-      class={`w-full px-4 py-3 glass-input text-sm text-gray-800 dark:text-gray-200 resize-y focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${props.class ?? ''}`}
+      class={`w-full px-4 py-3 glass-input text-base sm:text-sm text-gray-800 dark:text-gray-200 resize-y focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${props.class ?? ''}`}
       placeholder={props.placeholder}
       value={props.value}
       rows={props.rows}
@@ -62,7 +62,7 @@ export const Select: Component<SelectProps> = (props) => {
     <div class="relative">
       <select
         id={props.id}
-        class={`w-full px-4 py-2.5 glass-input text-sm text-gray-700 dark:text-gray-200 focus:outline-none cursor-pointer appearance-none pr-9 disabled:opacity-50 disabled:cursor-not-allowed ${props.class ?? ''}`}
+        class={`w-full px-4 py-3 sm:py-2.5 glass-input text-base sm:text-sm text-gray-700 dark:text-gray-200 focus:outline-none cursor-pointer appearance-none pr-9 disabled:opacity-50 disabled:cursor-not-allowed ${props.class ?? ''}`}
         value={props.value}
         disabled={props.disabled}
         onChange={(e) => props.onChange(e.currentTarget.value)}
@@ -100,10 +100,8 @@ export const Checkbox: Component<CheckboxProps> = (props) => {
       class={`inline-flex items-center gap-3 cursor-pointer ${props.disabled ? 'opacity-50 cursor-not-allowed' : ''} ${props.class ?? ''}`}
     >
       <div
-        class={`w-5 h-5 rounded-md flex items-center justify-center transition-all duration-200 ${
-          props.checked
-            ? 'bg-blue-500 border-2 border-blue-500 shadow-sm'
-            : 'bg-gray-100 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600'
+        class={`w-5 h-5 flex items-center justify-center ${
+          props.checked ? 'glass-checkbox-checked' : 'glass-checkbox'
         }`}
       >
         <input

@@ -174,3 +174,12 @@ Before implementing any non-trivial logic, search for established npm packages. 
 - Use `<Show>` and `<For>` components, not ternaries/map for conditional rendering
 - `createEffect` ≠ `useEffect` — different mental model
 - Signals are functions: `count()` to read, `setCount(x)` to write
+- **Portal dark mode pitfall**: `<Portal>` renders content at document root, outside the `.dark` class container. This breaks `dark:` Tailwind variants. Fix: detect dark mode and add the class manually:
+  ```typescript
+  const isDark = () =>
+    document.documentElement.classList.contains('dark') || document.querySelector('.dark') !== null;
+
+  // In Portal content:
+  <div class={`... ${isDark() ? 'dark' : ''}`}>
+  ```
+  See `Drawer.tsx` and `CommandPalette.tsx` for examples.

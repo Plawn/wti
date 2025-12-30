@@ -262,7 +262,7 @@ const ObjectField: Component<ObjectFieldProps> = (props) => {
     <Show
       when={isRoot()}
       fallback={
-        <div class="glass-card rounded-xl p-4 space-y-4">
+        <div class="glass-card rounded-xl p-3 sm:p-4 space-y-3 sm:space-y-4">
           <For each={Object.entries(properties())}>
             {([key, propSchema]) => (
               <SchemaField
@@ -344,9 +344,9 @@ const ArrayField: Component<ArrayFieldProps> = (props) => {
       {/* Array items */}
       <For each={currentValue()}>
         {(item, index) => (
-          <div class="glass-card rounded-xl p-4">
+          <div class="glass-card rounded-xl p-3 sm:p-4">
             {/* Item header with controls */}
-            <div class="flex items-center justify-between mb-3">
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-3">
               <div class="flex items-center gap-2">
                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400">
                   Item {index() + 1}
@@ -357,7 +357,7 @@ const ArrayField: Component<ArrayFieldProps> = (props) => {
                   </span>
                 </Show>
               </div>
-              <div class="flex items-center gap-1">
+              <div class="flex items-center gap-1 self-end sm:self-auto">
                 {/* Move up button */}
                 <button
                   type="button"

@@ -128,4 +128,10 @@ export const en: Translations = {
     jsonOnly: 'Only JSON and YAML files are supported',
     tryExample: 'Try an example:',
   },
+  commandPalette: {
+    placeholder: 'Search operations...',
+    noResults: 'No operations found',
+    navigate: 'to navigate',
+    select: 'to select',
+  },
 };

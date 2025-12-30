@@ -47,14 +47,15 @@ export const CodeBlock: Component<CodeBlockProps> = (props) => {
         <button
           type="button"
           onClick={() => copy(props.code)}
-          class="absolute top-3 right-3 z-10 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 bg-gray-100/80 dark:bg-gray-800/80 hover:bg-gray-200/80 dark:hover:bg-gray-700/80 backdrop-blur-sm rounded-lg transition-all"
+          class="absolute top-2 right-2 sm:top-3 sm:right-3 z-10 flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 text-xs font-medium text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 glass-button rounded-lg transition-all"
+          aria-label={copied() ? t('common.copied') : t('common.copy')}
         >
           <Show
             when={copied()}
             fallback={
               <>
                 <svg
-                  class="w-3.5 h-3.5"
+                  class="w-4 h-4 sm:w-3.5 sm:h-3.5"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -67,12 +68,12 @@ export const CodeBlock: Component<CodeBlockProps> = (props) => {
                     d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
                   />
                 </svg>
-                {t('common.copy')}
+                <span class="hidden sm:inline">{t('common.copy')}</span>
               </>
             }
           >
             <svg
-              class="w-3.5 h-3.5 text-emerald-500"
+              class="w-4 h-4 sm:w-3.5 sm:h-3.5 text-emerald-500"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -81,7 +82,9 @@ export const CodeBlock: Component<CodeBlockProps> = (props) => {
             >
               <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
             </svg>
-            <span class="text-emerald-600 dark:text-emerald-400">{t('common.copied')}</span>
+            <span class="hidden sm:inline text-emerald-600 dark:text-emerald-400">
+              {t('common.copied')}
+            </span>
           </Show>
         </button>
       </Show>
@@ -96,7 +99,7 @@ export const CodeBlock: Component<CodeBlockProps> = (props) => {
       {/* Code container with syntax highlighting */}
       {/* innerHTML is the correct SolidJS pattern - content is sanitized via DOMPurify in highlightedCode() */}
       <pre
-        class={`p-6 pt-10 text-sm font-mono overflow-auto scrollbar-thin bg-gray-50 dark:bg-gray-900/50 ${props.wrap ? 'whitespace-pre-wrap break-all' : ''}`}
+        class={`p-6 pt-10 text-sm font-mono overflow-auto scrollbar-thin glass-thin ${props.wrap ? 'whitespace-pre-wrap break-all' : ''}`}
         style={{ 'max-height': maxHeight() }}
       >
         <code ref={codeRef} class={`language-${language()}`} innerHTML={highlightedCode()} />

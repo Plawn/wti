@@ -125,6 +125,12 @@ export interface Translations {
     jsonOnly: string;
     tryExample: string;
   };
+  commandPalette: {
+    placeholder: string;
+    noResults: string;
+    navigate: string;
+    select: string;
+  };
 }
 
 export type Locale = 'en' | 'fr';

@@ -456,6 +456,7 @@ export function createAuthStore() {
     /**
      * Get active auth config, automatically refreshing OpenID tokens if needed
      * Use this before making API requests to ensure valid tokens
+     * @returns AuthConfig if valid, undefined if no auth or token is expired and refresh failed
      */
     async getActiveAuthWithAutoRefresh(): Promise<AuthConfig | undefined> {
       if (!state.activeScheme) return undefined;
@@ -465,14 +466,27 @@ export function createAuthStore() {
 
       // Auto-refresh OpenID tokens if expiring soon
       if (config.type === 'openid' && config.refreshToken && config.expiresAt) {
-        if (Date.now() >= config.expiresAt - TOKEN_REFRESH_BUFFER_MS) {
+        const now = Date.now();
+        const isExpiringSoon = now >= config.expiresAt - TOKEN_REFRESH_BUFFER_MS;
+        const isFullyExpired = now >= config.expiresAt;
+
+        if (isExpiringSoon) {
           const refreshed = await this.refreshOpenIdAuth();
           if (refreshed) {
             // Return the updated config
             return state.configs[state.activeScheme];
           }
-          // If refresh failed but we still have a token, return it anyway
-          // The request might still work if the token hasn't fully expired
+
+          // Refresh failed - check if token is fully expired
+          if (isFullyExpired) {
+            console.warn('OpenID token expired and refresh failed. Authentication invalid.');
+            return undefined;
+          }
+
+          // Token hasn't fully expired yet, return it with a warning
+          console.warn(
+            'OpenID token refresh failed but token not yet expired. Using existing token.',
+          );
         }
       }
 

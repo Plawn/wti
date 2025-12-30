@@ -123,8 +123,9 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
       title={t('history.title')}
       position="right"
       size="lg"
+      noPadding
     >
-      <div class="-mx-6 -mt-6 flex flex-col h-[calc(100%+1.5rem)]">
+      <div class="flex flex-col h-full">
         {/* Actions */}
         <div class="flex items-center justify-between px-4 py-3 border-b border-white/10 dark:border-white/5 bg-black/5 dark:bg-white/5">
           <div class="flex items-center gap-2">

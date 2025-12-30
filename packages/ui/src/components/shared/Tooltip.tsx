@@ -18,12 +18,12 @@ const positionStyles: Record<TooltipPosition, string> = {
 };
 
 const arrowStyles: Record<TooltipPosition, string> = {
-  top: 'top-full left-1/2 -translate-x-1/2 border-t-gray-900 dark:border-t-gray-700 border-x-transparent border-b-transparent',
+  top: 'top-full left-1/2 -translate-x-1/2 border-t-surface-900 dark:border-t-surface-800 border-x-transparent border-b-transparent',
   bottom:
-    'bottom-full left-1/2 -translate-x-1/2 border-b-gray-900 dark:border-b-gray-700 border-x-transparent border-t-transparent',
-  left: 'left-full top-1/2 -translate-y-1/2 border-l-gray-900 dark:border-l-gray-700 border-y-transparent border-r-transparent',
+    'bottom-full left-1/2 -translate-x-1/2 border-b-surface-900 dark:border-b-surface-800 border-x-transparent border-t-transparent',
+  left: 'left-full top-1/2 -translate-y-1/2 border-l-surface-900 dark:border-l-surface-800 border-y-transparent border-r-transparent',
   right:
-    'right-full top-1/2 -translate-y-1/2 border-r-gray-900 dark:border-r-gray-700 border-y-transparent border-l-transparent',
+    'right-full top-1/2 -translate-y-1/2 border-r-surface-900 dark:border-r-surface-800 border-y-transparent border-l-transparent',
 };
 
 export const Tooltip: Component<TooltipProps> = (props) => {
@@ -63,7 +63,7 @@ export const Tooltip: Component<TooltipProps> = (props) => {
           class={`absolute z-50 ${positionStyles[position()]} animate-in fade-in zoom-in-95 duration-150`}
           role="tooltip"
         >
-          <div class="px-3 py-1.5 text-xs font-medium text-white bg-gray-900 dark:bg-gray-700 rounded-lg shadow-lg whitespace-nowrap">
+          <div class="px-3 py-1.5 text-xs font-medium text-white glass-tooltip rounded-lg whitespace-nowrap">
             {props.content}
           </div>
           <div class={`absolute w-0 h-0 border-4 ${arrowStyles[position()]}`} aria-hidden="true" />

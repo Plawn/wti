@@ -20,22 +20,22 @@ export const Tabs: Component<TabsProps> = (props) => {
   return (
     <div class={`w-full ${props.class ?? ''}`}>
       {/* Tab List */}
-      <div class="flex items-center gap-1 p-1 rounded-xl bg-gray-100/50 dark:bg-white/5 border border-gray-200 dark:border-white/10 overflow-x-auto scrollbar-thin">
+      <div class="flex items-center gap-1 p-1 rounded-xl glass-input overflow-x-auto scrollbar-thin">
         <For each={props.items}>
           {(item) => (
             <button
               type="button"
               onClick={() => setActiveTab(item.id)}
-              class={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 whitespace-nowrap outline-none focus-ring ${
+              class={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-all duration-200 whitespace-nowrap outline-none focus-ring ${
                 activeTab() === item.id
-                  ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm ring-1 ring-black/5 dark:ring-white/10'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/40 dark:hover:bg-white/5'
+                  ? 'glass-active text-gray-900 dark:text-white'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-black/[0.03] dark:hover:bg-white/[0.03]'
               }`}
               aria-selected={activeTab() === item.id}
               role="tab"
             >
               <Show when={item.icon}>
-                <span class={activeTab() === item.id ? 'text-blue-500 dark:text-blue-400' : ''}>
+                <span class={activeTab() === item.id ? 'text-accent-500 dark:text-accent-500' : ''}>
                   {item.icon}
                 </span>
               </Show>
@@ -44,8 +44,8 @@ export const Tabs: Component<TabsProps> = (props) => {
                 <span
                   class={`ml-1 px-1.5 py-0.5 text-[10px] rounded-md ${
                     activeTab() === item.id
-                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300'
-                      : 'bg-gray-200/50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400'
+                      ? 'glass-button text-gray-700 dark:text-gray-200'
+                      : 'glass-button text-gray-500 dark:text-gray-400'
                   }`}
                 >
                   {item.badge}

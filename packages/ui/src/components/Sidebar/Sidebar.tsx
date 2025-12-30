@@ -19,7 +19,7 @@ export const Sidebar: Component<SidebarProps> = (props) => {
   };
 
   return (
-    <div class="flex flex-col h-screen">
+    <div class="flex flex-col h-full">
       {/* Header */}
       <header class="flex-shrink-0 px-6 py-6">
         <div class="flex items-center gap-3.5">

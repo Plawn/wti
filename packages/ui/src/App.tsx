@@ -1,10 +1,12 @@
 import type { Operation, RequestValues, SpecInput } from '@wti/core';
-import { Show, createEffect, createSignal, onMount } from 'solid-js';
+import { Show, createEffect, createSignal, onCleanup, onMount } from 'solid-js';
 import './styles/global.css';
+import { CommandPalette } from './components/CommandPalette';
 import { HistoryDrawer } from './components/History';
 import { OperationPanel } from './components/Operation';
 import { Sidebar } from './components/Sidebar';
 import { SpecLoader } from './components/SpecLoader';
+import { Drawer } from './components/shared';
 import type { Locale } from './i18n';
 import { I18nProvider } from './i18n';
 import {
@@ -34,9 +36,25 @@ export function WTI(props: WTIProps) {
   const [oidcError, setOidcError] = createSignal<string | null>(null);
   const [historyOpen, setHistoryOpen] = createSignal(false);
   const [replayValues, setReplayValues] = createSignal<RequestValues | undefined>(undefined);
+  const [commandPaletteOpen, setCommandPaletteOpen] = createSignal(false);
 
   const themeClass = () => (props.theme === 'dark' ? 'dark' : '');
   const locale = () => props.locale ?? 'en';
+
+  // Global keyboard shortcut for command palette (Cmd/Ctrl+P)
+  onMount(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'p') {
+        e.preventDefault();
+        if (store.state.spec) {
+          setCommandPaletteOpen((open) => !open);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    onCleanup(() => window.removeEventListener('keydown', handleGlobalKeyDown));
+  });
 
   // Initialize stores and handle OIDC callback on mount
   onMount(async () => {
@@ -151,6 +169,19 @@ export function WTI(props: WTIProps) {
           }}
         />
 
+        {/* Command Palette */}
+        <Show when={store.state.spec}>
+          <CommandPalette
+            open={commandPaletteOpen()}
+            onClose={() => setCommandPaletteOpen(false)}
+            operations={store.state.spec?.operations ?? []}
+            onSelectOperation={(op) => {
+              store.actions.selectOperation(op);
+              setCommandPaletteOpen(false);
+            }}
+          />
+        </Show>
+
         {/* Show spec loader when no spec is loaded */}
         <Show when={!store.state.spec && !store.state.loading && !store.state.error}>
           <SpecLoader store={store} />
@@ -224,6 +255,9 @@ interface LayoutProps {
 }
 
 function Layout(props: LayoutProps) {
+  const [mobileMenuOpen, setMobileMenuOpen] = createSignal(false);
+  const [isMobile, setIsMobile] = createSignal(false);
+
   const selectedData = () => {
     const op = props.store.state.selectedOperation;
     const server = props.store.state.selectedServer;
@@ -233,19 +267,121 @@ function Layout(props: LayoutProps) {
     return null;
   };
 
+  // Close mobile menu when operation is selected
+  createEffect(() => {
+    if (props.store.state.selectedOperation) {
+      setMobileMenuOpen(false);
+    }
+  });
+
+  // Track mobile/desktop state and close drawer when switching to desktop
+  onMount(() => {
+    const mediaQuery = window.matchMedia('(max-width: 767px)');
+    const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
+      setIsMobile(e.matches);
+      if (!e.matches) {
+        setMobileMenuOpen(false);
+      }
+    };
+    // Check initial state
+    handleChange(mediaQuery);
+    // Listen for changes
+    mediaQuery.addEventListener('change', handleChange);
+    onCleanup(() => mediaQuery.removeEventListener('change', handleChange));
+  });
+
+  const spec = () => props.store.state.spec;
+
   return (
     <div class="flex min-h-screen">
-      {/* iOS 26 Glass Sidebar */}
-      <aside class="w-80 flex-shrink-0 glass-sidebar border-r border-white/20 dark:border-white/5">
+      {/* Mobile Header - visible only on mobile */}
+      <div class="fixed top-0 left-0 right-0 z-40 md:hidden">
+        <div class="flex items-center justify-between px-4 py-3 glass-sidebar border-b border-white/20 dark:border-white/5">
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(true)}
+            class="p-2 -ml-2 rounded-xl glass-button text-gray-600 dark:text-gray-300"
+            aria-label="Open navigation menu"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+          <Show when={spec()}>
+            <div class="flex-1 text-center min-w-0 px-4">
+              <h1 class="font-semibold text-gray-900 dark:text-white truncate text-sm">
+                {spec()?.info.title}
+              </h1>
+            </div>
+          </Show>
+          <button
+            type="button"
+            onClick={() => props.onOpenHistory()}
+            class="p-2 -mr-2 rounded-xl glass-button text-gray-500 dark:text-gray-400"
+            aria-label="Open history"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Navigation Drawer */}
+      <Drawer
+        open={mobileMenuOpen()}
+        onClose={() => setMobileMenuOpen(false)}
+        position="left"
+        size="lg"
+        showClose={false}
+        noPadding
+      >
         <Sidebar
           store={props.store}
           authStore={props.authStore}
-          onOpenHistory={props.onOpenHistory}
+          onOpenHistory={() => {
+            setMobileMenuOpen(false);
+            props.onOpenHistory();
+          }}
         />
-      </aside>
+      </Drawer>
 
-      {/* Main content */}
-      <main class="flex-1 overflow-y-auto">
+      {/* Desktop Sidebar - hidden on mobile */}
+      <Show when={!isMobile()}>
+        <aside class="w-80 flex-shrink-0 glass-sidebar border-r border-white/20 dark:border-white/5 h-screen sticky top-0">
+          <Sidebar
+            store={props.store}
+            authStore={props.authStore}
+            onOpenHistory={props.onOpenHistory}
+          />
+        </aside>
+      </Show>
+
+
+      {/* Main content - add top padding on mobile for fixed header */}
+      <main class="flex-1 overflow-y-auto pt-14 md:pt-0">
         <Show when={selectedData()} fallback={<WelcomeScreen />} keyed>
           {(data) => (
             <OperationPanel
@@ -302,12 +438,20 @@ function WelcomeScreen() {
           Select an operation from the sidebar to explore and test API endpoints
         </p>
 
-        {/* Keyboard hint */}
-        <div class="mt-8 inline-flex items-center gap-2.5 text-xs text-gray-400 dark:text-gray-500">
-          <kbd class="px-2.5 py-1.5 rounded-lg glass-button font-mono text-gray-600 dark:text-gray-300">
-            /
-          </kbd>
-          <span>to search</span>
+        {/* Keyboard hints */}
+        <div class="mt-8 flex flex-col items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
+          <div class="inline-flex items-center gap-2.5">
+            <kbd class="px-2.5 py-1.5 rounded-lg glass-button font-mono text-gray-600 dark:text-gray-300">
+              /
+            </kbd>
+            <span>to search</span>
+          </div>
+          <div class="inline-flex items-center gap-2.5">
+            <kbd class="px-2.5 py-1.5 rounded-lg glass-button font-mono text-gray-600 dark:text-gray-300">
+              <span class="text-[10px]">Cmd</span>+P
+            </kbd>
+            <span>command palette</span>
+          </div>
         </div>
       </div>
     </div>

@@ -1,4 +1,5 @@
-import { type Component, type JSX, Show, createEffect, onCleanup } from 'solid-js';
+import { type Component, type JSX, Show, createEffect, createSignal, onCleanup } from 'solid-js';
+import { useI18n } from '../../i18n';
 import { Portal } from 'solid-js/web';
 
 export type DrawerPosition = 'left' | 'right';
@@ -18,6 +19,8 @@ export interface DrawerProps {
   /** Close on Escape key */
   closeOnEscape?: boolean;
   footer?: JSX.Element;
+  /** Remove padding from content area */
+  noPadding?: boolean;
 }
 
 const sizeStyles: Record<DrawerSize, string> = {
@@ -27,25 +30,48 @@ const sizeStyles: Record<DrawerSize, string> = {
   xl: 'max-w-lg',
 };
 
-const positionStyles: Record<DrawerPosition, { container: string; enter: string; exit: string }> = {
+const positionStyles: Record<DrawerPosition, { panel: string; enter: string; exit: string }> = {
   left: {
-    container: 'left-0',
+    panel: 'left-0',
     enter: 'animate-in slide-in-from-left',
     exit: 'animate-out slide-out-to-left',
   },
   right: {
-    container: 'right-0',
+    panel: 'right-0',
     enter: 'animate-in slide-in-from-right',
     exit: 'animate-out slide-out-to-right',
   },
 };
 
+const ANIMATION_DURATION = 200;
+
 export const Drawer: Component<DrawerProps> = (props) => {
+  const { t } = useI18n();
   const position = () => props.position ?? 'right';
   const size = () => props.size ?? 'md';
   const showClose = () => props.showClose ?? true;
   const closeOnBackdrop = () => props.closeOnBackdrop ?? true;
   const closeOnEscape = () => props.closeOnEscape ?? true;
+
+  // Track visibility separately from open state for exit animation
+  const [visible, setVisible] = createSignal(false);
+  const [isClosing, setIsClosing] = createSignal(false);
+
+  // Handle open/close transitions
+  createEffect(() => {
+    if (props.open) {
+      setIsClosing(false);
+      setVisible(true);
+    } else if (visible()) {
+      // Start closing animation
+      setIsClosing(true);
+      const timer = setTimeout(() => {
+        setVisible(false);
+        setIsClosing(false);
+      }, ANIMATION_DURATION);
+      onCleanup(() => clearTimeout(timer));
+    }
+  });
 
   // Handle escape key
   createEffect(() => {
@@ -63,7 +89,7 @@ export const Drawer: Component<DrawerProps> = (props) => {
 
   // Prevent body scroll when drawer is open
   createEffect(() => {
-    if (props.open) {
+    if (visible()) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
@@ -85,20 +111,26 @@ export const Drawer: Component<DrawerProps> = (props) => {
   const isDark = () =>
     document.documentElement.classList.contains('dark') || document.querySelector('.dark') !== null;
 
+  const backdropClasses = () =>
+    isClosing() ? 'animate-out fade-out duration-200' : 'animate-in fade-in duration-200';
+
+  const drawerClasses = () =>
+    isClosing() ? `${styles().exit} duration-200` : `${styles().enter} duration-300`;
+
   return (
-    <Show when={props.open}>
+    <Show when={visible()}>
       <Portal>
         <div
-          class={`fixed inset-0 z-50 flex bg-black/50 backdrop-blur-sm animate-in fade-in duration-200 ${isDark() ? 'dark' : ''}`}
+          class={`fixed inset-0 z-50 bg-black/50 backdrop-blur-sm ${backdropClasses()} ${isDark() ? 'dark' : ''}`}
           onClick={handleBackdropClick}
           onKeyDown={(e) => e.key === 'Enter' && handleBackdropClick(e as unknown as MouseEvent)}
           aria-modal="true"
           aria-labelledby={props.title ? 'drawer-title' : undefined}
         >
           <div
-            class={`fixed top-0 ${styles().container} h-full w-full ${sizeStyles[size()]} glass-thick shadow-2xl ${styles().enter} duration-300`}
+            class={`absolute inset-y-0 ${styles().panel} w-full ${sizeStyles[size()]} glass-thick shadow-2xl overflow-hidden ${drawerClasses()}`}
           >
-            <div class="flex flex-col h-full">
+            <div class="flex flex-col h-full overflow-hidden">
               {/* Header */}
               <Show when={props.title || showClose()}>
                 <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-white/5">
@@ -137,7 +169,7 @@ export const Drawer: Component<DrawerProps> = (props) => {
               </Show>
 
               {/* Content */}
-              <div class="flex-1 p-6 overflow-y-auto">{props.children}</div>
+              <div class={`flex-1 overflow-y-auto overflow-x-hidden ${props.noPadding ? '' : 'p-6'}`}>{props.children}</div>
 
               {/* Footer */}
               <Show when={props.footer}>
@@ -145,6 +177,17 @@ export const Drawer: Component<DrawerProps> = (props) => {
                   {props.footer}
                 </div>
               </Show>
+
+              {/* Mobile close button - in thumb zone */}
+              <div class="md:hidden p-4 border-t border-gray-200 dark:border-white/5">
+                <button
+                  type="button"
+                  onClick={props.onClose}
+                  class="w-full py-3 rounded-xl font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-white/10 active:bg-gray-200 dark:active:bg-white/20 transition-colors touch-manipulation"
+                >
+                  {t('common.close')}
+                </button>
+              </div>
             </div>
           </div>
         </div>

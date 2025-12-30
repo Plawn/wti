@@ -1,6 +1,7 @@
 import type { Operation } from '@wti/core';
 import { type Component, For, Show, createMemo } from 'solid-js';
 import { useI18n } from '../../i18n';
+import { createOperationSearch, searchOperations } from '../../utils';
 import { OperationItem } from './OperationItem';
 
 interface OperationTreeProps {
@@ -20,18 +21,13 @@ interface TagGroup {
 export const OperationTree: Component<OperationTreeProps> = (props) => {
   const { t } = useI18n();
 
+  const fuse = createMemo(() => createOperationSearch(props.operations));
+
   const filteredOperations = createMemo(() => {
-    const query = props.searchQuery.toLowerCase().trim();
+    const query = props.searchQuery.trim();
     if (!query) return props.operations;
 
-    return props.operations.filter((op) => {
-      return (
-        op.path.toLowerCase().includes(query) ||
-        op.summary?.toLowerCase().includes(query) ||
-        op.id.toLowerCase().includes(query) ||
-        op.method.toLowerCase().includes(query)
-      );
-    });
+    return searchOperations(fuse(), query).map((result) => result.operation);
   });
 
   const tagGroups = createMemo(() => {
