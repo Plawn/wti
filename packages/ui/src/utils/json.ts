@@ -14,7 +14,10 @@ export function formatJson(value: unknown, indent = 2): string {
  * Safely parse a JSON string, returning undefined on error.
  */
 export function parseJson<T = unknown>(json: string): T | undefined {
-  if (!json) return undefined;
+  if (!json) {
+    return undefined;
+  }
+
   try {
     return JSON.parse(json) as T;
   } catch {
@@ -38,7 +41,9 @@ export function parseJsonSafe<T>(json: string, fallback: T): T {
  * Useful for form inputs that need string values.
  */
 export function toDisplayString(value: unknown): string {
-  if (value === undefined || value === null) return '';
+  if (value === undefined || value === null) {
+    return '';
+  }
   return String(value);
 }
 
@@ -47,7 +52,11 @@ export function toDisplayString(value: unknown): string {
  * Useful for complex form inputs.
  */
 export function toDisplayStringJson(value: unknown, indent = 2): string {
-  if (value === undefined || value === null) return '';
-  if (typeof value === 'object') return JSON.stringify(value, null, indent);
+  if (value === undefined || value === null) {
+    return '';
+  }
+  if (typeof value === 'object') {
+    return JSON.stringify(value, null, indent);
+  }
   return String(value);
 }
