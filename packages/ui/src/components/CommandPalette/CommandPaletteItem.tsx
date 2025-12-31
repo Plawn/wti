@@ -138,7 +138,7 @@ export const CommandPaletteItem: Component<CommandPaletteItemProps> = (props) =>
         </span>
         <Show when={props.operation.summary} keyed>
           {(summary) => (
-            <span class="block text-[0.6875rem] text-gray-500 dark:text-gray-400 truncate mt-0.5">
+            <span class="block text-[0.6875rem] text-gray-600 dark:text-gray-400 truncate mt-0.5">
               <HighlightedText text={summary} matches={props.matches} fieldKey="summary" />
             </span>
           )}

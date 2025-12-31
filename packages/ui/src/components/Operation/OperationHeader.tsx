@@ -42,7 +42,7 @@ export const OperationHeader: Component<OperationHeaderProps> = (props) => {
           {props.operation.method}
         </span>
         <div class="flex-1 min-w-0 pt-0.5 flex items-center gap-2">
-          <code class="text-base font-mono text-gray-800 dark:text-gray-100 break-all leading-normal font-medium">
+          <code class="text-base font-mono text-surface-900 dark:text-surface-100 break-all leading-normal font-bold">
             {props.operation.path}
           </code>
           {/* Copy Link Button */}
@@ -92,7 +92,7 @@ export const OperationHeader: Component<OperationHeaderProps> = (props) => {
 
       {/* Summary */}
       <Show when={props.operation.summary}>
-        <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-2 leading-snug">
+        <h2 class="text-lg font-bold text-surface-900 dark:text-surface-50 mb-2 leading-snug">
           {props.operation.summary}
         </h2>
       </Show>
@@ -127,7 +127,7 @@ export const OperationHeader: Component<OperationHeaderProps> = (props) => {
         <Show when={props.operation.tags.length > 0}>
           <For each={props.operation.tags}>
             {(tag) => (
-              <span class="px-2.5 py-1 glass-button text-gray-600 dark:text-gray-300 text-xs font-semibold rounded-full capitalize">
+              <span class="px-2.5 py-1 glass-button text-surface-800 dark:text-surface-300 text-xs font-bold rounded-full capitalize">
                 {tag}
               </span>
             )}

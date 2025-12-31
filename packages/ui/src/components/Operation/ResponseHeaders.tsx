@@ -24,7 +24,7 @@ export const ResponseHeaders: Component<ResponseHeadersProps> = (props) => {
         >
           <div class="flex items-center gap-2.5">
             <svg
-              class={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform duration-200 ${expanded() ? 'rotate-90' : ''}`}
+              class={`w-4 h-4 text-surface-600 dark:text-surface-400 transition-transform duration-200 ${expanded() ? 'rotate-90' : ''}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -33,10 +33,10 @@ export const ResponseHeaders: Component<ResponseHeadersProps> = (props) => {
             >
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
             </svg>
-            <span class="text-sm font-medium text-gray-700 dark:text-gray-200">
+            <span class="text-sm font-bold text-surface-800 dark:text-surface-200">
               {t('response.headers')}
             </span>
-            <span class="px-2 py-0.5 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100/80 dark:bg-white/5 rounded-md">
+            <span class="px-2 py-0.5 text-xs font-bold text-surface-700 dark:text-surface-400 bg-surface-100/80 dark:bg-white/5 rounded-md">
               {headerCount()}
             </span>
           </div>
@@ -57,23 +57,23 @@ export const ResponseHeaders: Component<ResponseHeadersProps> = (props) => {
           <div class="border-t border-gray-200 dark:border-white/5 overflow-x-auto">
             <table class="w-full text-sm min-w-[25rem]">
               <thead>
-                <tr class="bg-gray-50/50 dark:bg-white/[0.02]">
-                  <th class="px-3 sm:px-5 py-2 sm:py-2.5 text-left text-[0.625rem] sm:text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-1/3">
+                <tr class="bg-surface-50/50 dark:bg-white/[0.02]">
+                  <th class="px-3 sm:px-5 py-2 sm:py-2.5 text-left text-[0.625rem] sm:text-xs font-bold text-surface-600 dark:text-surface-400 uppercase tracking-wider w-1/3">
                     Name
                   </th>
-                  <th class="px-3 sm:px-5 py-2 sm:py-2.5 text-left text-[0.625rem] sm:text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th class="px-3 sm:px-5 py-2 sm:py-2.5 text-left text-[0.625rem] sm:text-xs font-bold text-surface-600 dark:text-surface-400 uppercase tracking-wider">
                     Value
                   </th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-100/80 dark:divide-white/5">
+              <tbody class="divide-y divide-surface-100/80 dark:divide-white/5">
                 <For each={headerEntries()}>
                   {([name, value]) => (
-                    <tr class="hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-colors">
-                      <td class="px-3 sm:px-5 py-2.5 sm:py-3 font-mono text-[0.6875rem] sm:text-xs font-medium text-gray-700 dark:text-gray-300 break-all">
+                    <tr class="hover:bg-surface-50/50 dark:hover:bg-white/[0.02] transition-colors">
+                      <td class="px-3 sm:px-5 py-2.5 sm:py-3 font-mono text-[0.6875rem] sm:text-xs font-bold text-surface-800 dark:text-surface-300 break-all">
                         {name}
                       </td>
-                      <td class="px-3 sm:px-5 py-2.5 sm:py-3 font-mono text-[0.6875rem] sm:text-xs text-gray-600 dark:text-gray-400 break-all">
+                      <td class="px-3 sm:px-5 py-2.5 sm:py-3 font-mono text-[0.6875rem] sm:text-xs font-medium text-surface-700 dark:text-surface-400 break-all">
                         {value}
                       </td>
                     </tr>

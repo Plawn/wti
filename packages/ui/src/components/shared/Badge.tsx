@@ -13,7 +13,7 @@ export interface BadgeProps {
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
-  default: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300',
+  default: 'bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-300',
   success: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300',
   warning: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
   error: 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300',

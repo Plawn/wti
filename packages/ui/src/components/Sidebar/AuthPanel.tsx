@@ -55,14 +55,14 @@ export const AuthPanel: Component<AuthPanelProps> = (props) => {
     if (hasAnyAuth()) {
       return {
         text: t('auth.configured'),
-        class: 'text-emerald-600 dark:text-emerald-400',
+        class: 'text-emerald-700 dark:text-emerald-400',
         dot: 'bg-emerald-500',
       };
     }
     return {
       text: t('auth.notConfigured'),
-      class: 'text-surface-500 dark:text-surface-400',
-      dot: 'bg-surface-400 dark:bg-surface-500',
+      class: 'text-surface-700 dark:text-surface-400',
+      dot: 'bg-surface-600 dark:bg-surface-500',
     };
   };
 
@@ -86,13 +86,13 @@ export const AuthPanel: Component<AuthPanelProps> = (props) => {
         class="w-full flex items-center justify-between py-1 group"
       >
         <div class="flex items-center gap-2">
-          <h3 class="text-sm font-bold text-surface-500 dark:text-surface-400 uppercase tracking-wider">
+          <h3 class="text-sm font-bold text-surface-700 dark:text-surface-400 uppercase tracking-wider">
             {t('auth.title')}
           </h3>
           <span class={`w-1.5 h-1.5 rounded-full ${getAuthStatus().dot}`} />
         </div>
         <svg
-          class={`w-3.5 h-3.5 text-surface-400 transition-transform ${expanded() ? 'rotate-180' : ''}`}
+          class={`w-3.5 h-3.5 text-surface-600 transition-transform ${expanded() ? 'rotate-180' : ''}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -101,7 +101,7 @@ export const AuthPanel: Component<AuthPanelProps> = (props) => {
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
-            stroke-width="2"
+            stroke-width="2.5"
             d="M19 9l-7 7-7-7"
           />
         </svg>

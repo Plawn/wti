@@ -13,10 +13,10 @@ export const ParameterInput: Component<ParameterInputProps> = (props) => {
   const { t } = useI18n();
 
   const locationConfig: Record<string, { label: string; color: string }> = {
-    path: { label: t('operations.path'), color: 'text-violet-600 dark:text-violet-400' },
-    query: { label: t('operations.query'), color: 'text-blue-600 dark:text-blue-400' },
-    header: { label: t('operations.headers'), color: 'text-amber-600 dark:text-amber-400' },
-    cookie: { label: t('operations.cookie'), color: 'text-gray-500 dark:text-gray-400' },
+    path: { label: t('operations.path'), color: 'text-violet-700 dark:text-violet-400' },
+    query: { label: t('operations.query'), color: 'text-blue-700 dark:text-blue-400' },
+    header: { label: t('operations.headers'), color: 'text-amber-700 dark:text-amber-400' },
+    cookie: { label: t('operations.cookie'), color: 'text-surface-700 dark:text-surface-400' },
   };
 
   const config = () => locationConfig[props.param.in] || locationConfig.cookie;
@@ -158,34 +158,36 @@ export const ParameterInput: Component<ParameterInputProps> = (props) => {
     <div class="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4 md:gap-6 lg:gap-8 p-3 sm:p-4 rounded-2xl hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
       <div class="sm:w-2/5 md:w-1/3 min-w-0">
         <div class="flex items-center gap-2 mb-1">
-          <span class="font-mono text-sm font-medium text-gray-900 dark:text-white break-all">
+          <span class="font-mono text-sm font-bold text-gray-900 dark:text-white break-all">
             {props.param.name}
           </span>
           <Show when={props.param.required}>
-            <span class="text-rose-500 text-xs font-semibold px-1.5 py-0.5 rounded bg-rose-50 dark:bg-rose-900/20">
+            <span class="text-rose-600 dark:text-rose-500 text-xs font-bold px-1.5 py-0.5 rounded bg-rose-50 dark:bg-rose-900/20">
               req
             </span>
           </Show>
         </div>
         <div class="flex items-center gap-2 text-xs mb-2">
           <span
-            class={`font-medium px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 ${config().color}`}
+            class={`font-bold px-1.5 py-0.5 rounded bg-surface-100 dark:bg-surface-800 ${config().color}`}
           >
             {config().label}
           </span>
-          <span class="text-gray-500 dark:text-gray-400 font-mono">{schemaType()}</span>
+          <span class="text-surface-600 dark:text-surface-400 font-mono font-medium">
+            {schemaType()}
+          </span>
           <Show when={hasEnum()}>
-            <span class="text-gray-400 dark:text-gray-500 italic">enum</span>
+            <span class="text-surface-500 dark:text-surface-500 italic font-medium">enum</span>
           </Show>
         </div>
         <Show when={props.param.description}>
           <Markdown
             content={props.param.description}
-            class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed"
+            class="text-xs text-surface-700 dark:text-surface-400 leading-relaxed font-medium"
           />
         </Show>
         <Show when={constraintsHint()}>
-          <div class="mt-2 text-[0.625rem] font-mono text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800/50 px-2 py-1 rounded w-fit">
+          <div class="mt-2 text-[0.625rem] font-mono font-medium text-surface-600 dark:text-surface-500 bg-surface-50 dark:bg-surface-800/50 px-2 py-1 rounded w-fit">
             {constraintsHint()}
           </div>
         </Show>

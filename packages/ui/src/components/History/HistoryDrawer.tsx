@@ -232,19 +232,19 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
     >
       <div class="flex flex-col h-full">
         {/* Actions */}
-        <div class="flex items-center justify-between px-4 py-3 border-b border-white/10 dark:border-white/5 bg-black/5 dark:bg-white/5">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-black/5 dark:border-white/5 bg-black/5 dark:bg-white/5">
           <div class="flex items-center gap-2">
             <button
               type="button"
               onClick={handleExport}
-              class="px-3 py-1.5 text-xs font-medium glass-button rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              class="px-3 py-1.5 text-xs font-bold glass-button rounded-lg text-surface-700 dark:text-surface-400 hover:text-surface-950 dark:hover:text-white"
             >
               {t('history.export')}
             </button>
             <button
               type="button"
               onClick={handleImport}
-              class="px-3 py-1.5 text-xs font-medium glass-button rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              class="px-3 py-1.5 text-xs font-bold glass-button rounded-lg text-surface-700 dark:text-surface-400 hover:text-surface-950 dark:hover:text-white"
             >
               {t('history.import')}
             </button>
@@ -252,10 +252,10 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
           <button
             type="button"
             onClick={handleClear}
-            class={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+            class={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${
               confirmClear()
                 ? 'bg-red-500 text-white'
-                : 'glass-button text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400'
+                : 'glass-button text-surface-700 dark:text-surface-400 hover:text-red-600 dark:hover:text-red-400'
             }`}
           >
             {confirmClear() ? 'Confirm?' : t('history.clearAll')}
@@ -325,17 +325,17 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
                         {/* Content */}
                         <div class="flex-1 min-w-0">
                           <div class="flex items-center gap-2 mb-1">
-                            <p class="text-sm font-mono text-gray-700 dark:text-gray-300 truncate">
+                            <p class="text-sm font-mono font-bold text-surface-800 dark:text-surface-300 truncate">
                               {entry.operationPath}
                             </p>
                           </div>
-                          <div class="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
+                          <div class="flex items-center gap-2 text-xs text-surface-600 dark:text-surface-500 font-bold">
                             <span>{formatTime(entry.timestamp)}</span>
                             <Show when={entry.response} keyed>
                               {(response) => (
                                 <>
                                   <span>·</span>
-                                  <span class={getStatusTextColor(response.status)}>
+                                  <span class={`font-bold ${getStatusTextColor(response.status)}`}>
                                     {response.status}
                                   </span>
                                   <span>·</span>
@@ -415,7 +415,7 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
 
         {/* Keyboard hints footer */}
         <Show when={props.store.state.entries.length > 0}>
-          <div class="px-4 py-2 border-t border-white/10 dark:border-white/5 bg-black/5 dark:bg-white/5">
+          <div class="px-4 py-2 border-t border-black/5 dark:border-white/5 bg-black/5 dark:bg-white/5">
             <div class="flex items-center justify-center gap-4 text-xs text-gray-400 dark:text-gray-500">
               <span class="flex items-center gap-1">
                 <kbd class="px-1.5 py-0.5 rounded bg-black/10 dark:bg-white/10 font-mono">↑↓</kbd>

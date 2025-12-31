@@ -138,10 +138,10 @@ const TagGroupComponent: Component<TagGroupComponentProps> = (props) => {
         >
           <ChevronIcon expanded={props.expanded} />
         </div>
-        <span class="flex-1 text-left text-sm font-semibold text-surface-700 dark:text-surface-200 capitalize">
+        <span class="flex-1 text-left text-sm font-bold text-gray-900 dark:text-surface-200 capitalize">
           {props.group.name}
         </span>
-        <span class="text-[0.6875rem] font-semibold text-surface-400 dark:text-surface-500 tabular-nums px-1.5 py-0.5 rounded-md glass-button">
+        <span class="text-[0.6875rem] font-bold text-surface-700 dark:text-surface-500 tabular-nums px-1.5 py-0.5 rounded-md glass-button">
           {props.group.operations.length}
         </span>
       </button>
@@ -165,7 +165,7 @@ const TagGroupComponent: Component<TagGroupComponentProps> = (props) => {
 const ChevronIcon: Component<{ expanded: boolean }> = (props) => {
   return (
     <svg
-      class={`w-3 h-3 transition-transform duration-200 ${props.expanded ? 'rotate-90 text-accent-500' : 'text-surface-400'}`}
+      class={`w-3 h-3 transition-transform duration-200 ${props.expanded ? 'rotate-90 text-accent-500' : 'text-surface-500'}`}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"

@@ -207,7 +207,7 @@ export const JsonViewer: Component<JsonViewerProps> = (props) => {
         <button
           type="button"
           onClick={handleExpandAll}
-          class="px-2 py-1 text-xs font-medium text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 bg-gray-100/80 dark:bg-gray-800/80 hover:bg-gray-200/80 dark:hover:bg-gray-700/80 backdrop-blur-sm rounded-lg transition-all"
+          class="px-2 py-1 text-xs font-medium text-surface-400 dark:text-surface-500 hover:text-surface-600 dark:hover:text-surface-300 bg-surface-100/80 dark:bg-surface-800/80 hover:bg-surface-200/80 dark:hover:bg-surface-700/80 backdrop-blur-sm rounded-lg transition-all"
           title="Expand all"
         >
           <svg
@@ -228,7 +228,7 @@ export const JsonViewer: Component<JsonViewerProps> = (props) => {
         <button
           type="button"
           onClick={handleCollapseAll}
-          class="px-2 py-1 text-xs font-medium text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 bg-gray-100/80 dark:bg-gray-800/80 hover:bg-gray-200/80 dark:hover:bg-gray-700/80 backdrop-blur-sm rounded-lg transition-all"
+          class="px-2 py-1 text-xs font-medium text-surface-400 dark:text-surface-500 hover:text-surface-600 dark:hover:text-surface-300 bg-surface-100/80 dark:bg-surface-800/80 hover:bg-surface-200/80 dark:hover:bg-surface-700/80 backdrop-blur-sm rounded-lg transition-all"
           title="Collapse all"
         >
           <svg
@@ -249,7 +249,7 @@ export const JsonViewer: Component<JsonViewerProps> = (props) => {
         <button
           type="button"
           onClick={() => copy(jsonString())}
-          class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 bg-gray-100/80 dark:bg-gray-800/80 hover:bg-gray-200/80 dark:hover:bg-gray-700/80 backdrop-blur-sm rounded-lg transition-all"
+          class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-surface-400 dark:text-surface-500 hover:text-surface-600 dark:hover:text-surface-300 bg-surface-100/80 dark:bg-surface-800/80 hover:bg-surface-200/80 dark:hover:bg-surface-700/80 backdrop-blur-sm rounded-lg transition-all"
         >
           <Show
             when={copied()}
@@ -290,7 +290,7 @@ export const JsonViewer: Component<JsonViewerProps> = (props) => {
 
       {/* JSON content */}
       <div
-        class="p-6 pt-10 overflow-auto scrollbar-thin bg-gray-50 dark:bg-gray-900/50"
+        class="p-6 pt-10 overflow-auto scrollbar-thin bg-surface-50/50 dark:bg-surface-900/50"
         style={{ 'max-height': maxHeight() }}
       >
         <Show when={key() >= 0} keyed>

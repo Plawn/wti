@@ -84,7 +84,7 @@ function WTIContent(props: { className?: string; spec?: SpecInput }) {
 
   return (
     <div
-      class={`${themeClass()} font-sans text-sm text-gray-800 dark:text-gray-100 min-h-screen w-full ${props.className ?? ''}`}
+      class={`${themeClass()} font-sans text-sm text-surface-900 dark:text-surface-50 min-h-screen w-full ${props.className ?? ''}`}
     >
       <div class="fixed inset-0 bg-mesh -z-10" />
       <div class="fixed inset-0 pattern-dots -z-10" />

@@ -1,18 +1,21 @@
 @import "tailwindcss";
 
+/* Use class-based dark mode instead of media query */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* iOS 26 Glassmorphism Design Tokens */
 @theme {
   --color-surface-50: oklch(0.99 0.002 240);
   --color-surface-100: oklch(0.97 0.004 240);
-  --color-surface-200: oklch(0.93 0.006 240);
-  --color-surface-300: oklch(0.88 0.008 240);
-  --color-surface-400: oklch(0.8 0.01 240);
-  --color-surface-500: oklch(0.6 0.015 240);
-  --color-surface-600: oklch(0.45 0.02 250);
-  --color-surface-700: oklch(0.35 0.02 260);
-  --color-surface-800: oklch(0.25 0.015 260);
-  --color-surface-900: oklch(0.18 0.02 260);
-  --color-surface-950: oklch(0.12 0.02 260);
+  --color-surface-200: oklch(0.92 0.01 240);
+  --color-surface-300: oklch(0.8 0.02 240);
+  --color-surface-400: oklch(0.6 0.025 240);
+  --color-surface-500: oklch(0.4 0.03 240);
+  --color-surface-600: oklch(0.3 0.03 250);
+  --color-surface-700: oklch(0.2 0.03 260);
+  --color-surface-800: oklch(0.15 0.03 260);
+  --color-surface-900: oklch(0.1 0.03 260);
+  --color-surface-950: oklch(0.05 0.03 260);
 
   --color-accent-50: oklch(0.97 0.02 250);
   --color-accent-100: oklch(0.92 0.04 250);
@@ -32,10 +35,22 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+body {
+  color: var(--color-surface-900);
+  background-color: #fcfcfc;
+  background-color: var(--color-surface-50);
+}
+
+.dark body {
+  color: var(--color-surface-100);
+  background-color: #0f0f0f;
+  background-color: var(--color-surface-950);
+}
+
 /* Custom scrollbar - iOS style */
 .scrollbar-thin::-webkit-scrollbar {
-  width: 0.25rem;
-  height: 0.25rem;
+  width: 0.375rem;
+  height: 0.375rem;
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
@@ -43,41 +58,47 @@
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: color-mix(in oklch, var(--color-surface-500), transparent 80%);
+  background: oklch(0 0 0 / 0.15);
   border-radius: 62.5rem;
+  border: 1px solid transparent;
+  background-clip: content-box;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in oklch, var(--color-surface-600), transparent 65%);
+  background: oklch(0 0 0 / 0.25);
+  border: 1px solid transparent;
+  background-clip: content-box;
 }
 
 .dark .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: color-mix(in oklch, var(--color-surface-400), transparent 75%);
+  background: oklch(1 0 0 / 0.2);
 }
 
 .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in oklch, var(--color-surface-300), transparent 60%);
+  background: oklch(1 0 0 / 0.3);
 }
 
 /* iOS 26 Glass Effect - Primary */
 .glass {
-  background: oklch(1 0 0 / 0.55);
-  backdrop-filter: blur(2.5rem) saturate(180%);
-  -webkit-backdrop-filter: blur(2.5rem) saturate(180%);
+  background: oklch(1 0 0 / 0.45);
+  backdrop-filter: blur(2rem) saturate(180%);
+  -webkit-backdrop-filter: blur(2rem) saturate(180%);
   border: 0.0625rem solid oklch(1 0 0 / 0.3);
+  box-shadow: 0 4px 6px -1px oklch(0 0 0 / 0.02), 0 2px 4px -2px oklch(0 0 0 / 0.02);
 }
 
 .dark .glass {
   background: oklch(0.15 0.02 260 / 0.6);
   border-color: oklch(1 0 0 / 0.08);
+  box-shadow: none;
 }
 
 /* iOS 26 Glass - Thick (more opaque) */
 .glass-thick {
-  background: oklch(1 0 0 / 0.72);
-  backdrop-filter: blur(3.125rem) saturate(200%);
-  -webkit-backdrop-filter: blur(3.125rem) saturate(200%);
-  border: 0.0625rem solid oklch(1 0 0 / 0.35);
+  background: oklch(1 0 0 / 0.65);
+  backdrop-filter: blur(3rem) saturate(200%);
+  -webkit-backdrop-filter: blur(3rem) saturate(200%);
+  border: 0.0625rem solid oklch(1 0 0 / 0.4);
 }
 
 .dark .glass-thick {
@@ -87,9 +108,9 @@
 
 /* iOS 26 Glass - Thin (more transparent) */
 .glass-thin {
-  background: oklch(1 0 0 / 0.35);
-  backdrop-filter: blur(1.875rem) saturate(150%);
-  -webkit-backdrop-filter: blur(1.875rem) saturate(150%);
+  background: oklch(1 0 0 / 0.3);
+  backdrop-filter: blur(1.5rem) saturate(140%);
+  -webkit-backdrop-filter: blur(1.5rem) saturate(140%);
   border: 0.0625rem solid oklch(1 0 0 / 0.2);
 }
 
@@ -100,10 +121,10 @@
 
 /* iOS 26 Glass - Ultra (very transparent, for overlays) */
 .glass-ultra {
-  background: oklch(1 0 0 / 0.2);
-  backdrop-filter: blur(3.75rem) saturate(200%);
-  -webkit-backdrop-filter: blur(3.75rem) saturate(200%);
-  border: 0.0625rem solid oklch(1 0 0 / 0.15);
+  background: oklch(1 0 0 / 0.15);
+  backdrop-filter: blur(1rem) saturate(120%);
+  -webkit-backdrop-filter: blur(1rem) saturate(120%);
+  border: 0.0625rem solid oklch(1 0 0 / 0.1);
 }
 
 .dark .glass-ultra {
@@ -113,25 +134,26 @@
 
 /* iOS 26 Glass - Sidebar specific */
 .glass-sidebar {
-  background: oklch(0.98 0.005 250 / 0.75);
+  background: oklch(1 0 0 / 0.5);
   backdrop-filter: blur(2.5rem) saturate(180%);
   -webkit-backdrop-filter: blur(2.5rem) saturate(180%);
+  border-right: 0.0625rem solid oklch(0 0 0 / 0.06);
 }
 
 .dark .glass-sidebar {
   background: oklch(0.13 0.015 260 / 0.85);
   backdrop-filter: blur(2.5rem) saturate(150%);
   -webkit-backdrop-filter: blur(2.5rem) saturate(150%);
+  border-right-color: oklch(1 0 0 / 0.05);
 }
 
 /* iOS 26 Glass - Card/Surface */
 .glass-card {
-  background: oklch(1 0 0 / 0.6);
-  backdrop-filter: blur(2.5rem) saturate(170%);
-  -webkit-backdrop-filter: blur(2.5rem) saturate(170%);
-  border: 0.0625rem solid oklch(1 0 0 / 0.25);
-  box-shadow: 0 0.125rem 0.5rem -0.125rem oklch(0.3 0.02 250 / 0.08), 0 0.5rem 1.5rem -0.25rem
-    oklch(0.3 0.02 250 / 0.06), inset 0 0.0625rem 0.0625rem oklch(1 0 0 / 0.4);
+  background: oklch(1 0 0 / 0.55);
+  backdrop-filter: blur(2rem) saturate(160%);
+  -webkit-backdrop-filter: blur(2rem) saturate(160%);
+  border: 0.0625rem solid oklch(1 0 0 / 0.4);
+  box-shadow: 0 4px 20px -2px oklch(0 0 0 / 0.06), 0 0 0 1px oklch(1 0 0 / 0.4) inset;
 }
 
 .dark .glass-card {
@@ -143,22 +165,25 @@
 
 /* iOS 26 Glass - Surface (sticky headers/controls) */
 .glass-surface {
-  background: rgb(255 255 255 / 0.8);
-  backdrop-filter: blur(0.75rem);
-  -webkit-backdrop-filter: blur(0.75rem);
+  background: oklch(1 0 0 / 0.7);
+  backdrop-filter: blur(1.5rem) saturate(150%);
+  -webkit-backdrop-filter: blur(1.5rem) saturate(150%);
+  border-bottom: 1px solid oklch(0 0 0 / 0.05);
 }
 
 .dark .glass-surface {
-  background: rgb(17 24 39 / 0.8);
+  background: oklch(0.1 0.02 260 / 0.8);
+  border-color: oklch(1 0 0 / 0.05);
 }
 
 /* iOS 26 Input fields */
 .glass-input {
-  background: oklch(0 0 0 / 0.04);
-  border: 0.0625rem solid oklch(0 0 0 / 0.08);
+  background: oklch(0 0 0 / 0.03);
+  border: 1px solid oklch(0 0 0 / 0.08);
   border-radius: 0.75rem;
   padding: 0.625rem 1rem;
   transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  color: var(--color-surface-900);
 }
 
 /* Force hide native select styling on iOS Safari */
@@ -175,11 +200,12 @@ select.glass-input {
 .dark .glass-input {
   background: oklch(1 0 0 / 0.08);
   border-color: oklch(1 0 0 / 0.12);
+  color: var(--color-surface-100);
 }
 
 .glass-input:hover {
-  background: oklch(0 0 0 / 0.06);
-  border-color: oklch(0 0 0 / 0.12);
+  background: oklch(0 0 0 / 0.05);
+  border-color: oklch(0 0 0 / 0.15);
 }
 
 .dark .glass-input:hover {
@@ -188,9 +214,9 @@ select.glass-input {
 }
 
 .glass-input:focus {
-  background: oklch(1 0 0 / 1);
+  background: oklch(1 0 0 / 0.8);
   border-color: oklch(0.55 0.2 260);
-  box-shadow: 0 0 0 0.1875rem oklch(0.55 0.2 260 / 0.2);
+  box-shadow: 0 0 0 3px oklch(0.55 0.2 260 / 0.15);
 }
 
 .dark .glass-input:focus {
@@ -200,54 +226,58 @@ select.glass-input {
 }
 
 .glass-input::placeholder {
-  color: oklch(0.5 0.01 250 / 0.6);
+  color: oklch(0 0 0 / 0.4);
 }
 
 .dark .glass-input::placeholder {
-  color: oklch(0.7 0.01 250 / 0.5);
+  color: oklch(1 1 1 / 0.4);
 }
 
 /* iOS 26 Glass - Small UI elements (badges, kbd, tags) */
 .glass-button {
-  background: oklch(0.5 0.02 250 / 0.12);
-  border: 0.0625rem solid oklch(0.5 0.02 250 / 0.1);
-  box-shadow: none;
+  background: oklch(1 0 0 / 0.5);
+  border: 1px solid oklch(0 0 0 / 0.06);
+  box-shadow: 0 1px 2px oklch(0 0 0 / 0.05);
+  color: var(--color-surface-800);
 }
 
 .dark .glass-button {
   background: oklch(1 0 0 / 0.12);
   border-color: oklch(1 0 0 / 0.1);
+  color: var(--color-surface-200);
 }
 
 .glass-button:hover {
-  background: oklch(0.5 0.02 250 / 0.18);
-  border-color: oklch(0.5 0.02 250 / 0.2);
+  background: oklch(1 0 0 / 0.8);
+  border-color: oklch(0 0 0 / 0.1);
+  transform: translateY(-0.5px);
 }
 
 .dark .glass-button:hover {
   background: oklch(1 0 0 / 0.18);
   border-color: oklch(1 0 0 / 0.2);
+  transform: none;
 }
 
 /* iOS 26 Icon Button - Small interactive icons */
 .glass-icon-btn {
   padding: 0.375rem;
   border-radius: 0.5rem;
-  color: oklch(0.55 0.02 250);
+  color: var(--color-surface-600);
   transition: all 0.15s ease;
 }
 
 .glass-icon-btn:hover {
-  color: oklch(0.35 0.02 250);
+  color: var(--color-surface-900);
   background: oklch(0 0 0 / 0.06);
 }
 
 .dark .glass-icon-btn {
-  color: oklch(0.6 0.02 250);
+  color: var(--color-surface-400);
 }
 
 .dark .glass-icon-btn:hover {
-  color: oklch(0.8 0.02 250);
+  color: var(--color-surface-100);
   background: oklch(1 0 0 / 0.1);
 }
 
@@ -271,26 +301,23 @@ select.glass-input {
   padding: 0.625rem 1.25rem;
   font-size: 0.9375rem;
   letter-spacing: -0.01em;
-  box-shadow: 0 0.125rem 0.25rem oklch(0.55 0.2 260 / 0.3), 0 0.5rem 1rem -0.25rem
-    oklch(0.55 0.2 260 / 0.25), inset 0 0.0625rem 0.0625rem oklch(1 0 0 / 0.15);
+  box-shadow: 0 2px 10px oklch(0.55 0.2 260 / 0.3), inset 0 1px 0 oklch(1 0 0 / 0.2);
   transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .btn-primary:hover {
   background: oklch(0.5 0.22 260);
-  transform: translateY(-0.0625rem);
-  box-shadow: 0 0.25rem 0.5rem oklch(0.55 0.2 260 / 0.35), 0 0.75rem 1.5rem -0.25rem
-    oklch(0.55 0.2 260 / 0.3), inset 0 0.0625rem 0.0625rem oklch(1 0 0 / 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px oklch(0.55 0.2 260 / 0.4), inset 0 1px 0 oklch(1 0 0 / 0.2);
 }
 
 .btn-primary:active {
   transform: translateY(0);
-  box-shadow: 0 0.0625rem 0.125rem oklch(0.55 0.2 260 / 0.3), 0 0.25rem 0.5rem -0.125rem
-    oklch(0.55 0.2 260 / 0.2), inset 0 0.0625rem 0.0625rem oklch(1 0 0 / 0.1);
+  box-shadow: 0 1px 2px oklch(0.55 0.2 260 / 0.3);
 }
 
 .btn-primary:disabled {
-  background: oklch(0.7 0.08 260);
+  background: oklch(0.7 0.05 260);
   box-shadow: none;
   transform: none;
   cursor: not-allowed;
@@ -298,15 +325,16 @@ select.glass-input {
 
 /* iOS 26 Secondary Button - Tinted style */
 .btn-secondary {
-  background: oklch(0.55 0.2 260 / 0.12);
+  background: oklch(1 0 0 / 0.6);
   color: oklch(0.5 0.2 260);
   font-weight: 600;
-  border: 0.0625rem solid oklch(0.55 0.2 260 / 0.15);
+  border: 1px solid oklch(0.55 0.2 260 / 0.2);
   border-radius: 0.75rem;
   padding: 0.625rem 1.25rem;
   font-size: 0.9375rem;
   letter-spacing: -0.01em;
   transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  backdrop-filter: blur(10px);
 }
 
 .dark .btn-secondary {
@@ -316,8 +344,8 @@ select.glass-input {
 }
 
 .btn-secondary:hover {
-  background: oklch(0.55 0.2 260 / 0.18);
-  border-color: oklch(0.55 0.2 260 / 0.25);
+  background: oklch(0.55 0.2 260 / 0.1);
+  border-color: oklch(0.55 0.2 260 / 0.3);
 }
 
 .dark .btn-secondary:hover {
@@ -327,13 +355,13 @@ select.glass-input {
 }
 
 .btn-secondary:active {
-  background: oklch(0.55 0.2 260 / 0.25);
+  background: oklch(0.55 0.2 260 / 0.15);
 }
 
 /* iOS 26 Tertiary Button - Plain style */
 .btn-tertiary {
   background: transparent;
-  color: oklch(0.5 0.2 260);
+  color: oklch(0.45 0.2 260);
   font-weight: 600;
   border: none;
   border-radius: 0.625rem;
@@ -348,7 +376,8 @@ select.glass-input {
 }
 
 .btn-tertiary:hover {
-  background: oklch(0.55 0.2 260 / 0.1);
+  background: oklch(0.55 0.2 260 / 0.08);
+  color: oklch(0.4 0.22 260);
 }
 
 .dark .btn-tertiary:hover {
@@ -358,7 +387,7 @@ select.glass-input {
 /* iOS 26 Checkbox - Design system checkbox styling */
 .glass-checkbox {
   background: oklch(0 0 0 / 0.04);
-  border: 0.125rem solid oklch(0 0 0 / 0.15);
+  border: 1.5px solid oklch(0 0 0 / 0.2);
   border-radius: 0.375rem;
   transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
@@ -371,7 +400,7 @@ select.glass-input {
 .glass-checkbox-checked {
   background: oklch(0.55 0.2 260);
   border-color: oklch(0.55 0.2 260);
-  box-shadow: 0 0.125rem 0.25rem oklch(0.55 0.2 260 / 0.3);
+  box-shadow: 0 2px 4px oklch(0.55 0.2 260 / 0.3);
 }
 
 .dark .glass-checkbox-checked {
@@ -382,12 +411,12 @@ select.glass-input {
 
 /* iOS 26 Tooltip - Glassmorphic tooltip */
 .glass-tooltip {
-  background: oklch(0.15 0.02 260 / 0.9);
-  backdrop-filter: blur(1.25rem) saturate(180%);
-  -webkit-backdrop-filter: blur(1.25rem) saturate(180%);
-  border: 0.0625rem solid oklch(1 0 0 / 0.1);
-  box-shadow: 0 0.25rem 0.75rem -0.125rem oklch(0 0 0 / 0.2), 0 0.5rem 1.5rem -0.25rem
-    oklch(0 0 0 / 0.15);
+  background: oklch(1 0 0 / 0.85);
+  backdrop-filter: blur(1.5rem) saturate(180%);
+  -webkit-backdrop-filter: blur(1.5rem) saturate(180%);
+  border: 1px solid oklch(0 0 0 / 0.08);
+  box-shadow: 0 10px 25px -5px oklch(0 0 0 / 0.1), 0 8px 10px -6px oklch(0 0 0 / 0.1);
+  color: var(--color-surface-900);
 }
 
 .dark .glass-tooltip {
@@ -395,16 +424,16 @@ select.glass-input {
   border-color: oklch(1 0 0 / 0.15);
   box-shadow: 0 0.25rem 0.75rem -0.125rem oklch(0 0 0 / 0.4), 0 0.5rem 1.5rem -0.25rem
     oklch(0 0 0 / 0.3);
+  color: var(--color-surface-50);
 }
 
 /* iOS 26 Glass - Selected/Active state */
 .glass-active {
-  background: oklch(0.6 0.18 250 / 0.15);
-  backdrop-filter: blur(1.875rem) saturate(180%);
-  -webkit-backdrop-filter: blur(1.875rem) saturate(180%);
-  border: 0.0625rem solid oklch(0.6 0.18 250 / 0.25);
-  box-shadow: 0 0.125rem 0.5rem -0.125rem oklch(0.6 0.18 250 / 0.2), inset 0 0.0625rem 0.0625rem
-    oklch(1 0 0 / 0.3);
+  background: oklch(0.55 0.2 260 / 0.12);
+  backdrop-filter: blur(1rem);
+  -webkit-backdrop-filter: blur(1rem);
+  border: 1px solid oklch(0.55 0.2 260 / 0.2);
+  color: oklch(0.45 0.2 260);
 }
 
 .dark .glass-active {
@@ -414,15 +443,20 @@ select.glass-input {
     oklch(1 0 0 / 0.08);
 }
 
-/* Subtle mesh gradient background for iOS feel */
+/* Subtle mesh gradient background for iOS feel - VIBRANT LIGHT MODE */
 .bg-mesh {
-  background: radial-gradient(ellipse at 20% 0%, oklch(0.85 0.08 280 / 0.25) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 100%, oklch(0.85 0.1 200 / 0.2) 0%, transparent 50%),
-    radial-gradient(ellipse at 60% 50%, oklch(0.9 0.05 250 / 0.15) 0%, transparent 40%),
-    linear-gradient(to bottom, oklch(0.98 0.01 250) 0%, oklch(0.95 0.015 240) 100%);
+  background-color: #fcfcfc;
+  background: 
+    radial-gradient(circle at 0% 0%, oklch(0.9 0.1 240 / 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 100% 0%, oklch(0.9 0.15 280 / 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 100% 100%, oklch(0.9 0.12 320 / 0.35) 0%, transparent 50%),
+    radial-gradient(circle at 0% 100%, oklch(0.92 0.08 200 / 0.4) 0%, transparent 50%),
+    linear-gradient(to bottom right, oklch(0.98 0.01 240), oklch(0.95 0.02 250));
+  background-attachment: fixed;
 }
 
 .dark .bg-mesh {
+  background-color: #0f0f0f;
   background: radial-gradient(ellipse at 20% 0%, oklch(0.4 0.15 280 / 0.5) 0%, transparent 50%),
     radial-gradient(ellipse at 80% 100%, oklch(0.35 0.15 200 / 0.4) 0%, transparent 50%),
     radial-gradient(ellipse at 60% 50%, oklch(0.3 0.1 250 / 0.3) 0%, transparent 40%),
@@ -434,9 +468,10 @@ select.glass-input {
   content: "";
   position: absolute;
   inset: 0;
-  opacity: 0.025;
+  opacity: 0.03;
   pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  z-index: -1;
 }
 
 .dark .noise-overlay::before {
@@ -445,8 +480,8 @@ select.glass-input {
 
 /* Subtle pattern for depth - iOS style */
 .pattern-dots {
-  background-image: radial-gradient(oklch(0.5 0.02 250 / 0.04) 0.0625rem, transparent 0.0625rem);
-  background-size: 1.5rem 1.5rem;
+  background-image: radial-gradient(oklch(0 0 0 / 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
 }
 
 .dark .pattern-dots {
@@ -460,7 +495,7 @@ select.glass-input {
 
 .focus-ring:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 0.1875rem oklch(0.6 0.18 250 / 0.3);
+  box-shadow: 0 0 0 3px oklch(0.55 0.2 260 / 0.3);
 }
 
 /* Smooth transitions - iOS spring-like */
@@ -483,14 +518,14 @@ select.glass-input {
 
 /* iOS 26 Pill button style */
 .pill {
-  border-radius: 625rem;
+  border-radius: 9999px;
   padding: 0.5rem 1rem;
 }
 
 /* iOS 26 Divider */
 .divider-glass {
-  height: 0.0625rem;
-  background: linear-gradient(to right, transparent, oklch(0.5 0.02 250 / 0.15), transparent);
+  height: 1px;
+  background: linear-gradient(to right, transparent, oklch(0 0 0 / 0.08), transparent);
 }
 
 .dark .divider-glass {
@@ -500,7 +535,7 @@ select.glass-input {
 /* Prism.js Syntax Highlighting - Glass-inspired theme */
 code[class*="language-"],
 pre[class*="language-"] {
-  color: oklch(0.25 0.02 250);
+  color: oklch(0.25 0.05 260); /* Darker for better contrast */
   text-shadow: none;
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
     monospace;
@@ -520,17 +555,17 @@ pre[class*="language-"] {
   color: oklch(0.85 0.02 250);
 }
 
-/* Light mode token colors */
+/* Light mode token colors - Increased Contrast */
 .token.comment,
 .token.prolog,
 .token.doctype,
 .token.cdata {
-  color: oklch(0.55 0.02 250);
+  color: oklch(0.5 0.05 250);
   font-style: italic;
 }
 
 .token.punctuation {
-  color: oklch(0.6 0.03 250);
+  color: oklch(0.4 0.05 250);
 }
 
 .token.property,
@@ -540,7 +575,7 @@ pre[class*="language-"] {
 .token.constant,
 .token.symbol,
 .token.deleted {
-  color: oklch(0.6 0.18 25);
+  color: oklch(0.5 0.2 25);
 }
 
 .token.selector,
@@ -549,7 +584,7 @@ pre[class*="language-"] {
 .token.char,
 .token.builtin,
 .token.inserted {
-  color: oklch(0.55 0.15 145);
+  color: oklch(0.45 0.18 145);
 }
 
 .token.operator,
@@ -557,27 +592,27 @@ pre[class*="language-"] {
 .token.url,
 .language-css .token.string,
 .style .token.string {
-  color: oklch(0.6 0.12 60);
+  color: oklch(0.5 0.15 60);
 }
 
 .token.atrule,
 .token.attr-value,
 .token.keyword {
-  color: oklch(0.55 0.18 280);
+  color: oklch(0.45 0.2 280);
 }
 
 .token.function,
 .token.class-name {
-  color: oklch(0.6 0.15 200);
+  color: oklch(0.5 0.18 200);
 }
 
 .token.regex,
 .token.important,
 .token.variable {
-  color: oklch(0.65 0.12 60);
+  color: oklch(0.5 0.15 60);
 }
 
-/* Dark mode token colors */
+/* Dark mode token colors - Kept as is */
 .dark .token.comment,
 .dark .token.prolog,
 .dark .token.doctype,

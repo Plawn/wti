@@ -83,7 +83,7 @@ export const Layout: Component<LayoutProps> = (props) => {
 
       {/* Desktop Sidebar */}
       <Show when={!isMobile()}>
-        <aside class="w-80 flex-shrink-0 glass-sidebar border-r border-white/20 dark:border-white/5 h-screen sticky top-0 flex flex-col">
+        <aside class="w-80 flex-shrink-0 glass-sidebar border-r border-black/5 dark:border-white/5 h-screen sticky top-0 flex flex-col">
           <Sidebar
             store={props.store}
             authStore={props.authStore}
@@ -121,7 +121,7 @@ interface MobileHeaderProps {
 const MobileHeader: Component<MobileHeaderProps> = (props) => {
   return (
     <div class="fixed top-0 left-0 right-0 z-40 md:hidden">
-      <div class="flex items-center justify-between px-4 py-3 glass-sidebar border-b border-white/20 dark:border-white/5">
+      <div class="flex items-center justify-between px-4 py-3 glass-sidebar border-b border-black/5 dark:border-white/5">
         <button
           type="button"
           onClick={props.onMenuOpen}

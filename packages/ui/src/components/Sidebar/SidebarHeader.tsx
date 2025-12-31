@@ -33,10 +33,10 @@ export const SidebarHeader: Component<SidebarHeaderProps> = (props) => {
           </svg>
         </div>
         <div class="flex-1 min-w-0">
-          <h1 class="font-semibold text-surface-900 dark:text-white truncate leading-tight text-sm md:text-base">
+          <h1 class="font-semibold text-gray-900 dark:text-white truncate leading-tight text-sm md:text-base">
             {props.spec.info.title}
           </h1>
-          <span class="text-xs text-surface-500 dark:text-surface-400 font-medium">
+          <span class="text-xs text-surface-700 dark:text-surface-400 font-semibold">
             v{props.spec.info.version}
           </span>
         </div>
@@ -44,7 +44,7 @@ export const SidebarHeader: Component<SidebarHeaderProps> = (props) => {
         <button
           type="button"
           onClick={toggleTheme}
-          class="w-8 h-8 md:w-9 md:h-9 shrink-0 rounded-lg md:rounded-xl glass-button flex items-center justify-center text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200 transition-colors overflow-hidden"
+          class="w-8 h-8 md:w-9 md:h-9 shrink-0 rounded-lg md:rounded-xl glass-button flex items-center justify-center text-surface-700 dark:text-surface-400 hover:text-surface-950 dark:hover:text-surface-200 transition-colors overflow-hidden"
           aria-label={
             theme() === 'dark' ? t('sidebar.toggleThemeLight') : t('sidebar.toggleThemeDark')
           }
@@ -87,7 +87,7 @@ export const SidebarHeader: Component<SidebarHeaderProps> = (props) => {
         <button
           type="button"
           onClick={() => props.onOpenHistory?.()}
-          class="w-8 h-8 md:w-9 md:h-9 shrink-0 rounded-lg md:rounded-xl glass-button flex items-center justify-center text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200 transition-colors"
+          class="w-8 h-8 md:w-9 md:h-9 shrink-0 rounded-lg md:rounded-xl glass-button flex items-center justify-center text-surface-700 dark:text-surface-400 hover:text-surface-950 dark:hover:text-surface-200 transition-colors"
           title="Request History"
         >
           <svg
@@ -110,7 +110,7 @@ export const SidebarHeader: Component<SidebarHeaderProps> = (props) => {
           <button
             type="button"
             onClick={() => props.onClose?.()}
-            class="w-8 h-8 shrink-0 rounded-lg glass-button flex items-center justify-center text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200 transition-colors md:hidden"
+            class="w-8 h-8 shrink-0 rounded-lg glass-button flex items-center justify-center text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-200 transition-colors md:hidden"
             title={t('common.close')}
           >
             <svg

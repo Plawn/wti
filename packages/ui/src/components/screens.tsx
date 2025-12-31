@@ -9,7 +9,9 @@ export const LoadingScreen: Component = () => {
           <div class="w-14 h-14 rounded-full border-4 border-blue-200/50 dark:border-blue-800/30" />
           <div class="absolute inset-0 w-14 h-14 rounded-full border-4 border-transparent border-t-blue-500 animate-spin" />
         </div>
-        <p class="text-gray-600 dark:text-gray-300 font-medium">Loading API specification...</p>
+        <p class="text-surface-600 dark:text-surface-300 font-medium">
+          Loading API specification...
+        </p>
       </div>
     </div>
   );
@@ -42,13 +44,15 @@ export const ErrorScreen: Component<ErrorScreenProps> = (props) => {
             </svg>
           </div>
           <div class="flex-1 min-w-0">
-            <h3 class="font-semibold text-lg text-gray-900 dark:text-white">Failed to load API</h3>
-            <p class="text-gray-600 dark:text-gray-400 mt-2 leading-relaxed">{props.error}</p>
+            <h3 class="font-semibold text-lg text-surface-900 dark:text-surface-50">
+              Failed to load API
+            </h3>
+            <p class="text-surface-600 dark:text-surface-400 mt-2 leading-relaxed">{props.error}</p>
             <Show when={props.onRetry}>
               <button
                 type="button"
                 onClick={props.onRetry}
-                class="mt-4 px-4 py-2 text-sm font-medium rounded-xl glass-button text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                class="mt-4 px-4 py-2 text-sm font-medium rounded-xl glass-button text-surface-700 dark:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
               >
                 Try again
               </button>
@@ -86,29 +90,31 @@ export const WelcomeScreen: Component = () => {
         </div>
 
         {/* Title */}
-        <h1 class="text-4xl font-bold bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 dark:from-white dark:via-gray-200 dark:to-white bg-clip-text text-transparent mb-3">
+        <h1 class="text-4xl font-bold bg-gradient-to-r from-surface-900 via-surface-700 to-surface-900 dark:from-white dark:via-surface-200 dark:to-white bg-clip-text text-transparent mb-3">
           WTI
         </h1>
-        <p class="text-lg text-gray-500 dark:text-gray-400 mb-6 font-medium">What The Interface</p>
+        <p class="text-lg text-surface-600 dark:text-surface-400 mb-6 font-medium">
+          What The Interface
+        </p>
 
         {/* Divider */}
         <div class="divider-glass my-8" />
 
         {/* Instructions */}
-        <p class="text-gray-500 dark:text-gray-400 leading-relaxed">
+        <p class="text-surface-600 dark:text-surface-400 leading-relaxed">
           Select an operation from the sidebar to explore and test API endpoints
         </p>
 
         {/* Keyboard hints */}
-        <div class="mt-8 flex flex-col items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
+        <div class="mt-8 flex flex-col items-center gap-2 text-xs text-surface-500 dark:text-surface-500">
           <div class="inline-flex items-center gap-2.5">
-            <kbd class="px-2.5 py-1.5 rounded-lg glass-button font-mono text-gray-600 dark:text-gray-300">
+            <kbd class="px-2.5 py-1.5 rounded-lg glass-button font-mono text-surface-700 dark:text-surface-300">
               /
             </kbd>
             <span>to search</span>
           </div>
           <div class="inline-flex items-center gap-2.5">
-            <kbd class="px-2.5 py-1.5 rounded-lg glass-button font-mono text-gray-600 dark:text-gray-300">
+            <kbd class="px-2.5 py-1.5 rounded-lg glass-button font-mono text-surface-700 dark:text-surface-300">
               <span class="text-[10px]">Cmd</span>+P
             </kbd>
             <span>command palette</span>
@@ -146,10 +152,10 @@ export const ErrorToast: Component<ErrorToastProps> = (props) => {
             </svg>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-gray-900 dark:text-white">
+            <p class="text-sm font-medium text-surface-900 dark:text-surface-50">
               {props.title ?? 'Error'}
             </p>
-            <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">{props.message}</p>
+            <p class="text-xs text-surface-600 dark:text-surface-400 mt-1">{props.message}</p>
           </div>
         </div>
       </div>

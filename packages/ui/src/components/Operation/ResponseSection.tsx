@@ -64,7 +64,7 @@ export const ResponseSection: Component<ResponseSectionProps> = (props) => {
           >
             {props.response.status} {props.response.statusText}
           </span>
-          <div class="flex items-center gap-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-medium glass-button px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl">
+          <div class="flex items-center gap-2 text-xs sm:text-sm text-surface-700 dark:text-surface-400 font-bold glass-button px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl">
             <svg
               class="w-3.5 h-3.5 sm:w-4 sm:h-4"
               fill="none"
@@ -85,7 +85,7 @@ export const ResponseSection: Component<ResponseSectionProps> = (props) => {
         <button
           type="button"
           onClick={copyResponse}
-          class="flex items-center justify-center gap-2 p-2 sm:px-4 sm:py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white glass-button rounded-xl transition-all"
+          class="flex items-center justify-center gap-2 p-2 sm:px-4 sm:py-2 text-sm font-bold text-surface-800 dark:text-surface-300 hover:text-surface-950 dark:hover:text-white glass-button rounded-xl transition-all"
           aria-label={copied() ? t('common.copied') : t('common.copy')}
         >
           <Show

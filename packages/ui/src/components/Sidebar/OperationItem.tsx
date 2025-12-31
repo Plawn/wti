@@ -74,12 +74,12 @@ export const OperationItem: Component<OperationItemProps> = (props) => {
       </span>
       <div class="flex-1 min-w-0 overflow-hidden">
         <span
-          class={`block font-mono text-xs truncate ${props.selected ? 'text-surface-900 dark:text-white font-medium' : 'text-surface-600 dark:text-surface-300'} ${props.operation.deprecated ? 'line-through' : ''}`}
+          class={`block font-mono text-xs truncate ${props.selected ? 'text-surface-950 dark:text-white font-semibold' : 'text-surface-800 dark:text-surface-300 font-medium'} ${props.operation.deprecated ? 'line-through' : ''}`}
         >
           {props.operation.path}
         </span>
         {props.operation.summary && (
-          <span class="block text-[0.6875rem] text-surface-400 dark:text-surface-500 truncate mt-0.5">
+          <span class="block text-[0.6875rem] text-surface-700 dark:text-surface-400 truncate mt-0.5 font-medium">
             {props.operation.summary}
           </span>
         )}

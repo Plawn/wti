@@ -3,6 +3,7 @@ import {
   type JSX,
   type Setter,
   createContext,
+  createEffect,
   createSignal,
   onMount,
   useContext,
@@ -50,13 +51,12 @@ function persistTheme(theme: Theme): void {
 export function ThemeProvider(props: ThemeProviderProps) {
   // Initialize with stored theme, then system preference, then prop, then default to light
   const initialTheme = getStoredTheme() ?? props.initialTheme ?? getSystemTheme();
-  const [theme, setThemeSignal] = createSignal<Theme>(initialTheme);
+  const [theme, setTheme] = createSignal<Theme>(initialTheme);
 
-  const setTheme: Setter<Theme> = (value) => {
-    const result = setThemeSignal(value);
+  // Persist theme whenever it changes
+  createEffect(() => {
     persistTheme(theme());
-    return result;
-  };
+  });
 
   const toggleTheme = () => {
     const newTheme = theme() === 'dark' ? 'light' : 'dark';

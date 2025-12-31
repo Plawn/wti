@@ -30,10 +30,10 @@ export function SegmentedControl<T extends string | number>(props: SegmentedCont
             type="button"
             onClick={() => !option.disabled && props.onChange(option.value)}
             disabled={option.disabled}
-            class={`${sizeClasses()} font-medium rounded-lg transition-all ${
+            class={`${sizeClasses()} font-bold rounded-lg transition-all ${
               props.value === option.value
-                ? 'bg-white dark:bg-surface-700 text-surface-900 dark:text-white shadow-sm'
-                : 'text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-50'
+                ? 'bg-white dark:bg-surface-700 text-surface-950 dark:text-white shadow-sm'
+                : 'text-surface-700 dark:text-surface-400 hover:text-surface-950 dark:hover:text-surface-50'
             } ${option.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {option.label}
