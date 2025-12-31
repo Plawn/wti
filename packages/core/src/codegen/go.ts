@@ -8,8 +8,7 @@ import type { CodeGenOptions, CodeGenerator } from './types';
 /**
  * Generate Go net/http code from request config
  */
-function generate(request: RequestConfig, options: CodeGenOptions = {}): string {
-  const { includeComments = true } = options;
+function generate(request: RequestConfig, _options: CodeGenOptions = {}): string {
   const lines: string[] = [];
 
   lines.push('package main');
@@ -38,7 +37,6 @@ function generate(request: RequestConfig, options: CodeGenOptions = {}): string 
   // Build URL with query params
   let urlVar = `"${request.url}"`;
   if (request.params && Object.keys(request.params).length > 0) {
-    lines.push(`\t${includeComments ? '// Build URL with query parameters' : ''}`);
     lines.push(`\tbaseURL := "${request.url}"`);
     lines.push('\tparams := url.Values{}');
     for (const [key, value] of Object.entries(request.params)) {
@@ -51,19 +49,12 @@ function generate(request: RequestConfig, options: CodeGenOptions = {}): string 
 
   // Create request body
   if (request.body !== undefined && request.body !== null) {
-    if (includeComments) {
-      lines.push('\t// Prepare request body');
-    }
     const bodyJson = JSON.stringify(request.body, null, '\t\t');
     lines.push(`\tbody := []byte(\`${bodyJson}\`)`);
     lines.push('');
   }
 
   // Create request
-  if (includeComments) {
-    lines.push('\t// Create request');
-  }
-
   if (request.body !== undefined && request.body !== null) {
     lines.push(
       `\treq, err := http.NewRequest("${request.method}", ${urlVar}, bytes.NewBuffer(body))`,
@@ -80,9 +71,6 @@ function generate(request: RequestConfig, options: CodeGenOptions = {}): string 
 
   // Set headers
   if (request.headers && Object.keys(request.headers).length > 0) {
-    if (includeComments) {
-      lines.push('\t// Set headers');
-    }
     for (const [key, value] of Object.entries(request.headers)) {
       lines.push(`\treq.Header.Set("${key}", "${value}")`);
     }
@@ -90,9 +78,6 @@ function generate(request: RequestConfig, options: CodeGenOptions = {}): string 
   }
 
   // Send request
-  if (includeComments) {
-    lines.push('\t// Send request');
-  }
   lines.push('\tclient := &http.Client{}');
   lines.push('\tresp, err := client.Do(req)');
   lines.push('\tif err != nil {');
@@ -103,9 +88,6 @@ function generate(request: RequestConfig, options: CodeGenOptions = {}): string 
   lines.push('');
 
   // Read response
-  if (includeComments) {
-    lines.push('\t// Read response');
-  }
   lines.push('\trespBody, err := io.ReadAll(resp.Body)');
   lines.push('\tif err != nil {');
   lines.push('\t\tfmt.Println("Error reading response:", err)');
@@ -114,9 +96,6 @@ function generate(request: RequestConfig, options: CodeGenOptions = {}): string 
   lines.push('');
 
   // Parse JSON
-  if (includeComments) {
-    lines.push('\t// Parse JSON response');
-  }
   lines.push('\tvar result map[string]interface{}');
   lines.push('\tif err := json.Unmarshal(respBody, &result); err != nil {');
   lines.push('\t\tfmt.Println("Error parsing JSON:", err)');

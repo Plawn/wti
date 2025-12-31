@@ -124,7 +124,7 @@ export const CodeSnippets: Component<CodeSnippetsProps> = (props) => {
             code={code().code}
             language={languageToHighlight(code().language)}
             hideCopyButton
-            maxHeight="400px"
+            maxHeight="25rem"
           />
         )}
       </Show>

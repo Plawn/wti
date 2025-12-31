@@ -199,7 +199,7 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
                 onInput={(e) => setQuery(e.currentTarget.value)}
                 onKeyDown={handleKeyDown}
               />
-              <kbd class="hidden sm:inline-flex px-2 py-1 text-[10px] font-mono text-gray-400 glass-button rounded">
+              <kbd class="hidden sm:inline-flex px-2 py-1 text-[0.625rem] font-mono text-gray-400 glass-button rounded">
                 esc
               </kbd>
             </div>
@@ -236,13 +236,13 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
             {/* Footer hint */}
             <div class="px-4 py-2 border-t border-black/5 dark:border-white/5 flex items-center gap-4 text-xs text-gray-400">
               <span class="flex items-center gap-1">
-                <kbd class="px-1.5 py-0.5 glass-button rounded text-[10px]">
+                <kbd class="px-1.5 py-0.5 glass-button rounded text-[0.625rem]">
                   <span class="font-mono">↑↓</span>
                 </kbd>
                 {t('commandPalette.navigate')}
               </span>
               <span class="flex items-center gap-1">
-                <kbd class="px-1.5 py-0.5 glass-button rounded text-[10px]">
+                <kbd class="px-1.5 py-0.5 glass-button rounded text-[0.625rem]">
                   <span class="font-mono">↵</span>
                 </kbd>
                 {t('commandPalette.select')}

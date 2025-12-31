@@ -42,7 +42,7 @@ export const Sidebar: Component<SidebarProps> = (props) => {
             onChange={props.store.actions.selectServer}
             onVariableChange={props.store.actions.setServerVariable}
             hideLabel
-            className="w-1/3 min-w-[120px]"
+            className="w-1/3 min-w-[7.5rem]"
           />
           <div class="flex-1">
             <SearchBar

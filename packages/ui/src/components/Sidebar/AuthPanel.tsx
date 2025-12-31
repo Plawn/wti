@@ -78,44 +78,21 @@ export const AuthPanel: Component<AuthPanelProps> = (props) => {
   };
 
   return (
-    <div class="px-3 md:px-4 py-2 md:py-3">
+    <div class="px-3 md:px-4 py-1.5 md:py-2">
       {/* Header - clickable to expand/collapse */}
       <button
         type="button"
         onClick={() => setExpanded(!expanded())}
-        class="w-full flex items-center justify-between group"
+        class="w-full flex items-center justify-between py-1 group"
       >
-        <div class="flex items-center gap-2.5 md:gap-3">
-          <div class="w-7 h-7 md:w-8 md:h-8 rounded-lg md:rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
-            <svg
-              class="w-4 h-4 text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-              />
-            </svg>
-          </div>
-          <div class="text-left">
-            <h3 class="text-xs md:text-sm font-semibold text-surface-900 dark:text-white">
-              {t('auth.title')}
-            </h3>
-            <div class="flex items-center gap-1.5 mt-0.5">
-              <span class={`w-1.5 h-1.5 rounded-full ${getAuthStatus().dot}`} />
-              <span class={`text-[11px] md:text-xs ${getAuthStatus().class}`}>
-                {getAuthStatus().text}
-              </span>
-            </div>
-          </div>
+        <div class="flex items-center gap-2">
+          <h3 class="text-sm font-bold text-surface-500 dark:text-surface-400 uppercase tracking-wider">
+            {t('auth.title')}
+          </h3>
+          <span class={`w-1.5 h-1.5 rounded-full ${getAuthStatus().dot}`} />
         </div>
         <svg
-          class={`w-4 h-4 text-surface-400 transition-transform ${expanded() ? 'rotate-180' : ''}`}
+          class={`w-3.5 h-3.5 text-surface-400 transition-transform ${expanded() ? 'rotate-180' : ''}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -132,7 +109,7 @@ export const AuthPanel: Component<AuthPanelProps> = (props) => {
 
       {/* Expanded content */}
       <Show when={expanded()}>
-        <div class="mt-3 space-y-3">
+        <div class="mt-2 space-y-3">
           {/* Auth type tabs */}
           <SegmentedControl
             value={activeTab()}
@@ -142,6 +119,7 @@ export const AuthPanel: Component<AuthPanelProps> = (props) => {
               label: getTabLabel(type),
             }))}
             className="w-full"
+            size="sm"
           />
 
           {/* Auth forms */}

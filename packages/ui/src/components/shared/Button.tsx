@@ -36,7 +36,7 @@ export const Button: Component<ButtonProps> = (props) => {
 
 const Spinner: Component = () => (
   <svg
-    class="animate-spin h-[18px] w-[18px]"
+    class="animate-spin h-[1.125rem] w-[1.125rem]"
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"

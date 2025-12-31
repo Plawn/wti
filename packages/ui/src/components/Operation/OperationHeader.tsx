@@ -37,7 +37,7 @@ export const OperationHeader: Component<OperationHeaderProps> = (props) => {
       {/* Method and Path */}
       <div class="flex items-start gap-3 mb-2">
         <span
-          class={`bg-gradient-to-r ${config().bg} text-white text-xs font-bold uppercase min-w-[70px] py-1.5 rounded-xl shadow-md ${config().glow} flex items-center justify-center`}
+          class={`bg-gradient-to-r ${config().bg} text-white text-xs font-bold uppercase min-w-[4.375rem] py-1.5 rounded-xl shadow-md ${config().glow} flex items-center justify-center`}
         >
           {props.operation.method}
         </span>

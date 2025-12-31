@@ -20,7 +20,7 @@ export const CodeBlock: Component<CodeBlockProps> = (props) => {
   let codeRef: HTMLElement | undefined;
 
   const language = () => props.language || 'json';
-  const maxHeight = () => props.maxHeight || '500px';
+  const maxHeight = () => props.maxHeight || '31.25rem';
 
   // Highlight code whenever it changes
   const highlightedCode = createMemo(() => {
@@ -91,7 +91,7 @@ export const CodeBlock: Component<CodeBlockProps> = (props) => {
 
       {/* Language badge */}
       <div class="absolute top-3 left-3 z-10">
-        <span class="text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider">
+        <span class="text-[0.625rem] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider">
           {language()}
         </span>
       </div>

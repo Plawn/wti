@@ -16,7 +16,7 @@ export const Input: Component<InputProps> = (props) => {
     <input
       type={props.type ?? 'text'}
       id={props.id}
-      class={`w-full px-4 sm:px-5 py-3 sm:py-2.5 glass-input text-base sm:text-sm text-gray-900 dark:text-gray-100 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${props.class ?? ''}`}
+      class={`w-full px-3 sm:px-4 py-2 sm:py-2.5 glass-input text-sm text-surface-900 dark:text-surface-100 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${props.class ?? ''}`}
       placeholder={props.placeholder}
       value={props.value}
       disabled={props.disabled}
@@ -38,7 +38,7 @@ export interface TextareaProps {
 export const Textarea: Component<TextareaProps> = (props) => {
   return (
     <textarea
-      class={`w-full px-4 py-3 glass-input text-base sm:text-sm text-gray-800 dark:text-gray-200 resize-y focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${props.class ?? ''}`}
+      class={`w-full px-3 py-2 glass-input text-sm text-surface-800 dark:text-surface-200 resize-y focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${props.class ?? ''}`}
       placeholder={props.placeholder}
       value={props.value}
       rows={props.rows}
@@ -62,7 +62,7 @@ export const Select: Component<SelectProps> = (props) => {
     <div class="relative overflow-hidden">
       <select
         id={props.id}
-        class={`w-full px-4 py-3 sm:py-2.5 glass-input text-base sm:text-sm text-gray-700 dark:text-gray-200 focus:outline-none cursor-pointer appearance-none pr-9 disabled:opacity-50 disabled:cursor-not-allowed truncate ${props.class ?? ''}`}
+        class={`w-full px-3 py-2 sm:py-2.5 glass-input text-sm text-surface-700 dark:text-surface-200 focus:outline-none cursor-pointer appearance-none pr-9 disabled:opacity-50 disabled:cursor-not-allowed truncate ${props.class ?? ''}`}
         value={props.value}
         disabled={props.disabled}
         onChange={(e) => props.onChange(e.currentTarget.value)}

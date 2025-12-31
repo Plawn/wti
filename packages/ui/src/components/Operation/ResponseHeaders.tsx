@@ -55,13 +55,13 @@ export const ResponseHeaders: Component<ResponseHeadersProps> = (props) => {
         {/* Headers table */}
         <Show when={expanded()}>
           <div class="border-t border-gray-200 dark:border-white/5 overflow-x-auto">
-            <table class="w-full text-sm min-w-[400px]">
+            <table class="w-full text-sm min-w-[25rem]">
               <thead>
                 <tr class="bg-gray-50/50 dark:bg-white/[0.02]">
-                  <th class="px-3 sm:px-5 py-2 sm:py-2.5 text-left text-[10px] sm:text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-1/3">
+                  <th class="px-3 sm:px-5 py-2 sm:py-2.5 text-left text-[0.625rem] sm:text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-1/3">
                     Name
                   </th>
-                  <th class="px-3 sm:px-5 py-2 sm:py-2.5 text-left text-[10px] sm:text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th class="px-3 sm:px-5 py-2 sm:py-2.5 text-left text-[0.625rem] sm:text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Value
                   </th>
                 </tr>
@@ -70,10 +70,10 @@ export const ResponseHeaders: Component<ResponseHeadersProps> = (props) => {
                 <For each={headerEntries()}>
                   {([name, value]) => (
                     <tr class="hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-colors">
-                      <td class="px-3 sm:px-5 py-2.5 sm:py-3 font-mono text-[11px] sm:text-xs font-medium text-gray-700 dark:text-gray-300 break-all">
+                      <td class="px-3 sm:px-5 py-2.5 sm:py-3 font-mono text-[0.6875rem] sm:text-xs font-medium text-gray-700 dark:text-gray-300 break-all">
                         {name}
                       </td>
-                      <td class="px-3 sm:px-5 py-2.5 sm:py-3 font-mono text-[11px] sm:text-xs text-gray-600 dark:text-gray-400 break-all">
+                      <td class="px-3 sm:px-5 py-2.5 sm:py-3 font-mono text-[0.6875rem] sm:text-xs text-gray-600 dark:text-gray-400 break-all">
                         {value}
                       </td>
                     </tr>

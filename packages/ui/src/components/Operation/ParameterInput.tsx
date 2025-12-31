@@ -186,7 +186,7 @@ export const ParameterInput: Component<ParameterInputProps> = (props) => {
           />
         </Show>
         <Show when={constraintsHint()}>
-          <div class="mt-2 text-[10px] font-mono text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800/50 px-2 py-1 rounded w-fit">
+          <div class="mt-2 text-[0.625rem] font-mono text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800/50 px-2 py-1 rounded w-fit">
             {constraintsHint()}
           </div>
         </Show>

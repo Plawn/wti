@@ -15,7 +15,8 @@ export interface SegmentedControlProps<T extends string | number> {
 }
 
 export function SegmentedControl<T extends string | number>(props: SegmentedControlProps<T>) {
-  const sizeClasses = () => (props.size === 'sm' ? 'px-2 py-1 text-[10px]' : 'px-3 py-1.5 text-xs');
+  const sizeClasses = () =>
+    props.size === 'sm' ? 'px-2 py-1 text-[0.625rem]' : 'px-3 py-1.5 text-xs';
 
   return (
     <div

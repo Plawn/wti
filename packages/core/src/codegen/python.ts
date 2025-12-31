@@ -10,12 +10,9 @@ import type { CodeGenOptions, CodeGenerator } from './types';
  * Generate Python requests code from request config
  */
 function generate(request: RequestConfig, options: CodeGenOptions = {}): string {
-  const { includeComments = true, prettyPrint = true } = options;
+  const { prettyPrint = true } = options;
   const lines: string[] = [];
 
-  if (includeComments) {
-    lines.push('# HTTP request using requests library');
-  }
   lines.push('import requests');
   lines.push('');
 
@@ -78,15 +75,9 @@ function generate(request: RequestConfig, options: CodeGenOptions = {}): string 
 
   lines.push('');
 
-  if (includeComments) {
-    lines.push('# Check for errors');
-  }
   lines.push('response.raise_for_status()');
   lines.push('');
 
-  if (includeComments) {
-    lines.push('# Parse response');
-  }
   lines.push('data = response.json()');
   lines.push('print(data)');
 

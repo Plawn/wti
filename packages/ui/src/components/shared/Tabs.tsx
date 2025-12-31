@@ -42,7 +42,7 @@ export const Tabs: Component<TabsProps> = (props) => {
               {item.label}
               <Show when={item.badge}>
                 <span
-                  class={`ml-1 px-1.5 py-0.5 text-[10px] rounded-md ${
+                  class={`ml-1 px-1.5 py-0.5 text-[0.625rem] rounded-md ${
                     activeTab() === item.id
                       ? 'glass-button text-gray-700 dark:text-gray-200'
                       : 'glass-button text-gray-500 dark:text-gray-400'

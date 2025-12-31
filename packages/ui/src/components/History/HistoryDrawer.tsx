@@ -197,7 +197,7 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
 
                         {/* Method badge */}
                         <span
-                          class={`${methodStyle.bg} text-white text-[10px] font-bold uppercase w-12 py-1 rounded-md shadow-sm ${methodStyle.shadow} flex-shrink-0 text-center`}
+                          class={`${methodStyle.bg} text-white text-[0.625rem] font-bold uppercase w-12 py-1 rounded-md shadow-sm ${methodStyle.shadow} flex-shrink-0 text-center`}
                         >
                           {entry.operationMethod.toUpperCase()}
                         </span>

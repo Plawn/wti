@@ -182,7 +182,7 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
                 class="h-64 font-mono"
               />
               <div class="absolute top-3 right-3">
-                <span class="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                <span class="text-[0.625rem] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
                   JSON
                 </span>
               </div>

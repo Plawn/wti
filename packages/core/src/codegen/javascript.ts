@@ -10,14 +10,9 @@ import type { CodeGenOptions, CodeGenerator } from './types';
  * Generate JavaScript fetch code from request config
  */
 function generate(request: RequestConfig, options: CodeGenOptions = {}): string {
-  const { includeComments = true, prettyPrint = true } = options;
+  const { prettyPrint = true } = options;
   const lines: string[] = [];
   const indent = prettyPrint ? '  ' : '';
-
-  if (includeComments) {
-    lines.push('// HTTP request using fetch API');
-    lines.push('');
-  }
 
   // Build URL with query params
   const url = buildUrlWithParams(request.url, request.params);
@@ -83,9 +78,6 @@ function generate(request: RequestConfig, options: CodeGenOptions = {}): string 
   lines.push('}');
   lines.push('');
 
-  if (includeComments) {
-    lines.push('// Usage');
-  }
   lines.push('makeRequest()');
   lines.push(`${indent}.then(data => console.log(data))`);
   lines.push(`${indent}.catch(error => console.error('Error:', error));`);

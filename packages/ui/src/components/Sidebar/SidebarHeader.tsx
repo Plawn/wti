@@ -36,7 +36,7 @@ export const SidebarHeader: Component<SidebarHeaderProps> = (props) => {
           <h1 class="font-semibold text-surface-900 dark:text-white truncate leading-tight text-sm md:text-base">
             {props.spec.info.title}
           </h1>
-          <span class="text-[11px] md:text-xs text-surface-500 dark:text-surface-400 font-medium">
+          <span class="text-xs text-surface-500 dark:text-surface-400 font-medium">
             v{props.spec.info.version}
           </span>
         </div>

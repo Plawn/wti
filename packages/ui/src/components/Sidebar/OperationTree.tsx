@@ -138,10 +138,10 @@ const TagGroupComponent: Component<TagGroupComponentProps> = (props) => {
         >
           <ChevronIcon expanded={props.expanded} />
         </div>
-        <span class="flex-1 text-left text-xs font-semibold text-surface-700 dark:text-surface-200 capitalize">
+        <span class="flex-1 text-left text-sm font-semibold text-surface-700 dark:text-surface-200 capitalize">
           {props.group.name}
         </span>
-        <span class="text-[10px] font-semibold text-surface-400 dark:text-surface-500 tabular-nums px-1.5 py-0.5 rounded-md glass-button">
+        <span class="text-[0.6875rem] font-semibold text-surface-400 dark:text-surface-500 tabular-nums px-1.5 py-0.5 rounded-md glass-button">
           {props.group.operations.length}
         </span>
       </button>

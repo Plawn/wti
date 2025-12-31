@@ -290,7 +290,7 @@ function Layout(props: LayoutProps) {
 
   // Track mobile/desktop state and close drawer when switching to desktop
   onMount(() => {
-    const mediaQuery = window.matchMedia('(max-width: 767px)');
+    const mediaQuery = window.matchMedia('(max-width: 47.9375rem)');
     const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
       setIsMobile(e.matches);
       if (!e.matches) {

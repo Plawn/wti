@@ -50,7 +50,7 @@ export const ApiKeyForm: Component<ApiKeyFormProps> = (props) => {
         <div>
           <label
             for="auth-apikey-scheme"
-            class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1.5"
+            class="block text-xs font-medium text-surface-600 dark:text-surface-300 mb-1.5"
           >
             Scheme
           </label>

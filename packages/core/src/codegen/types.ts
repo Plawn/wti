@@ -13,8 +13,6 @@ export type CodeLanguage = 'curl' | 'javascript' | 'python' | 'go';
  * Code generation options
  */
 export interface CodeGenOptions {
-  /** Include comments in generated code */
-  includeComments?: boolean;
   /** Pretty print / format the output */
   prettyPrint?: boolean;
 }

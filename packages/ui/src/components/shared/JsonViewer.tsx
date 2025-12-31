@@ -182,7 +182,7 @@ export const JsonViewer: Component<JsonViewerProps> = (props) => {
   const { t } = useI18n();
   const { copied, copy } = useCopyToClipboard();
 
-  const maxHeight = () => props.maxHeight ?? '500px';
+  const maxHeight = () => props.maxHeight ?? '31.25rem';
   const initialExpandDepth = () => props.initialExpandDepth ?? 2;
 
   const jsonString = createMemo(() => formatJson(props.data));

@@ -134,7 +134,7 @@ const ServerVariableInput: Component<ServerVariableInputProps> = (props) => {
         fallback={
           <label
             for={inputId()}
-            class="text-xs font-mono text-gray-600 dark:text-gray-400 min-w-[60px] shrink-0"
+            class="text-xs font-mono text-gray-600 dark:text-gray-400 min-w-[3.75rem] shrink-0"
           >
             {labelContent()}
           </label>
@@ -144,7 +144,7 @@ const ServerVariableInput: Component<ServerVariableInputProps> = (props) => {
           <Tooltip content={description()}>
             <label
               for={inputId()}
-              class="text-xs font-mono text-gray-600 dark:text-gray-400 min-w-[60px] shrink-0 cursor-help border-b border-dotted border-gray-400 dark:border-gray-500"
+              class="text-xs font-mono text-gray-600 dark:text-gray-400 min-w-[3.75rem] shrink-0 cursor-help border-b border-dotted border-gray-400 dark:border-gray-500"
             >
               {labelContent()}
             </label>

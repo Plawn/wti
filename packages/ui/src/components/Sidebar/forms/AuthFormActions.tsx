@@ -13,12 +13,12 @@ export const AuthFormActions: Component<AuthFormActionsProps> = (props) => {
   const { t } = useI18n();
 
   return (
-    <div class="flex gap-2">
-      <Button onClick={props.onAuthorize} class="flex-1 py-2 text-sm">
+    <div class="flex gap-1.5">
+      <Button onClick={props.onAuthorize} class="flex-1 px-3 py-1.5 text-xs">
         {t('auth.authorize')}
       </Button>
       <Show when={props.isAuthorized()}>
-        <Button onClick={props.onLogout} variant="secondary" class="py-2 text-sm">
+        <Button onClick={props.onLogout} variant="secondary" class="px-3 py-1.5 text-xs">
           {t('auth.logout')}
         </Button>
       </Show>

@@ -33,12 +33,8 @@ function formatBody(body: unknown, prettyPrint: boolean): string {
  * Generate cURL command from request config
  */
 function generate(request: RequestConfig, options: CodeGenOptions = {}): string {
-  const { includeComments = true, prettyPrint = true } = options;
+  const { prettyPrint = true } = options;
   const lines: string[] = [];
-
-  if (includeComments) {
-    lines.push('# HTTP request using cURL');
-  }
 
   // Start with curl command
   const parts: string[] = ['curl'];

@@ -50,7 +50,7 @@ export const SearchBar: Component<SearchBarProps> = (props) => {
       {/* Search Icon */}
       <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors duration-200">
         <svg
-          class={`w-[18px] h-[18px] ${
+          class={`w-[1.125rem] h-[1.125rem] ${
             isFocused()
               ? 'text-accent-500 dark:text-accent-400'
               : 'text-surface-400 dark:text-surface-500'
@@ -73,7 +73,7 @@ export const SearchBar: Component<SearchBarProps> = (props) => {
       <input
         ref={inputRef}
         type="text"
-        class={`w-full py-3 sm:py-2.5 glass-input text-base sm:text-sm text-surface-900 dark:text-surface-100 placeholder-surface-500 dark:placeholder-surface-500 outline-none transition-all duration-200 ${
+        class={`w-full px-3 py-2 sm:py-2.5 glass-input text-base sm:text-sm text-surface-900 dark:text-surface-100 placeholder-surface-500 dark:placeholder-surface-500 outline-none transition-all duration-200 ${
           isFocused() ? 'shadow-lg shadow-accent-500/10' : ''
         }`}
         style="padding-left: 44px !important; padding-right: 40px !important;"
@@ -94,7 +94,7 @@ export const SearchBar: Component<SearchBarProps> = (props) => {
                 isFocused() ? 'opacity-100' : 'opacity-70 group-hover:opacity-100'
               }`}
             >
-              <kbd class="hidden sm:inline-flex items-center justify-center h-5 px-1.5 text-[10px] font-sans font-medium text-surface-500 dark:text-surface-400 bg-surface-100 dark:bg-surface-800 rounded border border-surface-200 dark:border-surface-700">
+              <kbd class="hidden sm:inline-flex items-center justify-center h-5 px-1.5 text-[0.625rem] font-sans font-medium text-surface-500 dark:text-surface-400 bg-surface-100 dark:bg-surface-800 rounded border border-surface-200 dark:border-surface-700">
                 /
               </kbd>
             </div>
