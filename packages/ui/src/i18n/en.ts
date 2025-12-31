@@ -100,6 +100,7 @@ export const en: Translations = {
     title: 'Request History',
     empty: 'No requests yet',
     clearAll: 'Clear all',
+    confirmClear: 'Confirm?',
     replay: 'Replay',
     delete: 'Delete',
     success: 'Success',
@@ -107,6 +108,10 @@ export const en: Translations = {
     export: 'Export',
     import: 'Import',
     navigate: 'Navigate',
+    justNow: 'Just now',
+    minutesAgo: '{minutes}m ago',
+    hoursAgo: '{hours}h ago',
+    daysAgo: '{days}d ago',
   },
   sidebar: {
     allOperations: 'All Operations',

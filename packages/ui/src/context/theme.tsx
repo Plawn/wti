@@ -69,7 +69,7 @@ export function ThemeProvider(props: ThemeProviderProps) {
     const handleChange = (e: MediaQueryListEvent) => {
       // Only update if user hasn't set a preference
       if (!getStoredTheme()) {
-        setThemeSignal(e.matches ? 'dark' : 'light');
+        setTheme(e.matches ? 'dark' : 'light');
       }
     };
     mediaQuery.addEventListener('change', handleChange);

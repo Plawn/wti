@@ -27,9 +27,11 @@ export const OperationHeader: Component<OperationHeaderProps> = (props) => {
   const [copied, setCopied] = createSignal(false);
 
   const handleCopyLink = async () => {
-    await copyShareableUrl(props.operation.id);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    const success = await copyShareableUrl(props.operation.id);
+    if (success) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   return (

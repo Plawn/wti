@@ -97,6 +97,7 @@ export interface Translations {
     title: string;
     empty: string;
     clearAll: string;
+    confirmClear: string;
     replay: string;
     delete: string;
     success: string;
@@ -104,6 +105,10 @@ export interface Translations {
     export: string;
     import: string;
     navigate: string;
+    justNow: string;
+    minutesAgo: string;
+    hoursAgo: string;
+    daysAgo: string;
   };
   sidebar: {
     allOperations: string;

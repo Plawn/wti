@@ -92,10 +92,10 @@ export const Drawer: Component<DrawerProps> = (props) => {
   return (
     <Show when={visible()}>
       <Portal>
+        {/* biome-ignore lint/a11y/useKeyWithClickEvents: Backdrop click is supplementary to Escape key (handled by useDialogState) */}
         <div
           class={`fixed inset-0 z-50 bg-black/50 backdrop-blur-sm ${backdropClasses()} ${isDark() ? 'dark' : ''}`}
           onClick={(e) => handleBackdropClick(e)}
-          onKeyDown={(e) => e.key === 'Enter' && handleBackdropClick(e as unknown as MouseEvent)}
           aria-modal="true"
           aria-labelledby={props.title ? 'drawer-title' : undefined}
         >

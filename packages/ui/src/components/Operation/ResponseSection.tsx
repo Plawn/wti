@@ -20,9 +20,14 @@ export const ResponseSection: Component<ResponseSectionProps> = (props) => {
       typeof props.response.body === 'object'
         ? JSON.stringify(props.response.body, null, 2)
         : props.response.bodyText;
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), COPY_FEEDBACK_DURATION_MS);
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), COPY_FEEDBACK_DURATION_MS);
+    } catch {
+      // Clipboard API may fail in insecure contexts or without permissions
+      // Silently fail - user can manually copy
+    }
   };
 
   const statusConfig = () => getStatusColorConfig(props.response.status);

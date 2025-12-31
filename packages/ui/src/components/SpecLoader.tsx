@@ -81,13 +81,16 @@ export const SpecLoader: Component<SpecLoaderProps> = (props) => {
   };
 
   const handleFileInputChange = (e: Event) => {
-    const input = e.target as HTMLInputElement;
-    const file = input.files?.[0];
+    const target = e.target;
+    if (!(target instanceof HTMLInputElement)) {
+      return;
+    }
+    const file = target.files?.[0];
     if (file) {
       handleFileSelect(file);
     }
     // Reset input so same file can be selected again
-    input.value = '';
+    target.value = '';
   };
 
   const handleDragOver = (e: DragEvent) => {

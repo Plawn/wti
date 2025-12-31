@@ -30,6 +30,14 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
   const [selectedIndex, setSelectedIndex] = createSignal(0);
   const [isKeyboardNav, setIsKeyboardNav] = createSignal(false);
   let listRef: HTMLDivElement | undefined;
+  let confirmClearTimer: ReturnType<typeof setTimeout> | undefined;
+
+  // Cleanup timer on unmount
+  onCleanup(() => {
+    if (confirmClearTimer) {
+      clearTimeout(confirmClearTimer);
+    }
+  });
 
   // Reset selection when drawer opens
   createEffect(() => {
@@ -133,16 +141,16 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
     const diffDays = Math.floor(diffMs / 86400000);
 
     if (diffMins < 1) {
-      return 'Just now';
+      return t('history.justNow');
     }
     if (diffMins < 60) {
-      return `${diffMins}m ago`;
+      return t('history.minutesAgo', { minutes: diffMins });
     }
     if (diffHours < 24) {
-      return `${diffHours}h ago`;
+      return t('history.hoursAgo', { hours: diffHours });
     }
     if (diffDays < 7) {
-      return `${diffDays}d ago`;
+      return t('history.daysAgo', { days: diffDays });
     }
     return date.toLocaleDateString();
   };
@@ -190,9 +198,19 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
       await props.store.actions.clearHistory();
       setConfirmClear(false);
       setSelectedIndex(0);
+      if (confirmClearTimer) {
+        clearTimeout(confirmClearTimer);
+        confirmClearTimer = undefined;
+      }
     } else {
       setConfirmClear(true);
-      setTimeout(() => setConfirmClear(false), 3000);
+      if (confirmClearTimer) {
+        clearTimeout(confirmClearTimer);
+      }
+      confirmClearTimer = setTimeout(() => {
+        setConfirmClear(false);
+        confirmClearTimer = undefined;
+      }, 3000);
     }
   };
 
@@ -212,7 +230,11 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
     input.type = 'file';
     input.accept = '.json';
     input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
+      const target = e.target;
+      if (!(target instanceof HTMLInputElement)) {
+        return;
+      }
+      const file = target.files?.[0];
       if (file) {
         const text = await file.text();
         props.store.actions.importHistory(text);
@@ -258,7 +280,7 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
                 : 'glass-button text-surface-700 dark:text-surface-400 hover:text-red-600 dark:hover:text-red-400'
             }`}
           >
-            {confirmClear() ? 'Confirm?' : t('history.clearAll')}
+            {confirmClear() ? t('history.confirmClear') : t('history.clearAll')}
           </button>
         </div>
 

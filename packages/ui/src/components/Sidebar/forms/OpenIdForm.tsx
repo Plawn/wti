@@ -68,14 +68,21 @@ export const OpenIdForm: Component<OpenIdFormProps> = (props) => {
     if (shouldRefresh) {
       // Trigger auto-refresh
       setIsRefreshing(true);
-      props.authStore.actions.refreshOpenIdAuth().then((success) => {
-        if (!success) {
+      props.authStore.actions
+        .refreshOpenIdAuth()
+        .then((success) => {
+          if (!success) {
+            setLoginError(t('auth.refreshFailed'));
+          } else {
+            setLoginError(null);
+          }
+        })
+        .catch(() => {
           setLoginError(t('auth.refreshFailed'));
-        } else {
-          setLoginError(null);
-        }
-        setIsRefreshing(false);
-      });
+        })
+        .finally(() => {
+          setIsRefreshing(false);
+        });
     }
   });
 

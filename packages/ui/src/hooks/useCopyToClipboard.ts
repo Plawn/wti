@@ -2,7 +2,7 @@ import { createSignal } from 'solid-js';
 
 export interface UseCopyToClipboardReturn {
   copied: () => boolean;
-  copy: (text: string) => Promise<void>;
+  copy: (text: string) => Promise<boolean>;
 }
 
 /**
@@ -15,18 +15,25 @@ export function useCopyToClipboard(resetDelay = 2000): UseCopyToClipboardReturn 
   const [copied, setCopied] = createSignal(false);
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
-  const copy = async (text: string): Promise<void> => {
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
+  const copy = async (text: string): Promise<boolean> => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
 
-    if (timeoutId) {
-      clearTimeout(timeoutId);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+
+      timeoutId = setTimeout(() => {
+        setCopied(false);
+        timeoutId = undefined;
+      }, resetDelay);
+
+      return true;
+    } catch {
+      // Clipboard API may fail in insecure contexts or without permissions
+      return false;
     }
-
-    timeoutId = setTimeout(() => {
-      setCopied(false);
-      timeoutId = undefined;
-    }, resetDelay);
   };
 
   return { copied, copy };

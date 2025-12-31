@@ -458,9 +458,13 @@ export function createAuthStore() {
       const urlError = url.searchParams.get('error');
       const errorDescription = url.searchParams.get('error_description');
 
+      let errorClearTimer: ReturnType<typeof setTimeout> | undefined;
       const setErrorWithAutoClear = (message: string) => {
+        if (errorClearTimer) {
+          clearTimeout(errorClearTimer);
+        }
         setError(message);
-        setTimeout(() => setError(null), 5000);
+        errorClearTimer = setTimeout(() => setError(null), 5000);
       };
 
       // Check if this is an OIDC callback

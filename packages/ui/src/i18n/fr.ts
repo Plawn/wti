@@ -100,6 +100,7 @@ export const fr: Translations = {
     title: 'Historique des requetes',
     empty: 'Aucune requete',
     clearAll: 'Tout effacer',
+    confirmClear: 'Confirmer?',
     replay: 'Rejouer',
     delete: 'Supprimer',
     success: 'Succes',
@@ -107,6 +108,10 @@ export const fr: Translations = {
     export: 'Exporter',
     import: 'Importer',
     navigate: 'Naviguer',
+    justNow: "A l'instant",
+    minutesAgo: 'Il y a {minutes}m',
+    hoursAgo: 'Il y a {hours}h',
+    daysAgo: 'Il y a {days}j',
   },
   sidebar: {
     allOperations: 'Toutes les operations',

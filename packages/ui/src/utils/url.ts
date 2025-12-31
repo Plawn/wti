@@ -82,8 +82,18 @@ export function getShareableUrl(operationId: string, serverIndex?: number): stri
 
 /**
  * Copy the shareable URL to clipboard
+ * @returns true if copy succeeded, false if it failed
  */
-export async function copyShareableUrl(operationId: string, serverIndex?: number): Promise<void> {
+export async function copyShareableUrl(
+  operationId: string,
+  serverIndex?: number,
+): Promise<boolean> {
   const url = getShareableUrl(operationId, serverIndex);
-  await navigator.clipboard.writeText(url);
+  try {
+    await navigator.clipboard.writeText(url);
+    return true;
+  } catch {
+    // Clipboard API may fail in insecure contexts or without permissions
+    return false;
+  }
 }
