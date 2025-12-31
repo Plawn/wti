@@ -43,9 +43,9 @@ function WTIContent(props: { className?: string; spec?: SpecInput }) {
 
   const themeClass = () => (theme() === 'dark' ? 'dark' : '');
 
-  // Initialize auth store and handle OIDC callback
+  // Initialize stores
   onMount(async () => {
-    await authStore.actions.init();
+    await Promise.all([authStore.actions.init(), historyStore.actions.init()]);
     if (authStore.actions.hasPendingOidcCallback()) {
       await authStore.actions.handleOpenIdCallback();
     }
