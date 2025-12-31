@@ -1,10 +1,23 @@
 import type { Operation } from '@wti/core';
-import { type Component, For, Show, createEffect, createMemo, createSignal } from 'solid-js';
+import {
+  type Component,
+  For,
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  onCleanup,
+  onMount,
+} from 'solid-js';
 import { Portal } from 'solid-js/web';
 import { useIsDark } from '../../hooks/useIsDark';
 import { useI18n } from '../../i18n';
 import { getLocalStorageItem, setLocalStorageItem } from '../../storage';
-import type { OperationSearchResult } from '../../utils';
+import {
+  type OperationSearchResult,
+  createOperationSearch,
+  searchOperations,
+} from '../../utils/search';
 import { CommandPaletteItem } from './CommandPaletteItem';
 
 const RECENT_STORAGE_KEY = 'wti:recent-operations';
@@ -32,24 +45,69 @@ interface SearchResult extends OperationSearchResult {
   isRecent?: boolean;
 }
 
-interface CommandPaletteProps {
-  open: boolean;
-  onClose: () => void;
+export interface CommandPaletteHandle {
+  open: () => void;
+  close: () => void;
+  toggle: () => void;
+  isOpen: () => boolean;
+}
+
+export interface CommandPaletteProps {
   operations: Operation[];
   onSelectOperation: (operation: Operation) => void;
   /** Optional search function from store (uses memoized Fuse instance) */
   searchFn?: (query: string, limit?: number) => OperationSearchResult[];
+  /** Keyboard shortcut key (default: 'p' for Cmd/Ctrl+P) */
+  shortcutKey?: string;
+  /** Disable the keyboard shortcut */
+  disableShortcut?: boolean;
+  /** Callback to get a handle for programmatic control */
+  ref?: (handle: CommandPaletteHandle) => void;
 }
 
 export const CommandPalette: Component<CommandPaletteProps> = (props) => {
   const { t } = useI18n();
   const isDark = useIsDark();
+  const [isOpen, setIsOpen] = createSignal(false);
   const [query, setQuery] = createSignal('');
   const [selectedIndex, setSelectedIndex] = createSignal(0);
   const [recentKeys, setRecentKeys] = createSignal<string[]>(loadRecentKeys());
   const [mouseEnabled, setMouseEnabled] = createSignal(false);
   let inputRef: HTMLInputElement | undefined;
   let listRef: HTMLDivElement | undefined;
+
+  // Handle API
+  const handle: CommandPaletteHandle = {
+    open: () => setIsOpen(true),
+    close: () => setIsOpen(false),
+    toggle: () => setIsOpen((v) => !v),
+    isOpen,
+  };
+
+  // Expose handle via ref callback
+  onMount(() => {
+    props.ref?.(handle);
+  });
+
+  // Global keyboard shortcut
+  onMount(() => {
+    if (props.disableShortcut) {
+      return;
+    }
+
+    const shortcutKey = props.shortcutKey ?? 'p';
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === shortcutKey.toLowerCase()) {
+        e.preventDefault();
+        if (props.operations.length > 0) {
+          setIsOpen((open) => !open);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    onCleanup(() => window.removeEventListener('keydown', handleGlobalKeyDown));
+  });
 
   // Build a map for quick operation lookup
   const operationByKey = createMemo(() => {
@@ -58,6 +116,17 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
       map.set(getOperationKey(op), op);
     }
     return map;
+  });
+
+  // Internal Fuse instance (only created if no external searchFn provided)
+  const internalFuse = createMemo(() => {
+    if (props.searchFn) {
+      return null;
+    }
+    if (props.operations.length === 0) {
+      return null;
+    }
+    return createOperationSearch(props.operations);
   });
 
   const searchResults = createMemo((): SearchResult[] => {
@@ -87,10 +156,17 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
       return [...recentOps, ...remaining];
     }
 
-    // Use store's memoized search if available
+    // Use external search function if provided
     if (props.searchFn) {
       return props.searchFn(q);
     }
+
+    // Fall back to internal Fuse instance
+    const fuse = internalFuse();
+    if (fuse) {
+      return searchOperations(fuse, q);
+    }
+
     return [];
   });
 
@@ -102,7 +178,7 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
 
   // Focus input and reset state when opened
   createEffect(() => {
-    if (props.open) {
+    if (isOpen()) {
       setQuery('');
       setSelectedIndex(0);
       setMouseEnabled(false); // Disable mouse selection until actual movement
@@ -117,17 +193,19 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
   // Scroll selected item into view
   createEffect(() => {
     const index = selectedIndex();
-    if (listRef && props.open) {
+    if (listRef && isOpen()) {
       const item = listRef.children[index] as HTMLElement | undefined;
       item?.scrollIntoView({ block: 'nearest' });
     }
   });
 
+  const handleClose = () => setIsOpen(false);
+
   const handleSelect = (result: SearchResult) => {
     addToRecent(result.operation);
     setRecentKeys(loadRecentKeys()); // Update signal to reflect new recent
     props.onSelectOperation(result.operation);
-    props.onClose();
+    handleClose();
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -150,19 +228,19 @@ export const CommandPalette: Component<CommandPaletteProps> = (props) => {
       }
       case 'Escape':
         e.preventDefault();
-        props.onClose();
+        handleClose();
         break;
     }
   };
 
   const handleBackdropClick = (e: MouseEvent) => {
     if (e.target === e.currentTarget) {
-      props.onClose();
+      handleClose();
     }
   };
 
   return (
-    <Show when={props.open}>
+    <Show when={isOpen()}>
       <Portal>
         {/* biome-ignore lint/a11y/useKeyWithClickEvents: Escape key handled in input */}
         <div

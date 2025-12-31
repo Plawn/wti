@@ -27,6 +27,8 @@ const STORAGE_KEY = 'state';
 
 // Refresh tokens 60 seconds before expiration
 const TOKEN_REFRESH_BUFFER_MS = 60 * 1000;
+// Cooldown after failed refresh (30 seconds)
+const REFRESH_COOLDOWN_MS = 30 * 1000;
 
 export interface AuthStoreState {
   /**
@@ -48,6 +50,8 @@ export function createAuthStore() {
   const [state, setState] = createStore<AuthStoreState>(initialState);
   const [loading, setLoading] = createSignal(false);
   const [initialized, setInitialized] = createSignal(false);
+  const [error, setError] = createSignal<string | null>(null);
+  const [lastFailedRefresh, setLastFailedRefresh] = createSignal<number | null>(null);
 
   /**
    * Save auth state to IndexedDB
@@ -99,6 +103,31 @@ export function createAuthStore() {
      */
     isInitialized() {
       return initialized();
+    },
+
+    /**
+     * Get the current error
+     */
+    getError() {
+      return error();
+    },
+
+    /**
+     * Clear the current error
+     */
+    clearError() {
+      setError(null);
+    },
+
+    /**
+     * Check if refresh is in cooldown period after a failed attempt
+     */
+    isRefreshInCooldown(): boolean {
+      const lastFailed = lastFailedRefresh();
+      if (!lastFailed) {
+        return false;
+      }
+      return Date.now() - lastFailed < REFRESH_COOLDOWN_MS;
     },
 
     /**
@@ -307,9 +336,13 @@ export function createAuthStore() {
           idToken: newTokens.idToken || config.idToken,
         });
         await persist();
+        // Reset cooldown on success
+        setLastFailedRefresh(null);
         return true;
-      } catch (error) {
-        console.error('Failed to refresh OpenID tokens:', error);
+      } catch (err) {
+        console.error('Failed to refresh OpenID tokens:', err);
+        // Set cooldown to prevent rapid retries
+        setLastFailedRefresh(Date.now());
         return false;
       }
     },
@@ -335,7 +368,7 @@ export function createAuthStore() {
         const isExpiringSoon = now >= config.expiresAt - TOKEN_REFRESH_BUFFER_MS;
         const isFullyExpired = now >= config.expiresAt;
 
-        if (isExpiringSoon) {
+        if (isExpiringSoon && !this.isRefreshInCooldown()) {
           const refreshed = await this.refreshOpenIdAuth();
           if (refreshed) {
             // Return the updated config
@@ -352,6 +385,9 @@ export function createAuthStore() {
           console.warn(
             'OpenID token refresh failed but token not yet expired. Using existing token.',
           );
+        } else if (isFullyExpired) {
+          // Token is expired and we're in cooldown - auth is invalid
+          return undefined;
         }
       }
 
@@ -412,42 +448,49 @@ export function createAuthStore() {
     /**
      * Handle OpenID Connect callback after authorization
      * Call this when the page loads with authorization code in URL
+     * Sets error state internally and auto-clears after 5 seconds
      * @returns true if callback was handled successfully
      */
-    async handleOpenIdCallback(): Promise<{ success: boolean; error?: string }> {
+    async handleOpenIdCallback(): Promise<boolean> {
       const url = new URL(window.location.href);
       const code = url.searchParams.get('code');
       const stateParam = url.searchParams.get('state');
-      const error = url.searchParams.get('error');
+      const urlError = url.searchParams.get('error');
       const errorDescription = url.searchParams.get('error_description');
 
+      const setErrorWithAutoClear = (message: string) => {
+        setError(message);
+        setTimeout(() => setError(null), 5000);
+      };
+
       // Check if this is an OIDC callback
-      if (!code && !error) {
-        return { success: false };
+      if (!code && !urlError) {
+        return false;
       }
 
       // Handle error from provider
-      if (error) {
-        return { success: false, error: errorDescription || error };
+      if (urlError) {
+        setErrorWithAutoClear(errorDescription || urlError);
+        return false;
       }
 
       // Retrieve PKCE state
       const pkceState = retrievePkceState();
       if (!pkceState) {
-        return {
-          success: false,
-          error: 'Missing PKCE state - authorization flow may have expired',
-        };
+        setErrorWithAutoClear('Missing PKCE state - authorization flow may have expired');
+        return false;
       }
 
       // Verify state parameter
       if (stateParam !== pkceState.state) {
-        return { success: false, error: 'Invalid state parameter - possible CSRF attack' };
+        setErrorWithAutoClear('Invalid state parameter - possible CSRF attack');
+        return false;
       }
 
       // Verify authorization code exists
       if (!code) {
-        return { success: false, error: 'Missing authorization code' };
+        setErrorWithAutoClear('Missing authorization code');
+        return false;
       }
 
       try {
@@ -477,12 +520,10 @@ export function createAuthStore() {
         url.searchParams.delete('state');
         window.history.replaceState({}, '', url.toString());
 
-        return { success: true };
+        return true;
       } catch (err) {
-        return {
-          success: false,
-          error: err instanceof Error ? err.message : 'Token exchange failed',
-        };
+        setErrorWithAutoClear(err instanceof Error ? err.message : 'Token exchange failed');
+        return false;
       }
     },
 
@@ -495,7 +536,7 @@ export function createAuthStore() {
     },
   };
 
-  return { state, actions, loading, initialized };
+  return { state, actions, loading, initialized, error };
 }
 
 export type AuthStore = ReturnType<typeof createAuthStore>;

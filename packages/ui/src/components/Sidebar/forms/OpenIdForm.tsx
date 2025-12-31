@@ -60,7 +60,12 @@ export const OpenIdForm: Component<OpenIdFormProps> = (props) => {
 
     // Check if token is expiring within 60 seconds or already expired
     const timeUntilExpiry = config.expiresAt - currentTime;
-    if (timeUntilExpiry <= 60_000 && !isRefreshing()) {
+    const shouldRefresh =
+      timeUntilExpiry <= 60_000 &&
+      !isRefreshing() &&
+      !props.authStore.actions.isRefreshInCooldown();
+
+    if (shouldRefresh) {
       // Trigger auto-refresh
       setIsRefreshing(true);
       props.authStore.actions.refreshOpenIdAuth().then((success) => {
@@ -98,21 +103,21 @@ export const OpenIdForm: Component<OpenIdFormProps> = (props) => {
     if (remainingMinutes < 5) {
       return {
         status: 'expiring',
-        text: t('auth.tokenExpiringSoon').replace('{minutes}', String(remainingMinutes)),
+        text: t('auth.tokenExpiringSoon', { minutes: remainingMinutes }),
       };
     }
 
     if (remainingMinutes < 60) {
       return {
         status: 'valid',
-        text: t('auth.tokenExpiresIn').replace('{minutes}', String(remainingMinutes)),
+        text: t('auth.tokenExpiresIn', { minutes: remainingMinutes }),
       };
     }
 
     const remainingHours = Math.floor(remainingMinutes / 60);
     return {
       status: 'valid',
-      text: t('auth.tokenExpiresInHours').replace('{hours}', String(remainingHours)),
+      text: t('auth.tokenExpiresInHours', { hours: remainingHours }),
     };
   };
 
@@ -254,7 +259,7 @@ export const OpenIdForm: Component<OpenIdFormProps> = (props) => {
                 when={getUsernameFromIdToken(existingConfig()?.idToken)}
                 fallback={t('auth.loggedIn')}
               >
-                {(username) => t('auth.loggedInAs').replace('{username}', username())}
+                {(username) => t('auth.loggedInAs', { username: username() })}
               </Show>
             </p>
           </div>

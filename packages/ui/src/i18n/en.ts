@@ -106,6 +106,7 @@ export const en: Translations = {
     failed: 'Failed',
     export: 'Export',
     import: 'Import',
+    navigate: 'Navigate',
   },
   sidebar: {
     allOperations: 'All Operations',

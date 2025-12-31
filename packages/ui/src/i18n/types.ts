@@ -103,6 +103,7 @@ export interface Translations {
     failed: string;
     export: string;
     import: string;
+    navigate: string;
   };
   sidebar: {
     allOperations: string;

@@ -130,15 +130,15 @@
   backdrop-filter: blur(2.5rem) saturate(170%);
   -webkit-backdrop-filter: blur(2.5rem) saturate(170%);
   border: 0.0625rem solid oklch(1 0 0 / 0.25);
-  box-shadow: 0 0.125rem 0.5rem -0.125rem oklch(0.3 0.02 250 / 0.08), 0 0.5rem 1.5rem -0.25rem oklch(0.3 0.02 250 / 0.06),
-    inset 0 0.0625rem 0.0625rem oklch(1 0 0 / 0.4);
+  box-shadow: 0 0.125rem 0.5rem -0.125rem oklch(0.3 0.02 250 / 0.08), 0 0.5rem 1.5rem -0.25rem
+    oklch(0.3 0.02 250 / 0.06), inset 0 0.0625rem 0.0625rem oklch(1 0 0 / 0.4);
 }
 
 .dark .glass-card {
   background: oklch(0.15 0.02 260 / 0.55);
   border-color: oklch(1 0 0 / 0.08);
-  box-shadow: 0 0.125rem 0.5rem -0.125rem oklch(0 0 0 / 0.3), 0 0.5rem 1.5rem -0.25rem oklch(0 0 0 / 0.25), inset 0 0.0625rem
-    0.0625rem oklch(1 0 0 / 0.05);
+  box-shadow: 0 0.125rem 0.5rem -0.125rem oklch(0 0 0 / 0.3), 0 0.5rem 1.5rem -0.25rem
+    oklch(0 0 0 / 0.25), inset 0 0.0625rem 0.0625rem oklch(1 0 0 / 0.05);
 }
 
 /* iOS 26 Glass - Surface (sticky headers/controls) */
@@ -271,22 +271,22 @@ select.glass-input {
   padding: 0.625rem 1.25rem;
   font-size: 0.9375rem;
   letter-spacing: -0.01em;
-  box-shadow: 0 0.125rem 0.25rem oklch(0.55 0.2 260 / 0.3), 0 0.5rem 1rem -0.25rem oklch(0.55 0.2 260 / 0.25), inset
-    0 0.0625rem 0.0625rem oklch(1 0 0 / 0.15);
+  box-shadow: 0 0.125rem 0.25rem oklch(0.55 0.2 260 / 0.3), 0 0.5rem 1rem -0.25rem
+    oklch(0.55 0.2 260 / 0.25), inset 0 0.0625rem 0.0625rem oklch(1 0 0 / 0.15);
   transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .btn-primary:hover {
   background: oklch(0.5 0.22 260);
   transform: translateY(-0.0625rem);
-  box-shadow: 0 0.25rem 0.5rem oklch(0.55 0.2 260 / 0.35), 0 0.75rem 1.5rem -0.25rem oklch(0.55 0.2 260 / 0.3),
-    inset 0 0.0625rem 0.0625rem oklch(1 0 0 / 0.2);
+  box-shadow: 0 0.25rem 0.5rem oklch(0.55 0.2 260 / 0.35), 0 0.75rem 1.5rem -0.25rem
+    oklch(0.55 0.2 260 / 0.3), inset 0 0.0625rem 0.0625rem oklch(1 0 0 / 0.2);
 }
 
 .btn-primary:active {
   transform: translateY(0);
-  box-shadow: 0 0.0625rem 0.125rem oklch(0.55 0.2 260 / 0.3), 0 0.25rem 0.5rem -0.125rem oklch(0.55 0.2 260 / 0.2), inset 0
-    0.0625rem 0.0625rem oklch(1 0 0 / 0.1);
+  box-shadow: 0 0.0625rem 0.125rem oklch(0.55 0.2 260 / 0.3), 0 0.25rem 0.5rem -0.125rem
+    oklch(0.55 0.2 260 / 0.2), inset 0 0.0625rem 0.0625rem oklch(1 0 0 / 0.1);
 }
 
 .btn-primary:disabled {
@@ -386,13 +386,15 @@ select.glass-input {
   backdrop-filter: blur(1.25rem) saturate(180%);
   -webkit-backdrop-filter: blur(1.25rem) saturate(180%);
   border: 0.0625rem solid oklch(1 0 0 / 0.1);
-  box-shadow: 0 0.25rem 0.75rem -0.125rem oklch(0 0 0 / 0.2), 0 0.5rem 1.5rem -0.25rem oklch(0 0 0 / 0.15);
+  box-shadow: 0 0.25rem 0.75rem -0.125rem oklch(0 0 0 / 0.2), 0 0.5rem 1.5rem -0.25rem
+    oklch(0 0 0 / 0.15);
 }
 
 .dark .glass-tooltip {
   background: oklch(0.2 0.02 260 / 0.9);
   border-color: oklch(1 0 0 / 0.15);
-  box-shadow: 0 0.25rem 0.75rem -0.125rem oklch(0 0 0 / 0.4), 0 0.5rem 1.5rem -0.25rem oklch(0 0 0 / 0.3);
+  box-shadow: 0 0.25rem 0.75rem -0.125rem oklch(0 0 0 / 0.4), 0 0.5rem 1.5rem -0.25rem
+    oklch(0 0 0 / 0.3);
 }
 
 /* iOS 26 Glass - Selected/Active state */
@@ -401,13 +403,15 @@ select.glass-input {
   backdrop-filter: blur(1.875rem) saturate(180%);
   -webkit-backdrop-filter: blur(1.875rem) saturate(180%);
   border: 0.0625rem solid oklch(0.6 0.18 250 / 0.25);
-  box-shadow: 0 0.125rem 0.5rem -0.125rem oklch(0.6 0.18 250 / 0.2), inset 0 0.0625rem 0.0625rem oklch(1 0 0 / 0.3);
+  box-shadow: 0 0.125rem 0.5rem -0.125rem oklch(0.6 0.18 250 / 0.2), inset 0 0.0625rem 0.0625rem
+    oklch(1 0 0 / 0.3);
 }
 
 .dark .glass-active {
   background: oklch(0.5 0.15 250 / 0.2);
   border-color: oklch(0.6 0.18 250 / 0.3);
-  box-shadow: 0 0.125rem 0.5rem -0.125rem oklch(0.5 0.18 250 / 0.25), inset 0 0.0625rem 0.0625rem oklch(1 0 0 / 0.08);
+  box-shadow: 0 0.125rem 0.5rem -0.125rem oklch(0.5 0.18 250 / 0.25), inset 0 0.0625rem 0.0625rem
+    oklch(1 0 0 / 0.08);
 }
 
 /* Subtle mesh gradient background for iOS feel */

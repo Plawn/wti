@@ -33,38 +33,37 @@ export const ParameterInput: Component<ParameterInputProps> = (props) => {
       case 'required':
         return t('validation.required');
       case 'type':
-        return t('validation.type').replace('{type}', String(params.type || ''));
+        return t('validation.type', { type: String(params.type ?? '') });
       case 'minLength':
-        return t('validation.minLength').replace('{limit}', String(params.limit || ''));
+        return t('validation.minLength', { limit: String(params.limit ?? '') });
       case 'maxLength':
-        return t('validation.maxLength').replace('{limit}', String(params.limit || ''));
+        return t('validation.maxLength', { limit: String(params.limit ?? '') });
       case 'minimum':
-        return t('validation.minimum').replace('{limit}', String(params.limit || ''));
+        return t('validation.minimum', { limit: String(params.limit ?? '') });
       case 'maximum':
-        return t('validation.maximum').replace('{limit}', String(params.limit || ''));
+        return t('validation.maximum', { limit: String(params.limit ?? '') });
       case 'exclusiveMinimum':
-        return t('validation.exclusiveMinimum').replace('{limit}', String(params.limit || ''));
+        return t('validation.exclusiveMinimum', { limit: String(params.limit ?? '') });
       case 'exclusiveMaximum':
-        return t('validation.exclusiveMaximum').replace('{limit}', String(params.limit || ''));
+        return t('validation.exclusiveMaximum', { limit: String(params.limit ?? '') });
       case 'multipleOf':
-        return t('validation.multipleOf').replace('{value}', String(params.multipleOf || ''));
+        return t('validation.multipleOf', { value: String(params.multipleOf ?? '') });
       case 'pattern':
-        return t('validation.pattern').replace('{pattern}', String(params.pattern || ''));
+        return t('validation.pattern', { pattern: String(params.pattern ?? '') });
       case 'enum':
-        return t('validation.enum').replace(
-          '{values}',
-          (params.allowedValues as unknown[])?.join(', ') || '',
-        );
+        return t('validation.enum', {
+          values: (params.allowedValues as unknown[])?.join(', ') || '',
+        });
       case 'const':
-        return t('validation.const').replace('{value}', JSON.stringify(params.allowedValue));
+        return t('validation.const', { value: JSON.stringify(params.allowedValue) });
       case 'minItems':
-        return t('validation.minItems').replace('{limit}', String(params.limit || ''));
+        return t('validation.minItems', { limit: String(params.limit ?? '') });
       case 'maxItems':
-        return t('validation.maxItems').replace('{limit}', String(params.limit || ''));
+        return t('validation.maxItems', { limit: String(params.limit ?? '') });
       case 'uniqueItems':
         return t('validation.uniqueItems');
       case 'format':
-        return t('validation.format').replace('{format}', String(params.format || ''));
+        return t('validation.format', { format: String(params.format ?? '') });
       default:
         // For unhandled keywords, return the original message
         return error.message;

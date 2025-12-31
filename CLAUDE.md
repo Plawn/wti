@@ -53,6 +53,71 @@ bun run typecheck                  # TypeScript check all packages
 @wti/element -> @wti/ui -> @wti/core
 ```
 
+### File Organization
+
+**Components:**
+- Single file for simple components: `ComponentName.tsx`
+- Folder with `index.ts` for complex components with sub-components:
+  ```
+  components/History/
+  ├── index.ts              → exports public components
+  ├── HistoryDrawer.tsx     → main component
+  └── HistoryEntry.tsx      → sub-component (if needed)
+  ```
+- Extract to `components/shared/` when used by 3+ components
+
+**When to create new files:**
+- New feature → new component file or folder
+- Shared logic → new hook in `hooks/` or utility in `utils/`
+- New data domain → new store in `stores/`
+
+### Stores
+
+Three stores exist — check if your state belongs in one before creating new:
+- `specStore` — API spec, selected operation, servers, search
+- `authStore` — Authentication configs, tokens, OIDC flow
+- `historyStore` — Request history, replay
+
+**Store pattern:**
+```typescript
+export function createXxxStore() {
+  const [state, setState] = createStore<XxxState>(initialState);
+  const [loading, setLoading] = createSignal(false);
+
+  const actions = {
+    async doThing() { /* ... */ },
+  };
+
+  return { state, actions, loading };
+}
+export type XxxStore = ReturnType<typeof createXxxStore>;
+```
+
+**Persistence:** Use `storage` utility from `src/storage/` for IndexedDB persistence. See `authStore` for example.
+
+### Hooks
+
+Existing hooks in `packages/ui/src/hooks/`:
+- `useDialogState` — Escape key, backdrop click, body scroll lock
+- `useIsDark` — Dark mode detection for Portals
+- `useAuthConfig` — Get typed auth config from store
+
+Check these before implementing similar logic.
+
+### Error Handling
+
+- Use `authStore.error` signal pattern for transient errors (auto-clear after timeout)
+- Use `store.state.error` for persistent errors that need user action
+- Display errors with `ErrorToast` (transient) or `ErrorScreen` (blocking)
+- Always provide user-facing messages via i18n, not raw error strings
+
+### Accessibility
+
+- Keyboard navigation: Arrow keys + Enter for lists, Escape to close
+- Use semantic HTML (`<button>`, `<nav>`) over `role="button"` on divs
+- Add `aria-label` for icon-only buttons
+- Test with keyboard-only navigation
+
 ## Code Conventions
 
 ### Component Pattern (SolidJS)
@@ -75,6 +140,17 @@ Use Tailwind utility classes combined with custom glass utilities from `global.c
 - Buttons: `btn-primary`, `btn-secondary`, `btn-tertiary`, `glass-button`
 - Active states: `glass-active`
 - Background: `bg-mesh`
+
+For hover states, transitions, selections — search existing components and copy their exact patterns.
+
+### UI Consistency Rules
+
+**Before implementing any UI behavior or visual pattern:**
+1. Search the codebase for similar existing implementations
+2. Copy the exact same approach (classes, signals, structure)
+3. If no match exists, check `components/shared/` for reusable components
+
+**Never invent new patterns** — the codebase already has established conventions for hover states, selections, keyboard navigation, transitions, etc. Find them and reuse them exactly.
 
 ### Naming
 - Components: PascalCase (`OperationTree.tsx`)
@@ -153,6 +229,7 @@ Before implementing any non-trivial logic, search for established npm packages. 
 - ❌ Use React patterns (useState, useEffect) — this is SolidJS
 - ❌ Create custom `.css` files — use Tailwind classes
 - ❌ Import from `@wti/ui` in `@wti/core` (breaks dependency direction)
+- ❌ Invent new UI patterns — always search for and copy existing implementations first
 
 ### Testing Rules
 
@@ -183,3 +260,11 @@ Before implementing any non-trivial logic, search for established npm packages. 
   <div class={`... ${isDark() ? 'dark' : ''}`}>
   ```
   See `Drawer.tsx` and `CommandPalette.tsx` for examples.
+
+### Performance
+
+- Use `createMemo` for expensive derived computations
+- Avoid creating functions inside JSX — define them outside the return
+- Use `batch()` when updating multiple signals together
+- Lazy load heavy components with dynamic `import()`
+- Keep stores flat — deeply nested state causes unnecessary re-renders

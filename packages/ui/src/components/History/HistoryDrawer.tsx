@@ -2,10 +2,15 @@
  * History Drawer
  *
  * Shows request history in a slide-out drawer
+ * Keyboard shortcuts:
+ * - Cmd/Ctrl+H: Toggle drawer
+ * - Arrow Up/Down: Navigate entries
+ * - Enter: Replay selected entry
+ * - Backspace/Delete: Remove selected entry
  */
 
 import type { Component } from 'solid-js';
-import { For, Show, createSignal } from 'solid-js';
+import { For, Show, createEffect, createSignal, onCleanup, onMount } from 'solid-js';
 import { useI18n } from '../../i18n';
 import type { HistoryEntry, HistoryStore } from '../../stores';
 import { getStatusIndicatorColor, getStatusTextColor } from '../../utils';
@@ -15,12 +20,109 @@ interface HistoryDrawerProps {
   store: HistoryStore;
   open: boolean;
   onClose: () => void;
+  onOpen: () => void;
   onReplay?: (entry: HistoryEntry) => void;
 }
 
 export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
   const { t } = useI18n();
   const [confirmClear, setConfirmClear] = createSignal(false);
+  const [selectedIndex, setSelectedIndex] = createSignal(0);
+  const [isKeyboardNav, setIsKeyboardNav] = createSignal(false);
+  let listRef: HTMLDivElement | undefined;
+
+  // Reset selection when drawer opens
+  createEffect(() => {
+    if (props.open) {
+      setSelectedIndex(0);
+      setIsKeyboardNav(false);
+    }
+  });
+
+  // Global keyboard shortcut: Cmd/Ctrl+H to toggle
+  onMount(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'h') {
+        e.preventDefault();
+        if (props.open) {
+          props.onClose();
+        } else {
+          props.onOpen();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    onCleanup(() => window.removeEventListener('keydown', handleGlobalKeyDown));
+  });
+
+  // Keyboard navigation when drawer is open
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (!props.open) {
+      return;
+    }
+
+    const entries = props.store.state.entries;
+    if (entries.length === 0) {
+      return;
+    }
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setIsKeyboardNav(true);
+        setSelectedIndex((i) => Math.min(i + 1, entries.length - 1));
+        scrollSelectedIntoView();
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setIsKeyboardNav(true);
+        setSelectedIndex((i) => Math.max(i - 1, 0));
+        scrollSelectedIntoView();
+        break;
+      case 'Enter': {
+        e.preventDefault();
+        const selectedEntry = entries[selectedIndex()];
+        if (selectedEntry && props.onReplay) {
+          props.onReplay(selectedEntry);
+        }
+        break;
+      }
+      case 'Backspace':
+      case 'Delete': {
+        e.preventDefault();
+        const entryToDelete = entries[selectedIndex()];
+        if (entryToDelete) {
+          props.store.actions.removeEntry(entryToDelete.id);
+          // Adjust selection if we deleted the last item
+          if (selectedIndex() >= entries.length - 1) {
+            setSelectedIndex((i) => Math.max(i - 1, 0));
+          }
+        }
+        break;
+      }
+    }
+  };
+
+  // Attach keyboard listener when drawer is open
+  createEffect(() => {
+    if (props.open) {
+      window.addEventListener('keydown', handleKeyDown);
+    } else {
+      window.removeEventListener('keydown', handleKeyDown);
+    }
+    onCleanup(() => window.removeEventListener('keydown', handleKeyDown));
+  });
+
+  const scrollSelectedIntoView = () => {
+    requestAnimationFrame(() => {
+      const selected = listRef?.querySelector('[data-selected="true"]');
+      selected?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    });
+  };
+
+  const handleMouseMove = () => {
+    setIsKeyboardNav(false);
+  };
 
   const formatTime = (timestamp: number): string => {
     const date = new Date(timestamp);
@@ -87,6 +189,7 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
     if (confirmClear()) {
       await props.store.actions.clearHistory();
       setConfirmClear(false);
+      setSelectedIndex(0);
     } else {
       setConfirmClear(true);
       setTimeout(() => setConfirmClear(false), 3000);
@@ -160,7 +263,11 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
         </div>
 
         {/* History list */}
-        <div class="flex-1 overflow-y-auto scrollbar-thin">
+        <div
+          ref={listRef}
+          class="flex-1 overflow-y-auto scrollbar-thin"
+          onMouseMove={handleMouseMove}
+        >
           <Show
             when={props.store.state.entries.length > 0}
             fallback={
@@ -185,10 +292,23 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
           >
             <div class="divide-y divide-black/5 dark:divide-white/5">
               <For each={props.store.state.entries}>
-                {(entry) => {
+                {(entry, index) => {
                   const methodStyle = getMethodStyle(entry.operationMethod);
+                  const isSelected = () => isKeyboardNav() && selectedIndex() === index();
                   return (
-                    <div class="px-4 py-3 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                    <div
+                      data-selected={isSelected()}
+                      class={`px-4 py-3 transition-all duration-200 ${
+                        isSelected()
+                          ? 'glass-active scale-[1.01]'
+                          : 'hover:bg-white/40 dark:hover:bg-white/5 hover:shadow-sm'
+                      }`}
+                      onMouseEnter={() => {
+                        if (!isKeyboardNav()) {
+                          setSelectedIndex(index());
+                        }
+                      }}
+                    >
                       <div class="flex items-start gap-3">
                         {/* Status indicator */}
                         <div
@@ -236,7 +356,10 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
                           <Show when={props.onReplay}>
                             <button
                               type="button"
-                              onClick={() => props.onReplay?.(entry)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                props.onReplay?.(entry);
+                              }}
                               class="p-1.5 text-gray-400 hover:text-blue-500 transition-colors rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30"
                               title={t('history.replay')}
                             >
@@ -258,7 +381,10 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
                           </Show>
                           <button
                             type="button"
-                            onClick={() => props.store.actions.removeEntry(entry.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              props.store.actions.removeEntry(entry.id);
+                            }}
                             class="p-1.5 text-gray-400 hover:text-red-500 transition-colors rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30"
                             title={t('history.delete')}
                           >
@@ -286,6 +412,26 @@ export const HistoryDrawer: Component<HistoryDrawerProps> = (props) => {
             </div>
           </Show>
         </div>
+
+        {/* Keyboard hints footer */}
+        <Show when={props.store.state.entries.length > 0}>
+          <div class="px-4 py-2 border-t border-white/10 dark:border-white/5 bg-black/5 dark:bg-white/5">
+            <div class="flex items-center justify-center gap-4 text-xs text-gray-400 dark:text-gray-500">
+              <span class="flex items-center gap-1">
+                <kbd class="px-1.5 py-0.5 rounded bg-black/10 dark:bg-white/10 font-mono">↑↓</kbd>
+                <span>{t('history.navigate')}</span>
+              </span>
+              <span class="flex items-center gap-1">
+                <kbd class="px-1.5 py-0.5 rounded bg-black/10 dark:bg-white/10 font-mono">↵</kbd>
+                <span>{t('history.replay')}</span>
+              </span>
+              <span class="flex items-center gap-1">
+                <kbd class="px-1.5 py-0.5 rounded bg-black/10 dark:bg-white/10 font-mono">⌫</kbd>
+                <span>{t('history.delete')}</span>
+              </span>
+            </div>
+          </div>
+        </Show>
       </div>
     </Drawer>
   );

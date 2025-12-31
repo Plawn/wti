@@ -106,6 +106,7 @@ export const fr: Translations = {
     failed: 'Echec',
     export: 'Exporter',
     import: 'Importer',
+    navigate: 'Naviguer',
   },
   sidebar: {
     allOperations: 'Toutes les operations',

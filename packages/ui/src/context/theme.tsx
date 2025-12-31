@@ -7,7 +7,8 @@ import {
   onMount,
   useContext,
 } from 'solid-js';
-import type { Theme } from '../App';
+import { getLocalStorageItem, setLocalStorageItem } from '../storage';
+import type { Theme } from '../types';
 
 const THEME_STORAGE_KEY = 'wti-theme';
 
@@ -25,13 +26,9 @@ interface ThemeProviderProps {
 }
 
 function getStoredTheme(): Theme | null {
-  try {
-    const stored = localStorage.getItem(THEME_STORAGE_KEY);
-    if (stored === 'light' || stored === 'dark') {
-      return stored;
-    }
-  } catch {
-    // localStorage not available
+  const stored = getLocalStorageItem<Theme | null>(THEME_STORAGE_KEY, null);
+  if (stored === 'light' || stored === 'dark') {
+    return stored;
   }
   return null;
 }
@@ -47,11 +44,7 @@ function getSystemTheme(): Theme {
 }
 
 function persistTheme(theme: Theme): void {
-  try {
-    localStorage.setItem(THEME_STORAGE_KEY, theme);
-  } catch {
-    // localStorage not available
-  }
+  setLocalStorageItem(THEME_STORAGE_KEY, theme);
 }
 
 export function ThemeProvider(props: ThemeProviderProps) {
