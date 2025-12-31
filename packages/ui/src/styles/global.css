@@ -75,7 +75,9 @@ body,
 .glass-icon-btn,
 .glass-active,
 .bg-mesh {
-  transition: background var(--theme-transition), background-color var(--theme-transition), color var(--theme-transition), border-color var(--theme-transition), box-shadow var(--theme-transition);
+  transition: background var(--theme-transition), background-color var(--theme-transition), color
+    var(--theme-transition), border-color var(--theme-transition), box-shadow
+    var(--theme-transition);
 }
 
 body {

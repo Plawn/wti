@@ -5,7 +5,7 @@ import { CommandPalette } from './components/CommandPalette';
 import { HistoryDrawer } from './components/History';
 import { Layout } from './components/Layout';
 import { SpecLoader } from './components/SpecLoader';
-import { ErrorScreen, ErrorToast, LoadingScreen } from './components/screens';
+import { AppErrorBoundary, ErrorScreen, ErrorToast, LoadingScreen } from './components/screens';
 import { ThemeProvider, useTheme } from './context';
 import type { Locale } from './i18n';
 import { I18nProvider } from './i18n';
@@ -27,7 +27,9 @@ export function WTI(props: WTIProps) {
   return (
     <ThemeProvider initialTheme={props.theme}>
       <I18nProvider locale={props.locale ?? 'en'}>
-        <WTIContent className={props.className} spec={props.spec} />
+        <AppErrorBoundary>
+          <WTIContent className={props.className} spec={props.spec} />
+        </AppErrorBoundary>
       </I18nProvider>
     </ThemeProvider>
   );

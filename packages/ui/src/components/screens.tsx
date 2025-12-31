@@ -1,5 +1,5 @@
-import type { Component } from 'solid-js';
-import { Show } from 'solid-js';
+import type { Component, JSX } from 'solid-js';
+import { Show, ErrorBoundary as SolidErrorBoundary } from 'solid-js';
 
 export const LoadingScreen: Component = () => {
   return (
@@ -160,5 +160,60 @@ export const ErrorToast: Component<ErrorToastProps> = (props) => {
         </div>
       </div>
     </Show>
+  );
+};
+
+interface AppErrorBoundaryProps {
+  children: JSX.Element;
+}
+
+/**
+ * Error boundary for catching uncaught render errors
+ */
+export const AppErrorBoundary: Component<AppErrorBoundaryProps> = (props) => {
+  return (
+    <SolidErrorBoundary
+      fallback={(err, reset) => (
+        <div class="flex items-center justify-center h-screen p-6">
+          <div class="glass-card rounded-3xl p-8 max-w-lg border-red-200/30 dark:border-red-800/20">
+            <div class="flex items-start gap-4">
+              <div class="shrink-0 w-14 h-14 rounded-2xl bg-linear-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/20">
+                <svg
+                  class="w-7 h-7 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-lg text-surface-900 dark:text-surface-50">
+                  Something went wrong
+                </h3>
+                <p class="text-surface-600 dark:text-surface-400 mt-2 leading-relaxed font-mono text-xs">
+                  {err instanceof Error ? err.message : String(err)}
+                </p>
+                <button
+                  type="button"
+                  onClick={reset}
+                  class="mt-4 px-4 py-2 text-sm font-medium rounded-xl glass-button text-surface-700 dark:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
+                >
+                  Try again
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    >
+      {props.children}
+    </SolidErrorBoundary>
   );
 };
