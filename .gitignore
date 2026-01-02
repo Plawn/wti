@@ -32,3 +32,6 @@ tmp/
 .tmp/
 **/target/
 *SNAPSHOT.jar
+
+# Quarkus extension build artifacts
+quarkus-extension/**/resources/wti/
