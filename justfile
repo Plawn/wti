@@ -122,6 +122,36 @@ open:
     open http://localhost:5173
 
 # ============================================
+# Quarkus Extension
+# ============================================
+
+# Build the Quarkus extension (builds WTI + Maven package)
+build-quarkus:
+    #!/usr/bin/env bash
+    set -e
+    echo "==> Building WTI web component..."
+    bun run --filter @wti/element build
+    echo "==> Copying assets to Quarkus extension..."
+    mkdir -p quarkus-extension/runtime/src/main/resources/META-INF/resources/wti
+    cp -r packages/web-component/dist/* quarkus-extension/runtime/src/main/resources/META-INF/resources/wti/
+    echo "==> Building Quarkus extension..."
+    cd quarkus-extension && mvn clean install -DskipTests
+    echo "==> Done!"
+
+# Build Quarkus extension without rebuilding WTI (faster iteration)
+build-quarkus-fast:
+    cd quarkus-extension && mvn clean install -DskipTests
+
+# Clean Quarkus extension build artifacts
+clean-quarkus:
+    rm -rf quarkus-extension/runtime/target quarkus-extension/deployment/target
+    rm -rf quarkus-extension/runtime/src/main/resources/META-INF/resources/wti/*
+
+# Run Quarkus extension tests
+test-quarkus:
+    cd quarkus-extension && mvn test
+
+# ============================================
 # Release (future)
 # ============================================
 
