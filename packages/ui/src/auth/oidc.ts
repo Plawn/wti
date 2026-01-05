@@ -2,8 +2,10 @@ import type { OpenIdAuth } from '@wti/core';
 
 // Cache for OIDC discovery documents
 export interface OidcDiscovery {
+  issuer: string;
   authorizationEndpoint: string;
   tokenEndpoint: string;
+  scopesSupported?: string[];
   fetchedAt: number;
 }
 
@@ -76,8 +78,10 @@ export async function getOidcDiscovery(issuerUrl: string): Promise<OidcDiscovery
   }
 
   const discovery: OidcDiscovery = {
+    issuer: doc.issuer || issuerUrl,
     authorizationEndpoint: doc.authorization_endpoint,
     tokenEndpoint: doc.token_endpoint,
+    scopesSupported: Array.isArray(doc.scopes_supported) ? doc.scopes_supported : undefined,
     fetchedAt: Date.now(),
   };
 

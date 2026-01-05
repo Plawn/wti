@@ -87,6 +87,8 @@ export const en: Translations = {
     loggedInAs: 'Logged in as {username}',
     missingConfig: 'Issuer URL and Client ID are required',
     refreshFailed: 'Token refresh failed',
+    availableScopes: 'Available scopes',
+    loadingDiscovery: 'Loading OIDC discovery...',
   },
   codegen: {
     title: 'Code Snippets',

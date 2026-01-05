@@ -36,11 +36,12 @@ public class WtiRecorder {
     /**
      * Creates a handler that serves the index.html with injected configuration.
      */
-    public Handler<RoutingContext> createIndexHandler(String specUrl, String title, String theme, String locale) {
+    public Handler<RoutingContext> createIndexHandler(String specUrl, String title, String description, String theme, String locale) {
         return new Handler<RoutingContext>() {
             @Override
             public void handle(RoutingContext event) {
-                String html = generateIndexHtml(specUrl, title, theme, locale);
+                String baseUrl = getBaseUrl(event);
+                String html = generateIndexHtml(specUrl, title, description, theme, locale, baseUrl);
                 event.response()
                         .putHeader(HttpHeaders.CONTENT_TYPE, "text/html;charset=UTF-8")
                         .end(html);
@@ -48,8 +49,16 @@ public class WtiRecorder {
         };
     }
 
-    private String generateIndexHtml(String specUrl, String title, String theme, String locale) {
+    private String getBaseUrl(RoutingContext event) {
+        String scheme = event.request().scheme();
+        String host = event.request().host();
+        String path = event.request().path();
+        return scheme + "://" + host + path;
+    }
+
+    private String generateIndexHtml(String specUrl, String title, String description, String theme, String locale, String baseUrl) {
         String displayTitle = title != null ? title : "API Documentation";
+        String displayDescription = description != null ? description : "Interactive API documentation";
         String darkClass = "dark".equals(theme) ? "dark" : "";
 
         return """
@@ -59,6 +68,19 @@ public class WtiRecorder {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>%s</title>
+    <meta name="description" content="%s">
+
+    <!-- Open Graph / Facebook / Slack / Discord -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="%s">
+    <meta property="og:title" content="%s">
+    <meta property="og:description" content="%s">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="%s">
+    <meta name="twitter:description" content="%s">
+
     <script>
         // Handle system theme preference
         if ('%s' === 'system') {
@@ -91,6 +113,29 @@ public class WtiRecorder {
     <link rel="stylesheet" href="wti-element.css">
 </body>
 </html>
-""".formatted(locale, darkClass, displayTitle, theme, specUrl, locale);
+""".formatted(
+                locale, darkClass,
+                escapeHtml(displayTitle),
+                escapeHtml(displayDescription),
+                escapeHtml(baseUrl),
+                escapeHtml(displayTitle),
+                escapeHtml(displayDescription),
+                escapeHtml(displayTitle),
+                escapeHtml(displayDescription),
+                theme,
+                specUrl, locale
+        );
+    }
+
+    private String escapeHtml(String text) {
+        if (text == null) {
+            return "";
+        }
+        return text
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
     }
 }

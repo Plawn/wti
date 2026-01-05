@@ -136,7 +136,7 @@ export const AuthPanel: Component<AuthPanelProps> = (props) => {
             <OAuth2Form authStore={props.authStore} />
           </Show>
           <Show when={activeTab() === 'openid'}>
-            <OpenIdForm authStore={props.authStore} />
+            <OpenIdForm authStore={props.authStore} securitySchemes={props.securitySchemes} />
           </Show>
         </div>
       </Show>

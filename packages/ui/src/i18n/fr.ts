@@ -87,6 +87,8 @@ export const fr: Translations = {
     loggedInAs: 'Connecte en tant que {username}',
     missingConfig: "L'URL de l'emetteur et l'ID client sont requis",
     refreshFailed: 'Echec du rafraichissement du jeton',
+    availableScopes: 'Portees disponibles',
+    loadingDiscovery: 'Chargement de la decouverte OIDC...',
   },
   codegen: {
     title: 'Extraits de code',

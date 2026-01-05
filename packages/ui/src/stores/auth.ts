@@ -240,9 +240,67 @@ export function createAuthStore() {
     },
 
     /**
-     * Clear OpenID Connect authentication
+     * Clear OpenID Connect tokens but keep client configuration
+     * This allows users to re-login without re-entering client details
      */
     async clearOpenIdAuth() {
+      const config = state.configs.openid as OpenIdAuth | undefined;
+      if (config) {
+        // Keep client config, clear only tokens
+        setState('configs', 'openid', {
+          type: 'openid',
+          issuerUrl: config.issuerUrl,
+          clientId: config.clientId,
+          clientSecret: config.clientSecret,
+          scopes: config.scopes,
+          // Clear tokens
+          accessToken: undefined,
+          refreshToken: undefined,
+          idToken: undefined,
+          expiresAt: undefined,
+          tokenType: undefined,
+        });
+      }
+      if (state.activeScheme === 'openid') {
+        setState('activeScheme', null);
+      }
+      await persist();
+    },
+
+    /**
+     * Save OpenID client configuration without tokens
+     * Used to remember client settings for future logins
+     */
+    async saveOpenIdClientConfig(
+      issuerUrl: string,
+      clientId: string,
+      options?: {
+        clientSecret?: string;
+        scopes?: string[];
+      },
+    ) {
+      const existingConfig = state.configs.openid as OpenIdAuth | undefined;
+      const config: OpenIdAuth = {
+        type: 'openid',
+        issuerUrl,
+        clientId,
+        clientSecret: options?.clientSecret,
+        scopes: options?.scopes,
+        // Preserve existing tokens if any
+        accessToken: existingConfig?.accessToken,
+        refreshToken: existingConfig?.refreshToken,
+        idToken: existingConfig?.idToken,
+        expiresAt: existingConfig?.expiresAt,
+        tokenType: existingConfig?.tokenType,
+      };
+      setState('configs', 'openid', config);
+      await persist();
+    },
+
+    /**
+     * Completely clear OpenID configuration including client details
+     */
+    async clearOpenIdConfigCompletely() {
       setState('configs', 'openid', undefined);
       if (state.activeScheme === 'openid') {
         setState('activeScheme', null);

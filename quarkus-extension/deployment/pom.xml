@@ -7,7 +7,7 @@
     <parent>
         <groupId>io.github.plawn</groupId>
         <artifactId>quarkus-wti-parent</artifactId>
-        <version>1.0.0</version>
+        <version>1.1.0</version>
     </parent>
 
     <artifactId>quarkus-wti-deployment</artifactId>
@@ -26,6 +26,12 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-vertx-http-deployment</artifactId>
+        </dependency>
+        <!-- Optional: to extract title/description from OpenAPI spec -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-openapi-deployment</artifactId>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 

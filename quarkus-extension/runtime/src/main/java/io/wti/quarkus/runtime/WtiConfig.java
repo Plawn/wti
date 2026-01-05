@@ -35,8 +35,15 @@ public interface WtiConfig {
 
     /**
      * The title to display in the UI.
+     * Used for the page title and Open Graph og:title meta tag.
      */
     Optional<String> title();
+
+    /**
+     * The description for Open Graph meta tags (og:description).
+     * Used for link previews on Slack, Discord, Twitter, etc.
+     */
+    Optional<String> description();
 
     /**
      * Whether to always include WTI UI, even in production.

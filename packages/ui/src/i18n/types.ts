@@ -84,6 +84,8 @@ export interface Translations {
     loggedInAs: string;
     missingConfig: string;
     refreshFailed: string;
+    availableScopes: string;
+    loadingDiscovery: string;
   };
   codegen: {
     title: string;
