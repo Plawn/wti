@@ -124,7 +124,7 @@ export const en: Translations = {
   },
   specLoader: {
     title: 'Load API Specification',
-    subtitle: 'Load an OpenAPI specification to explore and test',
+    subtitle: 'Load an OpenAPI or gRPC specification to explore and test',
     uploadFile: 'Upload a file',
     loadFromUrl: 'Load from URL',
     load: 'Load',
@@ -138,6 +138,10 @@ export const en: Translations = {
     invalidFileType: 'Invalid file type. Please upload a JSON or YAML file.',
     jsonOnly: 'Only JSON and YAML files are supported',
     tryExample: 'Try an example:',
+    specType: 'Type',
+    openapi: 'OpenAPI',
+    grpc: 'gRPC',
+    grpcPlaceholder: 'http://localhost:8080 (gRPC-Web endpoint)',
   },
   commandPalette: {
     placeholder: 'Search operations...',

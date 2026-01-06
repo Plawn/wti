@@ -1,5 +1,5 @@
 import type { ApiSpec, Operation, Server, SpecInput } from '@wti/core';
-import { parseOpenApi } from '@wti/core';
+import { loadGrpcSpec, parseOpenApi } from '@wti/core';
 import type Fuse from 'fuse.js';
 import { createMemo } from 'solid-js';
 import { createStore } from 'solid-js/store';
@@ -179,7 +179,8 @@ export function createSpecStore() {
           const result = await parseOpenApi(input);
           actions.setSpec(result.spec);
         } else if (input.type === 'grpc') {
-          throw new Error('gRPC support not yet implemented');
+          const spec = await loadGrpcSpec(input.endpoint);
+          actions.setSpec(spec);
         }
       } catch (err) {
         setState({

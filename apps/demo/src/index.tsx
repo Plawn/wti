@@ -29,6 +29,14 @@ function App() {
   const [theme, setTheme] = createSignal<Theme>('dark');
   const [locale, setLocale] = createSignal<Locale>('en');
   const [selectedSpec, setSelectedSpec] = createSignal<SpecInput | undefined>(undefined);
+  const [grpcEndpoint, setGrpcEndpoint] = createSignal('');
+
+  const loadGrpcSpec = () => {
+    const endpoint = grpcEndpoint().trim();
+    if (endpoint) {
+      setSelectedSpec({ type: 'grpc', endpoint });
+    }
+  };
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
@@ -53,6 +61,25 @@ function App() {
           <option value="-1">Select API...</option>
           <For each={EXAMPLE_SPECS}>{(spec, i) => <option value={i()}>{spec.name}</option>}</For>
         </select>
+
+        <div class="h-6 w-px bg-gray-300 dark:bg-gray-600" />
+
+        {/* gRPC Endpoint Input */}
+        <input
+          type="text"
+          placeholder="gRPC endpoint (e.g. http://localhost:8080)"
+          value={grpcEndpoint()}
+          onInput={(e) => setGrpcEndpoint(e.currentTarget.value)}
+          onKeyDown={(e) => e.key === 'Enter' && loadGrpcSpec()}
+          class="px-3 py-2 text-sm bg-transparent border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white w-64"
+        />
+        <button
+          type="button"
+          onClick={loadGrpcSpec}
+          class="px-3 py-2 text-sm font-medium bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl transition-colors"
+        >
+          Load gRPC
+        </button>
 
         {/* Theme Toggle */}
         <button

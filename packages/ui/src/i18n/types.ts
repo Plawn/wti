@@ -135,6 +135,10 @@ export interface Translations {
     invalidFileType: string;
     jsonOnly: string;
     tryExample: string;
+    specType: string;
+    openapi: string;
+    grpc: string;
+    grpcPlaceholder: string;
   };
   commandPalette: {
     placeholder: string;
