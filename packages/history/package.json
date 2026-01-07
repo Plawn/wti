@@ -1,0 +1,45 @@
+{
+  "name": "@wti/history",
+  "version": "0.1.0",
+  "description": "Generic history management with storage abstraction",
+  "author": "plawn",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/plawn/wti.git",
+    "directory": "packages/history"
+  },
+  "homepage": "https://github.com/plawn/wti#readme",
+  "keywords": ["history", "storage", "indexeddb", "persistence", "undo-redo", "state-management"],
+  "bugs": {
+    "url": "https://github.com/plawn/wti/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./storage": {
+      "types": "./dist/storage/index.d.ts",
+      "import": "./dist/storage/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "idb": "8.0.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "@types/bun": "^1.1.14"
+  },
+  "files": ["dist", "src"]
+}

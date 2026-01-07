@@ -272,8 +272,7 @@ function decodeVarintFromBytes(data: Uint8Array | undefined): number {
   }
   let value = 0;
   let shift = 0;
-  for (let i = 0; i < data.length; i++) {
-    const byte = data[i];
+  for (const byte of data) {
     value |= (byte & 0x7f) << shift;
     shift += 7;
     if (!(byte & 0x80)) {

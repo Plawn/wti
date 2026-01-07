@@ -20,7 +20,7 @@ import {
   retrievePkceState,
   storePkceState,
 } from '../auth/oidc';
-import { storage } from '../storage';
+import { wtiStorage as storage } from './history';
 
 const STORAGE_STORE = 'auth';
 const STORAGE_KEY = 'state';
