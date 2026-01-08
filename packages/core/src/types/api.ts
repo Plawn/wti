@@ -2,13 +2,15 @@
  * Unified API specification types for OpenAPI and gRPC
  */
 
+// Import and re-export Schema types from glass-ui (source of truth)
+import type { Schema, SchemaType } from 'glass-ui-solid';
+export type { Schema, SchemaType };
+
 export type SpecType = 'openapi' | 'grpc';
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS';
 
 export type ParameterLocation = 'path' | 'query' | 'header' | 'cookie';
-
-export type SchemaType = 'string' | 'number' | 'integer' | 'boolean' | 'array' | 'object' | 'null';
 
 export type AuthType = 'apiKey' | 'bearer' | 'basic' | 'oauth2' | 'openIdConnect';
 
@@ -38,49 +40,6 @@ export interface ServerVariable {
   default: string;
   description?: string;
   enum?: string[];
-}
-
-export interface Schema {
-  type?: SchemaType;
-  format?: string;
-  title?: string;
-  description?: string;
-  default?: unknown;
-  enum?: unknown[];
-  const?: unknown;
-  nullable?: boolean;
-
-  // String constraints
-  minLength?: number;
-  maxLength?: number;
-  pattern?: string;
-
-  // Number constraints
-  minimum?: number;
-  maximum?: number;
-  exclusiveMinimum?: number;
-  exclusiveMaximum?: number;
-  multipleOf?: number;
-
-  // Array constraints
-  items?: Schema;
-  minItems?: number;
-  maxItems?: number;
-  uniqueItems?: boolean;
-
-  // Object constraints
-  properties?: Record<string, Schema>;
-  required?: string[];
-  additionalProperties?: boolean | Schema;
-
-  // Composition
-  allOf?: Schema[];
-  anyOf?: Schema[];
-  oneOf?: Schema[];
-  not?: Schema;
-
-  // Reference (resolved internally)
-  $ref?: string;
 }
 
 export interface Parameter {

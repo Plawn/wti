@@ -1,5 +1,5 @@
-// Re-export all components from @wti/glass-ui
-export * from '@wti/glass-ui';
+// Re-export all components from glass-ui-solid
+export * from 'glass-ui-solid';
 
 // Legacy exports for backward compatibility (now from glass-ui)
 // Components: Input, Textarea, Select, Checkbox, Button, Badge, Modal, Drawer,

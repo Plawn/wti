@@ -1,6 +1,7 @@
 import type { Operation, RequestValues, SpecInput } from '@wti/core';
 import { Show, createEffect, createSignal, onMount } from 'solid-js';
-import './styles/global.css';
+// import './styles/global.css';
+// import 'glass-ui-solid/styles.css'
 import { CommandPalette } from './components/CommandPalette';
 import { HistoryDrawer } from './components/History';
 import { Layout } from './components/Layout';
