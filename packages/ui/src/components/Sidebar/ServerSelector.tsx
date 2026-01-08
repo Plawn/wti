@@ -1,8 +1,7 @@
 import type { Server, ServerVariable } from '@wti/core';
 import { type Component, For, Show } from 'solid-js';
 import { useI18n } from '../../i18n';
-import { Input, Select } from '../shared';
-import { Tooltip } from '../shared/Tooltip';
+import { Input, Select, Tooltip } from '../shared';
 
 interface ServerSelectorProps {
   servers: Server[];

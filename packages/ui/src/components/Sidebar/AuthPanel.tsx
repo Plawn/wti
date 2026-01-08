@@ -118,7 +118,7 @@ export const AuthPanel: Component<AuthPanelProps> = (props) => {
               value: type,
               label: getTabLabel(type),
             }))}
-            className="w-full"
+            class="w-full"
             size="sm"
           />
 

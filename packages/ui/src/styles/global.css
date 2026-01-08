@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* Scan all UI components to generate required utility classes */
+@source "../components/**/*.tsx";
+@source "../stores/**/*.ts";
+@source "../hooks/**/*.ts";
+/* Also scan glass-ui components (dependency) */
+@source "../../../glass-ui/src/components/**/*.tsx";
+
 /* Use class-based dark mode instead of media query */
 @custom-variant dark (&:where(.dark, .dark *));
 

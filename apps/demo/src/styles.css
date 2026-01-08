@@ -1,5 +1,5 @@
-@import "../../../packages/ui/src/styles/global.css";
+/* Import the UI library CSS (alias resolved by Vite) */
+@import "@wti/ui/styles.css";
 
-@source "../../../packages/ui/src/**/*.tsx";
-@source "../../../packages/core/src/**/*.ts";
-@source "./index.tsx";
+/* Scan demo-specific files for any additional utilities */
+@source "./**/*.tsx";

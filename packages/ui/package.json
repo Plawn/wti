@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "@wti/core": "workspace:*",
+    "@wti/glass-ui": "workspace:*",
     "@wti/history": "workspace:*",
     "dompurify": "3.3.1",
     "fuse.js": "7.1.0",

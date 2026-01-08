@@ -1,0 +1,142 @@
+import { type Component, Show, createEffect, createSignal, onCleanup } from 'solid-js';
+import { Portal } from 'solid-js/web';
+import { useDialogState, useIsDark } from '../../hooks';
+import type { DrawerPosition, DrawerProps, DrawerSize } from './types';
+
+const sizeStyles: Record<DrawerSize, string> = {
+  sm: 'max-w-xs',
+  md: 'max-w-sm',
+  lg: 'max-w-md',
+  xl: 'max-w-lg',
+};
+
+const positionStyles: Record<DrawerPosition, { panel: string; enter: string; exit: string }> = {
+  left: {
+    panel: 'left-0',
+    enter: 'animate-in slide-in-from-left',
+    exit: 'animate-out slide-out-to-left',
+  },
+  right: {
+    panel: 'right-0',
+    enter: 'animate-in slide-in-from-right',
+    exit: 'animate-out slide-out-to-right',
+  },
+};
+
+const ANIMATION_DURATION = 200;
+
+export const Drawer: Component<DrawerProps> = (props) => {
+  const position = () => props.position ?? 'right';
+  const size = () => props.size ?? 'md';
+  const showClose = () => props.showClose ?? true;
+
+  // Track visibility separately from open state for exit animation
+  const [visible, setVisible] = createSignal(false);
+  const [isClosing, setIsClosing] = createSignal(false);
+
+  // Use shared dialog state hook for escape, scroll lock, and backdrop
+  const { handleBackdropClick } = useDialogState({
+    open: visible,
+    onClose: props.onClose,
+    closeOnEscape: () => props.closeOnEscape ?? true,
+    closeOnBackdrop: () => props.closeOnBackdrop ?? true,
+  });
+
+  // Handle open/close transitions
+  createEffect(() => {
+    if (props.open) {
+      setIsClosing(false);
+      setVisible(true);
+    } else if (visible()) {
+      // Start closing animation
+      setIsClosing(true);
+      const timer = setTimeout(() => {
+        setVisible(false);
+        setIsClosing(false);
+      }, ANIMATION_DURATION);
+      onCleanup(() => clearTimeout(timer));
+    }
+  });
+
+  const styles = () => positionStyles[position()];
+
+  // Check if dark mode is active (needed for Portal which renders outside the dark class container)
+  const isDark = useIsDark();
+
+  const backdropClasses = () =>
+    isClosing() ? 'animate-out fade-out duration-200' : 'animate-in fade-in duration-200';
+
+  const drawerClasses = () =>
+    isClosing() ? `${styles().exit} duration-200` : `${styles().enter} duration-300`;
+
+  return (
+    <Show when={visible()}>
+      <Portal>
+        {/* biome-ignore lint/a11y/useKeyWithClickEvents: Backdrop click is supplementary to Escape key (handled by useDialogState) */}
+        <div
+          class={`fixed inset-0 z-50 bg-black/50 backdrop-blur-sm ${backdropClasses()} ${isDark() ? 'dark' : ''}`}
+          onClick={(e) => handleBackdropClick(e)}
+          aria-modal="true"
+          aria-labelledby={props.title ? 'drawer-title' : undefined}
+        >
+          <div
+            class={`absolute inset-y-0 ${styles().panel} w-full ${sizeStyles[size()]} glass-thick shadow-2xl overflow-hidden ${drawerClasses()}`}
+          >
+            <div class="flex flex-col h-full overflow-hidden">
+              {/* Header */}
+              <Show when={props.title || showClose()}>
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-white/5">
+                  <Show when={props.title}>
+                    <h2
+                      id="drawer-title"
+                      class="text-lg font-semibold text-gray-900 dark:text-white"
+                    >
+                      {props.title}
+                    </h2>
+                  </Show>
+                  <Show when={showClose()}>
+                    <button
+                      type="button"
+                      onClick={props.onClose}
+                      class="ml-auto p-2 rounded-xl text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                      aria-label="Close"
+                    >
+                      <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        aria-hidden="true"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  </Show>
+                </div>
+              </Show>
+
+              {/* Content */}
+              <div
+                class={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden flex flex-col scrollbar-thin ${props.noPadding ? '' : 'p-6'}`}
+              >
+                {props.children}
+              </div>
+
+              {/* Footer */}
+              <Show when={props.footer}>
+                <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-white/5">
+                  {props.footer}
+                </div>
+              </Show>
+            </div>
+          </div>
+        </div>
+      </Portal>
+    </Show>
+  );
+};

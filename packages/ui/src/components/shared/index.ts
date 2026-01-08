@@ -1,44 +1,9 @@
-export { Input, Textarea, Select, Checkbox } from './Input';
-export type { InputProps, TextareaProps, SelectProps, CheckboxProps } from './Input';
+// Re-export all components from @wti/glass-ui
+export * from '@wti/glass-ui';
 
-export { Button } from './Button';
-export type { ButtonProps, ButtonVariant } from './Button';
-
-export { Markdown } from './Markdown';
-export type { MarkdownProps } from './Markdown';
-
-export { CodeBlock } from './CodeBlock';
-export type { CodeBlockProps } from './CodeBlock';
-
-export { JsonSchemaForm } from './JsonSchemaForm';
-export type { JsonSchemaFormProps } from './JsonSchemaForm';
-
-export { Tabs } from './Tabs';
-export type { TabsProps, TabItem } from './Tabs';
-
-export { Badge } from './Badge';
-export type { BadgeProps, BadgeVariant, BadgeSize } from './Badge';
-
-export { Accordion, AccordionPanel } from './Accordion';
-export type { AccordionProps, AccordionItem, AccordionSingleProps } from './Accordion';
-
-export { ToastContainer, toast, dismissToast, clearToasts } from './Toast';
-export type { Toast, ToastType } from './Toast';
-
-export { Modal } from './Modal';
-export type { ModalProps, ModalSize } from './Modal';
-
-export { Drawer } from './Drawer';
-export type { DrawerProps, DrawerPosition, DrawerSize } from './Drawer';
-
-export { Tooltip } from './Tooltip';
-export type { TooltipProps, TooltipPosition } from './Tooltip';
-
-export { JsonViewer } from './JsonViewer';
-export type { JsonViewerProps } from './JsonViewer';
-export { SegmentedControl } from './SegmentedControl';
-export type { SegmentedControlProps, SegmentedControlOption } from './SegmentedControl';
-export { ErrorDisplay } from './ErrorDisplay';
-export type { ErrorDisplayProps } from './ErrorDisplay';
-export { Section } from './Section';
-export type { SectionProps } from './Section';
+// Legacy exports for backward compatibility (now from glass-ui)
+// Components: Input, Textarea, Select, Checkbox, Button, Badge, Modal, Drawer,
+// Toast, Tooltip, Tabs, Accordion, SegmentedControl, CodeBlock, JsonViewer,
+// Markdown, Section, ErrorDisplay, JsonSchemaForm
+// New components: Table, Card, Avatar, Skeleton, Progress, Chip,
+// Menu, Dropdown, Breadcrumb, Pagination, Alert, Dialog, Snackbar
