@@ -152,8 +152,41 @@ test-quarkus:
     cd quarkus-extension && mvn test
 
 # ============================================
-# Release (future)
+# Release
 # ============================================
+
+# Bump Quarkus extension minor version (e.g., 1.2.2 -> 1.3.0)
+bump-quarkus-minor:
+    #!/usr/bin/env bash
+    set -e
+    PARENT_POM="quarkus-extension/pom.xml"
+    CURRENT=$(grep -m1 '<version>' "$PARENT_POM" | sed 's/.*<version>\(.*\)<\/version>.*/\1/')
+    MAJOR=$(echo "$CURRENT" | cut -d. -f1)
+    MINOR=$(echo "$CURRENT" | cut -d. -f2)
+    NEW_VERSION="$MAJOR.$((MINOR + 1)).0"
+    echo "Bumping Quarkus extension: $CURRENT -> $NEW_VERSION"
+    sed -i '' "s|<version>$CURRENT</version>|<version>$NEW_VERSION</version>|g" \
+        quarkus-extension/pom.xml \
+        quarkus-extension/runtime/pom.xml \
+        quarkus-extension/deployment/pom.xml
+    echo "Done! Updated version to $NEW_VERSION"
+
+# Bump Quarkus extension patch version (e.g., 1.3.0 -> 1.3.1)
+bump-quarkus-patch:
+    #!/usr/bin/env bash
+    set -e
+    PARENT_POM="quarkus-extension/pom.xml"
+    CURRENT=$(grep -m1 '<version>' "$PARENT_POM" | sed 's/.*<version>\(.*\)<\/version>.*/\1/')
+    MAJOR=$(echo "$CURRENT" | cut -d. -f1)
+    MINOR=$(echo "$CURRENT" | cut -d. -f2)
+    PATCH=$(echo "$CURRENT" | cut -d. -f3)
+    NEW_VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
+    echo "Bumping Quarkus extension: $CURRENT -> $NEW_VERSION"
+    sed -i '' "s|<version>$CURRENT</version>|<version>$NEW_VERSION</version>|g" \
+        quarkus-extension/pom.xml \
+        quarkus-extension/runtime/pom.xml \
+        quarkus-extension/deployment/pom.xml
+    echo "Done! Updated version to $NEW_VERSION"
 
 # Bump version (patch)
 # version-patch:

@@ -14,6 +14,11 @@
  * - theme: "light" (default) or "dark"
  * - locale: "en" (default) or "fr"
  */
+
+declare const __WTI_VERSION__: string;
+
+export const VERSION = __WTI_VERSION__;
+
 import './styles.css';
 import { type Locale, type Theme, WTI } from '@wti/ui';
 import { customElement, noShadowDOM } from 'solid-element';

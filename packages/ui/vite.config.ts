@@ -1,7 +1,10 @@
+import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import solid from 'vite-plugin-solid';
+
+const pkg = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf-8'));
 
 export default defineConfig({
   plugins: [
@@ -38,5 +41,8 @@ export default defineConfig({
     },
     sourcemap: true,
     minify: 'esbuild',
+  },
+  define: {
+    __WTI_VERSION__: JSON.stringify(pkg.version),
   },
 });

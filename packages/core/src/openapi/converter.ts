@@ -201,10 +201,7 @@ function convertParameter(param: OpenAPIParameter): Parameter {
     description: param.description,
     required: param.required ?? param.in === 'path',
     deprecated: param.deprecated,
-    schema:
-      param.schema && !isReference(param.schema)
-        ? convertSchema(param.schema as OpenAPISchema)
-        : { type: 'string' },
+    schema: param.schema ? convertSchemaOrRef(param.schema) : { type: 'string' },
     example: param.example,
     examples: param.examples
       ? Object.fromEntries(
@@ -285,8 +282,8 @@ function applyArrayConstraints(
   schema: OpenAPISchema,
   schemaAny: Record<string, unknown>,
 ): void {
-  if ('items' in schemaAny && schemaAny.items && !isReference(schemaAny.items)) {
-    result.items = convertSchema(schemaAny.items as OpenAPISchema);
+  if ('items' in schemaAny && schemaAny.items) {
+    result.items = convertSchemaOrRef(schemaAny.items);
   }
   if (schema.minItems !== undefined) {
     result.minItems = schema.minItems;
@@ -302,9 +299,7 @@ function applyArrayConstraints(
 function applyObjectConstraints(result: Schema, schema: OpenAPISchema): void {
   if (schema.properties) {
     result.properties = Object.fromEntries(
-      Object.entries(schema.properties)
-        .filter(([, prop]) => !isReference(prop))
-        .map(([key, prop]) => [key, convertSchema(prop as OpenAPISchema)]),
+      Object.entries(schema.properties).map(([key, prop]) => [key, convertSchemaOrRef(prop)]),
     );
   }
   if (schema.required) {
@@ -314,31 +309,36 @@ function applyObjectConstraints(result: Schema, schema: OpenAPISchema): void {
     result.additionalProperties =
       typeof schema.additionalProperties === 'boolean'
         ? schema.additionalProperties
-        : schema.additionalProperties && !isReference(schema.additionalProperties)
-          ? convertSchema(schema.additionalProperties as OpenAPISchema)
-          : true;
+        : convertSchemaOrRef(schema.additionalProperties);
   }
 }
 
 function applySchemaComposition(result: Schema, schema: OpenAPISchema): void {
   if (schema.allOf) {
-    result.allOf = schema.allOf
-      .filter((s): s is OpenAPISchema => !isReference(s))
-      .map((s) => convertSchema(s));
+    result.allOf = schema.allOf.map((s) => convertSchemaOrRef(s));
   }
   if (schema.anyOf) {
-    result.anyOf = schema.anyOf
-      .filter((s): s is OpenAPISchema => !isReference(s))
-      .map((s) => convertSchema(s));
+    result.anyOf = schema.anyOf.map((s) => convertSchemaOrRef(s));
   }
   if (schema.oneOf) {
-    result.oneOf = schema.oneOf
-      .filter((s): s is OpenAPISchema => !isReference(s))
-      .map((s) => convertSchema(s));
+    result.oneOf = schema.oneOf.map((s) => convertSchemaOrRef(s));
   }
-  if (schema.not && !isReference(schema.not)) {
-    result.not = convertSchema(schema.not as OpenAPISchema);
+  if (schema.not) {
+    result.not = convertSchemaOrRef(schema.not);
   }
+}
+
+/**
+ * Convert a schema or reference to our Schema type.
+ * If it's a $ref, keep it as a string reference (no circular JS refs).
+ * If it's a schema object, convert it recursively.
+ */
+function convertSchemaOrRef(schemaOrRef: unknown): Schema {
+  if (isReference(schemaOrRef)) {
+    // Keep $ref as string - avoids circular JS references
+    return { $ref: (schemaOrRef as { $ref: string }).$ref };
+  }
+  return convertSchema(schemaOrRef as OpenAPISchema);
 }
 
 function convertSchema(schema: OpenAPISchema): Schema {
@@ -369,10 +369,7 @@ function convertRequestBody(body: OpenAPIRequestBody): RequestBody {
 
 function convertMediaType(media: OpenAPIMediaType): MediaType {
   return {
-    schema:
-      media.schema && !isReference(media.schema)
-        ? convertSchema(media.schema as OpenAPISchema)
-        : undefined,
+    schema: media.schema ? convertSchemaOrRef(media.schema) : undefined,
     example: media.example,
     examples: media.examples
       ? Object.fromEntries(

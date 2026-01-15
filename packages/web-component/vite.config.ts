@@ -5,6 +5,8 @@ import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import solid from 'vite-plugin-solid';
 
+const pkg = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf-8'));
+
 /**
  * Plugin to generate a single HTML file with inlined JS and CSS
  * for easy distribution and embedding
@@ -82,5 +84,6 @@ export default defineConfig({
   },
   define: {
     'process.env.NODE_ENV': JSON.stringify('production'),
+    __WTI_VERSION__: JSON.stringify(pkg.version),
   },
 });

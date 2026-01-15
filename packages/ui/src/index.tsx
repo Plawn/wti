@@ -1,3 +1,11 @@
+declare const __WTI_VERSION__: string;
+
+export const VERSION = __WTI_VERSION__;
+
+if (typeof window !== 'undefined') {
+  console.log(`WTI v${VERSION}`);
+}
+
 // Main component
 export { WTI, type WTIProps, type Theme } from './App';
 

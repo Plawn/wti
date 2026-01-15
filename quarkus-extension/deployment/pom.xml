@@ -7,7 +7,7 @@
     <parent>
         <groupId>io.github.plawn</groupId>
         <artifactId>quarkus-wti-parent</artifactId>
-        <version>1.2.1</version>
+        <version>1.2.4</version>
     </parent>
 
     <artifactId>quarkus-wti-deployment</artifactId>
