@@ -45,6 +45,8 @@ interface DereferenceContext {
   externalCache: ExternalDocCache;
   /** Set of refs currently being resolved (for circular ref detection) */
   resolving: Set<string>;
+  /** Cache of already resolved refs to avoid re-resolution */
+  resolvedCache: Map<string, unknown>;
   /** Base URL for resolving relative refs */
   baseUrl?: string;
   /** Warnings accumulated during parsing */
@@ -258,7 +260,12 @@ async function dereferenceObjectAsync(
     // Create a unique key for this ref in the context of its base URL
     const refKey = currentBaseUrl ? `${currentBaseUrl}::${ref}` : ref;
 
-    // Prevent infinite loops
+    // Return cached result if already resolved
+    if (ctx.resolvedCache.has(refKey)) {
+      return ctx.resolvedCache.get(refKey);
+    }
+
+    // Prevent infinite loops (circular refs)
     if (ctx.resolving.has(refKey)) {
       return { ...record, $ref: ref }; // Keep circular ref as-is
     }
@@ -270,6 +277,7 @@ async function dereferenceObjectAsync(
         ctx.resolving.add(refKey);
         const result = await dereferenceObjectAsync(resolved, ctx, currentBaseUrl);
         ctx.resolving.delete(refKey);
+        ctx.resolvedCache.set(refKey, result);
         return result;
       }
       return record;
@@ -322,6 +330,7 @@ async function dereferenceObjectAsync(
       );
 
       ctx.resolving.delete(refKey);
+      ctx.resolvedCache.set(refKey, result);
       return result;
     }
 
@@ -383,6 +392,7 @@ export async function parseOpenApi(
         root: specObject,
         externalCache: new Map(),
         resolving: new Set(),
+        resolvedCache: new Map(),
         baseUrl: specBaseUrl,
         warnings,
       };
