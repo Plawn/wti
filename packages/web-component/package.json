@@ -1,6 +1,6 @@
 {
   "name": "@wti/element",
-  "version": "0.2.8",
+  "version": "0.3.0",
   "description": "WTI Web Component - Use WTI with any framework",
   "author": "plawn",
   "license": "Apache-2.0",

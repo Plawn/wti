@@ -1,6 +1,6 @@
 {
   "name": "wti",
-  "version": "0.2.8",
+  "version": "0.3.0",
   "private": true,
   "description": "WTI - What The Interface: A modern Swagger UI alternative",
   "author": "plawn",

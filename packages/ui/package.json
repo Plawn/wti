@@ -1,6 +1,6 @@
 {
   "name": "@wti/ui",
-  "version": "0.2.8",
+  "version": "0.3.0",
   "description": "WTI UI components built with SolidJS",
   "author": "plawn",
   "license": "Apache-2.0",

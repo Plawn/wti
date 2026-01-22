@@ -51,11 +51,11 @@ Download the files from `@wti/element` or use a CDN:
   <link rel="stylesheet" href="wti-element.css">
 </head>
 <body>
-  <wti-explorer
+  <wti-element
     spec-url="https://petstore3.swagger.io/api/v3/openapi.json"
     theme="dark"
     locale="en"
-  ></wti-explorer>
+  ></wti-element>
 
   <script src="wti-element.iife.js"></script>
 </body>
@@ -76,7 +76,7 @@ Download the files from `@wti/element` or use a CDN:
 Attributes can be changed dynamically:
 
 ```javascript
-const wti = document.querySelector('wti-explorer');
+const wti = document.querySelector('wti-element');
 
 // Change theme
 wti.setAttribute('theme', 'light');

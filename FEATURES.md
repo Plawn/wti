@@ -183,7 +183,7 @@ packages/
   spec-type="openapi"
   theme="dark"
   locale="en"
-/>
+></wti-element>
 ```
 
 ---
