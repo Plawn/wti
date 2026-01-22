@@ -1,6 +1,6 @@
 {
   "name": "@wti/core",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "Core logic for WTI - OpenAPI/gRPC parsing, HTTP client, code generation",
   "author": "plawn",
   "license": "Apache-2.0",
