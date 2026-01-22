@@ -25,7 +25,9 @@
       "@wti/core": ["packages/core/src/index.ts"],
       "@wti/core/*": ["packages/core/src/*"],
       "@wti/ui": ["packages/ui/src/index.tsx"],
-      "@wti/ui/*": ["packages/ui/src/*"]
+      "@wti/ui/*": ["packages/ui/src/*"],
+      "@wti/history": ["packages/history/src/index.ts"],
+      "@wti/history/*": ["packages/history/src/*"]
     }
   },
   "exclude": ["node_modules", "dist", "coverage"]
