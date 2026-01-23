@@ -142,6 +142,8 @@ export const en: Translations = {
     openapi: 'OpenAPI',
     grpc: 'gRPC',
     grpcPlaceholder: 'http://localhost:8080 (gRPC-Web endpoint)',
+    graphql: 'GraphQL',
+    graphqlPlaceholder: 'https://api.example.com/graphql',
   },
   commandPalette: {
     placeholder: 'Search operations...',

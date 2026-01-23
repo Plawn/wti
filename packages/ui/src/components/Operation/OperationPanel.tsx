@@ -9,9 +9,11 @@ import type {
 } from '@wti/core';
 import {
   type ResponseData,
+  buildGraphqlQuery,
   buildRequestConfig,
   decodeMessage,
   encodeMessage,
+  executeGraphqlRequest,
   executeGrpcRequest,
   executeRequest,
 } from '@wti/core';
@@ -76,8 +78,16 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
     return groups;
   });
 
-  // Determine protocol from operation method
-  const protocol = (): Protocol => (props.operation.method === 'GRPC' ? 'grpc' : 'http');
+  // Determine protocol from operation method or graphql field
+  const protocol = (): Protocol => {
+    if (props.operation.method === 'GRPC') {
+      return 'grpc';
+    }
+    if (props.operation.graphqlOperation) {
+      return 'graphql';
+    }
+    return 'http';
+  };
 
   // Generate unified code generation request
   const codeGenRequest = createMemo((): CodeGenRequest | null => {
@@ -119,6 +129,45 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
             message,
             metadata: Object.keys(metadata).length > 0 ? metadata : undefined,
             useTls,
+          },
+        };
+      }
+
+      if (protocol() === 'graphql') {
+        // Build GraphQL request config
+        const serverUrl = props.server.url;
+        const opType = props.operation.graphqlOperation || 'query';
+        const fieldName = props.operation.graphqlField || props.operation.id;
+        const variableTypes = props.operation.graphqlVariableTypes;
+
+        // Parse variables from body
+        let variables: Record<string, unknown> = {};
+        try {
+          const bodyStr = form.body();
+          if (bodyStr) {
+            variables = JSON.parse(bodyStr);
+          }
+        } catch {
+          // Use empty object if body is not valid JSON
+        }
+
+        // Build GraphQL query with proper variable syntax and types
+        const query = buildGraphqlQuery(opType, fieldName, variables, variableTypes);
+
+        const headers: Record<string, string> = {};
+        for (const [key, value] of Object.entries(form.headerParams())) {
+          if (value) {
+            headers[key] = value;
+          }
+        }
+
+        return {
+          protocol: 'graphql',
+          config: {
+            endpoint: serverUrl,
+            query,
+            variables: Object.keys(variables).length > 0 ? variables : undefined,
+            headers: Object.keys(headers).length > 0 ? headers : undefined,
           },
         };
       }
@@ -198,6 +247,31 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
           bodyText: grpcResult.bodyText,
           timing: grpcResult.timing,
         };
+      } else if (protocol() === 'graphql') {
+        // Execute GraphQL request
+        const opType = props.operation.graphqlOperation || 'query';
+        const fieldName = props.operation.graphqlField || props.operation.id;
+        const variableTypes = props.operation.graphqlVariableTypes;
+
+        // Parse variables from body
+        let variables: Record<string, unknown> = {};
+        if (config.body && typeof config.body === 'object') {
+          variables = config.body as Record<string, unknown>;
+        }
+
+        // Build GraphQL query with proper types
+        const query = buildGraphqlQuery(opType, fieldName, variables, variableTypes);
+
+        result = await executeGraphqlRequest(
+          props.server.url,
+          query,
+          Object.keys(variables).length > 0 ? variables : undefined,
+          undefined,
+          {
+            headers: config.headers,
+            timeout: config.timeout,
+          },
+        );
       } else {
         result = await executeRequest(config);
       }

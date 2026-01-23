@@ -6,7 +6,7 @@ import type {
   Server,
   SpecInput,
 } from '@wti/core';
-import { loadGrpcSpec, parseOpenApi } from '@wti/core';
+import { loadGraphqlSpec, loadGrpcSpec, parseOpenApi } from '@wti/core';
 import type Fuse from 'fuse.js';
 import { createMemo } from 'solid-js';
 import { createStore } from 'solid-js/store';
@@ -203,6 +203,12 @@ export function createSpecStore() {
               enumTypes: result.enumTypes,
             },
           });
+        } else if (input.type === 'graphql') {
+          const result = await loadGraphqlSpec(input.endpoint, {
+            headers: input.headers,
+          });
+          actions.setSpec(result.spec);
+          setState({ grpcMetadata: null });
         }
       } catch (err) {
         setState({

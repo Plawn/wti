@@ -21,6 +21,7 @@ export type {
   CodeGenRequest,
   GeneratedCode,
   Generator,
+  GraphqlRequestConfig,
   GrpcRequestConfig,
   HttpRequestConfig,
   Language,
@@ -41,6 +42,7 @@ import type {
   CodeGenRequest,
   GeneratedCode,
   Generator,
+  GraphqlRequestConfig,
   GrpcRequestConfig,
   HttpRequestConfig,
   LanguageInfo,
@@ -50,6 +52,10 @@ import type {
 // Import generators
 import { curlGenerator } from './curl';
 import { goGenerator } from './go';
+import { graphqlCurlGenerator } from './graphql-curl';
+import { graphqlGoGenerator } from './graphql-go';
+import { graphqlJavascriptGenerator } from './graphql-javascript';
+import { graphqlPythonGenerator } from './graphql-python';
 import { grpcGoGenerator } from './grpc-go';
 import { grpcJavascriptGenerator } from './grpc-javascript';
 import { grpcPythonGenerator } from './grpc-python';
@@ -81,6 +87,16 @@ const grpcGenerators = new Map<string, Generator<GrpcRequestConfig>>([
   ['go', grpcGoGenerator],
 ]);
 
+/**
+ * GraphQL generators registry
+ */
+const graphqlGenerators = new Map<string, Generator<GraphqlRequestConfig>>([
+  ['curl', graphqlCurlGenerator],
+  ['javascript', graphqlJavascriptGenerator],
+  ['python', graphqlPythonGenerator],
+  ['go', graphqlGoGenerator],
+]);
+
 // =============================================================================
 // Internal helpers
 // =============================================================================
@@ -105,6 +121,8 @@ export function getLanguages(protocol: Protocol): LanguageInfo[] {
       return getGeneratorInfo(httpGenerators as Map<string, Generator<unknown>>);
     case 'grpc':
       return getGeneratorInfo(grpcGenerators as Map<string, Generator<unknown>>);
+    case 'graphql':
+      return getGeneratorInfo(graphqlGenerators as Map<string, Generator<unknown>>);
     default:
       return [];
   }
@@ -114,7 +132,7 @@ export function getLanguages(protocol: Protocol): LanguageInfo[] {
  * Get all supported protocols
  */
 export function getProtocols(): Protocol[] {
-  return ['http', 'grpc'];
+  return ['http', 'grpc', 'graphql'];
 }
 
 /**
@@ -164,6 +182,22 @@ export function generateCode(
     };
   }
 
+  if (request.protocol === 'graphql') {
+    const generator = graphqlGenerators.get(language);
+    if (!generator) {
+      const available = Array.from(graphqlGenerators.keys()).join(', ');
+      throw new Error(
+        `Language '${language}' is not supported for protocol 'graphql'. Available: ${available}`,
+      );
+    }
+    return {
+      language: generator.language,
+      displayName: generator.displayName,
+      code: generator.generate(request.config, options),
+      extension: generator.extension,
+    };
+  }
+
   // Exhaustive check
   const _exhaustive: never = request;
   throw new Error(`Unknown protocol: ${(_exhaustive as CodeGenRequest).protocol}`);
@@ -178,6 +212,8 @@ export function isLanguageSupported(protocol: Protocol, language: string): boole
       return httpGenerators.has(language);
     case 'grpc':
       return grpcGenerators.has(language);
+    case 'graphql':
+      return graphqlGenerators.has(language);
     default:
       return false;
   }
@@ -192,6 +228,8 @@ export function getDefaultLanguage(protocol: Protocol): string {
       return 'curl';
     case 'grpc':
       return 'grpcurl';
+    case 'graphql':
+      return 'curl';
     default:
       return 'curl';
   }

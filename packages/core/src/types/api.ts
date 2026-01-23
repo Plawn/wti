@@ -6,7 +6,7 @@
 import type { Schema, SchemaType } from 'glass-ui-solid';
 export type { Schema, SchemaType };
 
-export type SpecType = 'openapi' | 'grpc';
+export type SpecType = 'openapi' | 'grpc' | 'graphql';
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS';
 
@@ -132,6 +132,12 @@ export interface Operation {
   grpcInputType?: string;
   /** gRPC output message type name (only for gRPC operations) */
   grpcOutputType?: string;
+  /** GraphQL operation type (only for GraphQL operations) */
+  graphqlOperation?: 'query' | 'mutation';
+  /** GraphQL field name (only for GraphQL operations) */
+  graphqlField?: string;
+  /** GraphQL variable types mapping (only for GraphQL operations) */
+  graphqlVariableTypes?: Record<string, string>;
 }
 
 export interface Tag {
@@ -166,4 +172,10 @@ export interface GrpcInput {
   useTls?: boolean;
 }
 
-export type SpecInput = OpenApiInput | GrpcInput;
+export interface GraphqlInput {
+  type: 'graphql';
+  endpoint: string;
+  headers?: Record<string, string>;
+}
+
+export type SpecInput = OpenApiInput | GrpcInput | GraphqlInput;

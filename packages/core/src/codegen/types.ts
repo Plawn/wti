@@ -16,7 +16,7 @@ import type { RequestConfig } from '../types';
 /**
  * Supported protocols for code generation
  */
-export type Protocol = 'http' | 'grpc';
+export type Protocol = 'http' | 'grpc' | 'graphql';
 
 /**
  * Language identifiers
@@ -53,11 +53,28 @@ export interface GrpcRequestConfig {
 }
 
 /**
+ * GraphQL request configuration
+ */
+export interface GraphqlRequestConfig {
+  /** GraphQL endpoint URL */
+  endpoint: string;
+  /** GraphQL query string */
+  query: string;
+  /** Query variables */
+  variables?: Record<string, unknown>;
+  /** Operation name (for multi-operation documents) */
+  operationName?: string;
+  /** HTTP headers */
+  headers?: Record<string, string>;
+}
+
+/**
  * Map of protocol to its request config type
  */
 export interface ProtocolConfigMap {
   http: HttpRequestConfig;
   grpc: GrpcRequestConfig;
+  graphql: GraphqlRequestConfig;
 }
 
 // =============================================================================
@@ -69,7 +86,8 @@ export interface ProtocolConfigMap {
  */
 export type CodeGenRequest =
   | { protocol: 'http'; config: HttpRequestConfig }
-  | { protocol: 'grpc'; config: GrpcRequestConfig };
+  | { protocol: 'grpc'; config: GrpcRequestConfig }
+  | { protocol: 'graphql'; config: GraphqlRequestConfig };
 
 /**
  * Helper to create a code gen request

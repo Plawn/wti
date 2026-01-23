@@ -8,7 +8,7 @@ interface SpecLoaderProps {
   store: SpecStore;
 }
 
-type SpecType = 'openapi' | 'grpc';
+type SpecType = 'openapi' | 'grpc' | 'graphql';
 
 export const SpecLoader: Component<SpecLoaderProps> = (props) => {
   const { t } = useI18n();
@@ -33,6 +33,8 @@ export const SpecLoader: Component<SpecLoaderProps> = (props) => {
     try {
       if (specType() === 'grpc') {
         await props.store.actions.loadSpec({ type: 'grpc', endpoint: specUrl });
+      } else if (specType() === 'graphql') {
+        await props.store.actions.loadSpec({ type: 'graphql', endpoint: specUrl });
       } else {
         await props.store.actions.loadSpec({ type: 'openapi', url: specUrl });
       }
@@ -129,10 +131,15 @@ export const SpecLoader: Component<SpecLoaderProps> = (props) => {
     }
   };
 
-  const placeholder = () =>
-    specType() === 'grpc'
-      ? t('specLoader.grpcPlaceholder')
-      : 'https://api.example.com/openapi.json';
+  const placeholder = () => {
+    if (specType() === 'grpc') {
+      return t('specLoader.grpcPlaceholder');
+    }
+    if (specType() === 'graphql') {
+      return t('specLoader.graphqlPlaceholder');
+    }
+    return 'https://api.example.com/openapi.json';
+  };
 
   return (
     <div class="flex flex-col items-center justify-center min-h-screen p-8">
@@ -197,6 +204,17 @@ export const SpecLoader: Component<SpecLoaderProps> = (props) => {
                 }`}
               >
                 {t('specLoader.grpc')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setSpecType('graphql')}
+                class={`flex-1 px-4 py-2 text-sm font-medium rounded-xl transition-all ${
+                  specType() === 'graphql'
+                    ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/25'
+                    : 'glass-button text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`}
+              >
+                {t('specLoader.graphql')}
               </button>
             </div>
 

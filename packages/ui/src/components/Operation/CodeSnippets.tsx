@@ -46,6 +46,7 @@ export const CodeSnippets: Component<CodeSnippetsProps> = (props) => {
   const [selectedLanguages, setSelectedLanguages] = createSignal<Record<Protocol, string>>({
     http: 'curl',
     grpc: 'grpcurl',
+    graphql: 'curl',
   });
 
   // Get current protocol from request

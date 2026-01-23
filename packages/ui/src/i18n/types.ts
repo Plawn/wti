@@ -139,6 +139,8 @@ export interface Translations {
     openapi: string;
     grpc: string;
     grpcPlaceholder: string;
+    graphql: string;
+    graphqlPlaceholder: string;
   };
   commandPalette: {
     placeholder: string;

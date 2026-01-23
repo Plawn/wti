@@ -10,6 +10,9 @@ export * from './http';
 // gRPC support
 export * from './grpc';
 
+// GraphQL support
+export * from './graphql';
+
 // Code generation
 export * from './codegen';
 
