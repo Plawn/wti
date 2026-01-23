@@ -36,6 +36,7 @@ export {
   type GrpcStreamResponse,
   type GrpcStatus,
   GrpcStatusCode,
+  GrpcError,
   type ReflectionResponse,
 } from './types';
 

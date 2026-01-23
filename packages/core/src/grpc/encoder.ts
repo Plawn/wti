@@ -3,13 +3,8 @@
  * Encodes JSON objects to protobuf binary format
  */
 
+import { WIRE_FIXED32, WIRE_FIXED64, WIRE_LENGTH_DELIMITED, WIRE_VARINT } from './constants';
 import type { GrpcEnumType, GrpcField, GrpcMessageType } from './types';
-
-// Wire types for protobuf encoding
-const WIRE_VARINT = 0;
-const WIRE_FIXED64 = 1;
-const WIRE_LENGTH_DELIMITED = 2;
-const WIRE_FIXED32 = 5;
 
 /**
  * Encode a varint (variable-length integer)

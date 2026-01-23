@@ -160,6 +160,20 @@ export enum GrpcStatusCode {
   UNAUTHENTICATED = 16,
 }
 
+/**
+ * Custom error class for gRPC errors with status code and details
+ */
+export class GrpcError extends Error {
+  constructor(
+    message: string,
+    public readonly code: GrpcStatusCode,
+    public readonly details?: string,
+  ) {
+    super(message);
+    this.name = 'GrpcError';
+  }
+}
+
 export interface ReflectionResponse {
   services: GrpcService[];
   messageTypes: Map<string, GrpcMessageType>;

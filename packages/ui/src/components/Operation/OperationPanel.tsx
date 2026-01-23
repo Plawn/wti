@@ -99,13 +99,9 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
 
       // Use gRPC client for gRPC operations
       if (props.operation.method === 'GRPC') {
-        // Extract input/output type names from operation
-        const inputTypeMatch =
-          props.operation.requestBody?.description?.match(/Request message: (.+)/);
-        const outputTypeMatch =
-          props.operation.responses[0]?.description?.match(/Success response: (.+)/);
-        const inputTypeName = inputTypeMatch?.[1];
-        const outputTypeName = outputTypeMatch?.[1];
+        // Get input/output type names directly from operation
+        const inputTypeName = props.operation.grpcInputType;
+        const outputTypeName = props.operation.grpcOutputType;
 
         // Create encoder/decoder if we have gRPC metadata and type names
         let encode: ((body: unknown) => Uint8Array) | undefined;

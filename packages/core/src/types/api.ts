@@ -128,6 +128,10 @@ export interface Operation {
     url: string;
     description?: string;
   };
+  /** gRPC input message type name (only for gRPC operations) */
+  grpcInputType?: string;
+  /** gRPC output message type name (only for gRPC operations) */
+  grpcOutputType?: string;
 }
 
 export interface Tag {

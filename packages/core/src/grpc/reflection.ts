@@ -5,47 +5,26 @@
  */
 
 import { createGrpcClient } from './client';
-import type {
-  GrpcEnumType,
-  GrpcField,
-  GrpcFieldType,
-  GrpcMessageType,
-  GrpcMethod,
-  GrpcService,
-  ReflectionResponse,
+import {
+  LABEL_OPTIONAL,
+  LABEL_REPEATED,
+  PROTO_FIELD_TYPES,
+  WIRE_FIXED32,
+  WIRE_FIXED64,
+  WIRE_LENGTH_DELIMITED,
+  WIRE_VARINT,
+} from './constants';
+import {
+  type GrpcEnumType,
+  GrpcError,
+  type GrpcField,
+  type GrpcFieldType,
+  type GrpcMessageType,
+  type GrpcMethod,
+  type GrpcService,
+  GrpcStatusCode,
+  type ReflectionResponse,
 } from './types';
-
-// Proto field type constants (from google.protobuf.FieldDescriptorProto.Type)
-const PROTO_FIELD_TYPES: Record<number, GrpcFieldType> = {
-  1: 'double',
-  2: 'float',
-  3: 'int64',
-  4: 'uint64',
-  5: 'int32',
-  6: 'fixed64',
-  7: 'fixed32',
-  8: 'bool',
-  9: 'string',
-  10: 'message', // GROUP (deprecated, treat as message)
-  11: 'message',
-  12: 'bytes',
-  13: 'uint32',
-  14: 'enum',
-  15: 'sfixed32',
-  16: 'sfixed64',
-  17: 'sint32',
-  18: 'sint64',
-};
-
-// Proto field label constants
-const LABEL_OPTIONAL = 1;
-const LABEL_REPEATED = 3;
-
-// Wire types for protobuf encoding
-const WIRE_VARINT = 0;
-const WIRE_FIXED64 = 1;
-const WIRE_LENGTH_DELIMITED = 2;
-const WIRE_FIXED32 = 5;
 
 /**
  * Encode a varint (variable-length integer)
@@ -607,15 +586,20 @@ export function createReflectionClient(baseUrl: string) {
       );
 
       if (result.status.code !== 0) {
-        throw new Error(`Reflection error: ${result.status.message}`);
+        throw new GrpcError(
+          `Reflection error: ${result.status.message}`,
+          result.status.code as GrpcStatusCode,
+        );
       }
     }
 
     const response = parseServerReflectionResponse(result.data);
 
     if (response.errorResponse) {
-      throw new Error(
-        `Reflection error ${response.errorResponse.errorCode}: ${response.errorResponse.errorMessage}`,
+      throw new GrpcError(
+        response.errorResponse.errorMessage || 'Reflection error',
+        (response.errorResponse.errorCode as GrpcStatusCode) || GrpcStatusCode.UNKNOWN,
+        `Error code: ${response.errorResponse.errorCode}`,
       );
     }
 
@@ -642,15 +626,20 @@ export function createReflectionClient(baseUrl: string) {
       );
 
       if (result.status.code !== 0) {
-        throw new Error(`Reflection error: ${result.status.message}`);
+        throw new GrpcError(
+          `Reflection error: ${result.status.message}`,
+          result.status.code as GrpcStatusCode,
+        );
       }
     }
 
     const response = parseServerReflectionResponse(result.data);
 
     if (response.errorResponse) {
-      throw new Error(
-        `Reflection error ${response.errorResponse.errorCode}: ${response.errorResponse.errorMessage}`,
+      throw new GrpcError(
+        response.errorResponse.errorMessage || 'Reflection error',
+        (response.errorResponse.errorCode as GrpcStatusCode) || GrpcStatusCode.UNKNOWN,
+        `Error code: ${response.errorResponse.errorCode}`,
       );
     }
 

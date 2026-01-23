@@ -4,12 +4,8 @@
  */
 
 import { combineSignals } from '../utils/signals';
-import {
-  type GrpcCallOptions,
-  type GrpcResponse,
-  GrpcStatusCode,
-  type GrpcStreamResponse,
-} from './types';
+import { encodeGrpcWebFrame, parseGrpcStatus, parseGrpcWebFrames } from './framing';
+import { type GrpcCallOptions, GrpcStatusCode, type GrpcStreamResponse } from './types';
 
 export interface GrpcClientOptions {
   /** Base URL of the gRPC-Web server */
@@ -18,91 +14,6 @@ export interface GrpcClientOptions {
   timeout?: number;
   /** Default metadata to include in all requests */
   defaultMetadata?: Record<string, string>;
-}
-
-/**
- * Encode a message with gRPC-Web framing
- * Format: 1 byte flag + 4 bytes length (big-endian) + message
- */
-function encodeGrpcWebFrame(data: Uint8Array, isTrailer = false): Uint8Array {
-  const frame = new Uint8Array(5 + data.length);
-  // Flag: 0 for data, 0x80 for trailers
-  frame[0] = isTrailer ? 0x80 : 0x00;
-  // Length as big-endian uint32
-  const view = new DataView(frame.buffer);
-  view.setUint32(1, data.length, false);
-  // Message data
-  frame.set(data, 5);
-  return frame;
-}
-
-/**
- * Parse gRPC-Web frames from response
- */
-function parseGrpcWebFrames(data: Uint8Array): {
-  messages: Uint8Array[];
-  trailers: Record<string, string>;
-} {
-  const messages: Uint8Array[] = [];
-  const trailers: Record<string, string> = {};
-  let offset = 0;
-
-  while (offset < data.length) {
-    if (offset + 5 > data.length) {
-      break;
-    }
-
-    const flag = data[offset];
-    const view = new DataView(data.buffer, data.byteOffset + offset + 1, 4);
-    const length = view.getUint32(0, false);
-
-    if (offset + 5 + length > data.length) {
-      break;
-    }
-
-    const payload = data.slice(offset + 5, offset + 5 + length);
-
-    if (flag & 0x80) {
-      // Trailer frame - parse as text
-      const text = new TextDecoder().decode(payload);
-      for (const line of text.split('\r\n')) {
-        const colonIdx = line.indexOf(':');
-        if (colonIdx > 0) {
-          const key = line.substring(0, colonIdx).trim().toLowerCase();
-          const value = line.substring(colonIdx + 1).trim();
-          trailers[key] = value;
-        }
-      }
-    } else {
-      // Data frame
-      messages.push(payload);
-    }
-
-    offset += 5 + length;
-  }
-
-  return { messages, trailers };
-}
-
-/**
- * Parse gRPC status from trailers
- */
-function parseGrpcStatus(trailers: Record<string, string>): {
-  code: GrpcStatusCode;
-  message: string;
-} {
-  const codeStr = trailers['grpc-status'];
-  const message = trailers['grpc-message'] || '';
-
-  if (codeStr === undefined) {
-    return { code: GrpcStatusCode.OK, message: 'OK' };
-  }
-
-  const code = Number.parseInt(codeStr, 10);
-  return {
-    code: Number.isNaN(code) ? GrpcStatusCode.UNKNOWN : code,
-    message: decodeURIComponent(message.replace(/\+/g, ' ')),
-  };
 }
 
 /**
@@ -192,45 +103,9 @@ export function createGrpcClient(options: GrpcClientOptions) {
   }
 
   /**
-   * Make a unary gRPC call (kept for API compatibility, but now expects typed encoder/decoder)
-   */
-  async function unaryCall<TRequest, TResponse>(
-    method: string,
-    request: TRequest,
-    callOptions: GrpcCallOptions & {
-      encode?: (msg: TRequest) => Uint8Array;
-      decode?: (data: Uint8Array) => TResponse;
-    } = {},
-  ): Promise<GrpcResponse<TResponse>> {
-    const { encode, decode, ...restOptions } = callOptions;
-
-    // If no encoder provided, fall back to JSON (for backward compat with tests)
-    const requestData = encode
-      ? encode(request)
-      : new TextEncoder().encode(JSON.stringify(request));
-
-    const result = await unaryCallRaw(method, requestData, restOptions);
-
-    if (result.status.code !== GrpcStatusCode.OK) {
-      return {
-        message: {} as TResponse,
-        status: result.status,
-      };
-    }
-
-    // If no decoder provided, fall back to JSON
-    const message = decode
-      ? decode(result.data)
-      : (JSON.parse(new TextDecoder().decode(result.data)) as TResponse);
-
-    return {
-      message,
-      status: result.status,
-    };
-  }
-
-  /**
    * Make a server streaming gRPC call with raw binary data
+   * @experimental This API is experimental and may change in future versions.
+   * Server streaming is not yet fully supported in the UI layer.
    */
   async function serverStreamingCallRaw(
     method: string,
@@ -316,6 +191,8 @@ export function createGrpcClient(options: GrpcClientOptions) {
 
   /**
    * Make a server streaming gRPC call
+   * @experimental This API is experimental and may change in future versions.
+   * Server streaming is not yet fully supported in the UI layer.
    */
   async function serverStreamingCall<TRequest, TResponse>(
     method: string,
@@ -357,7 +234,6 @@ export function createGrpcClient(options: GrpcClientOptions) {
   }
 
   return {
-    unaryCall,
     unaryCallRaw,
     serverStreamingCall,
     serverStreamingCallRaw,

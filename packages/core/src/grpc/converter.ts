@@ -171,6 +171,8 @@ function methodToOperation(
         },
       },
     ],
+    grpcInputType: method.inputType,
+    grpcOutputType: method.outputType,
   };
 }
 

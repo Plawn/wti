@@ -3,13 +3,8 @@
  * Decodes protobuf binary to JSON objects
  */
 
+import { WIRE_FIXED32, WIRE_FIXED64, WIRE_LENGTH_DELIMITED, WIRE_VARINT } from './constants';
 import type { GrpcEnumType, GrpcField, GrpcMessageType } from './types';
-
-// Wire types
-const WIRE_VARINT = 0;
-const WIRE_FIXED64 = 1;
-const WIRE_LENGTH_DELIMITED = 2;
-const WIRE_FIXED32 = 5;
 
 /**
  * Decode a varint from buffer, returns [value, newOffset]
