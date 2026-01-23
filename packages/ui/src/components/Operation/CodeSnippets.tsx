@@ -1,14 +1,16 @@
 /**
  * Code Snippets Panel
  *
- * Displays generated code snippets in multiple languages
+ * Displays generated code snippets in multiple languages.
+ * Protocol-agnostic: works with any protocol supported by the codegen module.
  */
 
 import {
-  type CodeLanguage,
-  type RequestConfig,
+  type CodeGenRequest,
+  type Protocol,
   generateCode,
-  getAvailableLanguages,
+  getDefaultLanguage,
+  getLanguages,
 } from '@wti/core';
 import { type Component, Show, createMemo, createSignal } from 'solid-js';
 import { useCopyToClipboard } from '../../hooks';
@@ -16,14 +18,14 @@ import { useI18n } from '../../i18n';
 import { CodeBlock, SegmentedControl } from '../shared';
 
 interface CodeSnippetsProps {
-  request: RequestConfig;
+  /** The code generation request (protocol + config) */
+  request: CodeGenRequest;
 }
 
-const LANGUAGES = getAvailableLanguages();
-
-const languageToHighlight = (lang: CodeLanguage): string => {
+const languageToHighlight = (lang: string): string => {
   switch (lang) {
     case 'curl':
+    case 'grpcurl':
       return 'bash';
     case 'javascript':
       return 'javascript';
@@ -38,12 +40,31 @@ const languageToHighlight = (lang: CodeLanguage): string => {
 
 export const CodeSnippets: Component<CodeSnippetsProps> = (props) => {
   const { t } = useI18n();
-  const [selectedLang, setSelectedLang] = createSignal<CodeLanguage>('curl');
   const { copied, copy } = useCopyToClipboard();
 
+  // Track selected language per protocol
+  const [selectedLanguages, setSelectedLanguages] = createSignal<Record<Protocol, string>>({
+    http: 'curl',
+    grpc: 'grpcurl',
+  });
+
+  // Get current protocol from request
+  const protocol = () => props.request.protocol;
+
+  // Get available languages for current protocol
+  const languages = createMemo(() => getLanguages(protocol()));
+
+  // Get/set selected language for current protocol
+  const selectedLanguage = () => selectedLanguages()[protocol()] || getDefaultLanguage(protocol());
+
+  const setSelectedLanguage = (lang: string) => {
+    setSelectedLanguages((prev) => ({ ...prev, [protocol()]: lang }));
+  };
+
+  // Generate code
   const generatedCode = createMemo(() => {
     try {
-      return generateCode(selectedLang(), props.request);
+      return generateCode(selectedLanguage(), props.request);
     } catch {
       return null;
     }
@@ -54,9 +75,9 @@ export const CodeSnippets: Component<CodeSnippetsProps> = (props) => {
       {/* Header with language tabs */}
       <div class="flex items-center justify-between p-4 border-b border-surface-200/50 dark:border-surface-700/50">
         <SegmentedControl
-          value={selectedLang()}
-          onChange={(lang) => setSelectedLang(lang as CodeLanguage)}
-          options={LANGUAGES.map((lang) => ({
+          value={selectedLanguage()}
+          onChange={setSelectedLanguage}
+          options={languages().map((lang) => ({
             value: lang.language,
             label: lang.displayName,
           }))}

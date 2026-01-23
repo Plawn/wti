@@ -2,14 +2,13 @@
  * JavaScript (fetch) code generator
  */
 
-import type { RequestConfig } from '../types';
 import { buildUrlWithParams, formatJsValue } from './formatValue';
-import type { CodeGenOptions, CodeGenerator } from './types';
+import type { CodeGenOptions, Generator, HttpRequestConfig } from './types';
 
 /**
  * Generate JavaScript fetch code from request config
  */
-function generate(request: RequestConfig, options: CodeGenOptions = {}): string {
+function generate(request: HttpRequestConfig, options: CodeGenOptions = {}): string {
   const { prettyPrint = true } = options;
   const lines: string[] = [];
   const indent = prettyPrint ? '  ' : '';
@@ -85,7 +84,7 @@ function generate(request: RequestConfig, options: CodeGenOptions = {}): string 
   return lines.join('\n');
 }
 
-export const javascriptGenerator: CodeGenerator = {
+export const javascriptGenerator: Generator<HttpRequestConfig> = {
   language: 'javascript',
   displayName: 'JavaScript',
   extension: 'js',

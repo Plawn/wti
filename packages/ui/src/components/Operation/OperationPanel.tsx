@@ -1,4 +1,12 @@
-import type { Operation, Parameter, RequestConfig, RequestValues, Server } from '@wti/core';
+import type {
+  CodeGenRequest,
+  Operation,
+  Parameter,
+  Protocol,
+  RequestConfig,
+  RequestValues,
+  Server,
+} from '@wti/core';
 import {
   type ResponseData,
   buildRequestConfig,
@@ -68,13 +76,63 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
     return groups;
   });
 
-  // Generate request config for code snippets
-  const requestConfig = createMemo((): RequestConfig | null => {
+  // Determine protocol from operation method
+  const protocol = (): Protocol => (props.operation.method === 'GRPC' ? 'grpc' : 'http');
+
+  // Generate unified code generation request
+  const codeGenRequest = createMemo((): CodeGenRequest | null => {
     try {
-      return buildRequestConfig(props.operation, form.getRequestValues(), {
+      if (protocol() === 'grpc') {
+        // Build gRPC request config
+        const serverUrl = props.server.url;
+        const endpoint = serverUrl.replace(/^https?:\/\//, '');
+        const useTls = serverUrl.startsWith('https://');
+
+        const pathParts = props.operation.path.split('/').filter(Boolean);
+        const serviceName = pathParts.length >= 1 ? pathParts[0] : '';
+        const methodName = pathParts.length >= 2 ? pathParts[1] : props.operation.id;
+
+        let message: unknown = {};
+        try {
+          const bodyStr = form.body();
+          if (bodyStr) {
+            message = JSON.parse(bodyStr);
+          }
+        } catch {
+          // Use empty object if body is not valid JSON
+        }
+
+        const metadata: Record<string, string> = {};
+        for (const [key, value] of Object.entries(form.headerParams())) {
+          if (value) {
+            metadata[key] = value;
+          }
+        }
+
+        return {
+          protocol: 'grpc',
+          config: {
+            endpoint,
+            methodPath: props.operation.path,
+            serviceName,
+            methodName,
+            message,
+            metadata: Object.keys(metadata).length > 0 ? metadata : undefined,
+            useTls,
+          },
+        };
+      }
+
+      // Build HTTP request config
+      const httpConfig = buildRequestConfig(props.operation, form.getRequestValues(), {
         server: props.server,
         serverVariables: props.serverVariables,
       });
+
+      return {
+        protocol: 'http',
+        config: httpConfig,
+      };
     } catch {
       return null;
     }
@@ -98,7 +156,7 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
       let result: ResponseData;
 
       // Use gRPC client for gRPC operations
-      if (props.operation.method === 'GRPC') {
+      if (protocol() === 'grpc') {
         // Get input/output type names directly from operation
         const inputTypeName = props.operation.grpcInputType;
         const outputTypeName = props.operation.grpcOutputType;
@@ -268,7 +326,7 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
       <CodeSnippetsToggle
         show={showCurlPreview()}
         onToggle={() => setShowCurlPreview(!showCurlPreview())}
-        config={requestConfig()}
+        request={codeGenRequest()}
       />
 
       {/* Actions */}

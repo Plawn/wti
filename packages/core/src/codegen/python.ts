@@ -2,14 +2,13 @@
  * Python (requests) code generator
  */
 
-import type { RequestConfig } from '../types';
 import { formatPythonValue } from './formatValue';
-import type { CodeGenOptions, CodeGenerator } from './types';
+import type { CodeGenOptions, Generator, HttpRequestConfig } from './types';
 
 /**
  * Generate Python requests code from request config
  */
-function generate(request: RequestConfig, options: CodeGenOptions = {}): string {
+function generate(request: HttpRequestConfig, options: CodeGenOptions = {}): string {
   const { prettyPrint = true } = options;
   const lines: string[] = [];
 
@@ -84,7 +83,7 @@ function generate(request: RequestConfig, options: CodeGenOptions = {}): string 
   return lines.join('\n');
 }
 
-export const pythonGenerator: CodeGenerator = {
+export const pythonGenerator: Generator<HttpRequestConfig> = {
   language: 'python',
   displayName: 'Python',
   extension: 'py',

@@ -1,4 +1,11 @@
-import type { RequestConfig } from '@wti/core';
+/**
+ * Code Snippets Toggle
+ *
+ * Collapsible section for code snippets.
+ * Protocol-agnostic: works with any CodeGenRequest.
+ */
+
+import type { CodeGenRequest } from '@wti/core';
 import { type Component, Show } from 'solid-js';
 import { useI18n } from '../../i18n';
 import { CodeSnippets } from './CodeSnippets';
@@ -6,7 +13,8 @@ import { CodeSnippets } from './CodeSnippets';
 export interface CodeSnippetsToggleProps {
   show: boolean;
   onToggle: () => void;
-  config: RequestConfig | null;
+  /** Code generation request (null if config is invalid/incomplete) */
+  request: CodeGenRequest | null;
 }
 
 export const CodeSnippetsToggle: Component<CodeSnippetsToggleProps> = (props) => {
@@ -31,10 +39,10 @@ export const CodeSnippetsToggle: Component<CodeSnippetsToggleProps> = (props) =>
         </svg>
         {t('codegen.title')}
       </button>
-      <Show when={props.show && props.config} keyed>
-        {(config) => (
+      <Show when={props.show && props.request} keyed>
+        {(request) => (
           <div class="mt-3">
-            <CodeSnippets request={config} />
+            <CodeSnippets request={request} />
           </div>
         )}
       </Show>

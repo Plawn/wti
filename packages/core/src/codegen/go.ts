@@ -2,13 +2,12 @@
  * Go (net/http) code generator
  */
 
-import type { RequestConfig } from '../types';
-import type { CodeGenOptions, CodeGenerator } from './types';
+import type { CodeGenOptions, Generator, HttpRequestConfig } from './types';
 
 /**
  * Generate Go net/http code from request config
  */
-function generate(request: RequestConfig, _options: CodeGenOptions = {}): string {
+function generate(request: HttpRequestConfig, _options: CodeGenOptions = {}): string {
   const lines: string[] = [];
 
   lines.push('package main');
@@ -110,7 +109,7 @@ function generate(request: RequestConfig, _options: CodeGenOptions = {}): string
   return lines.join('\n');
 }
 
-export const goGenerator: CodeGenerator = {
+export const goGenerator: Generator<HttpRequestConfig> = {
   language: 'go',
   displayName: 'Go',
   extension: 'go',

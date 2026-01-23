@@ -2,9 +2,8 @@
  * cURL code generator
  */
 
-import type { RequestConfig } from '../types';
 import { buildUrlWithParams } from './formatValue';
-import type { CodeGenOptions, CodeGenerator } from './types';
+import type { CodeGenOptions, Generator, HttpRequestConfig } from './types';
 
 /**
  * Escape a string for shell usage
@@ -32,7 +31,7 @@ function formatBody(body: unknown, prettyPrint: boolean): string {
 /**
  * Generate cURL command from request config
  */
-function generate(request: RequestConfig, options: CodeGenOptions = {}): string {
+function generate(request: HttpRequestConfig, options: CodeGenOptions = {}): string {
   const { prettyPrint = true } = options;
   const lines: string[] = [];
 
@@ -93,7 +92,7 @@ function generate(request: RequestConfig, options: CodeGenOptions = {}): string 
   return lines.join('\n');
 }
 
-export const curlGenerator: CodeGenerator = {
+export const curlGenerator: Generator<HttpRequestConfig> = {
   language: 'curl',
   displayName: 'cURL',
   extension: 'sh',
