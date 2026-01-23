@@ -1,4 +1,4 @@
-export { createSpecStore, type SpecStore, type SpecState } from './spec';
+export { createSpecStore, type SpecStore, type SpecState, type GrpcMetadata } from './spec';
 export { createAuthStore, type AuthStore, type AuthStoreState } from './auth';
 export {
   createHistoryStore,

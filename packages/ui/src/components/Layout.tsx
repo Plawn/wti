@@ -104,6 +104,7 @@ export const Layout: Component<LayoutProps> = (props) => {
               historyStore={props.historyStore}
               initialValues={props.replayValues}
               onInitialValuesConsumed={props.onReplayValuesConsumed}
+              grpcMetadata={props.store.state.grpcMetadata}
             />
           )}
         </Show>

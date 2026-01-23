@@ -4,7 +4,13 @@
  * Provides gRPC-Web client, server reflection, and conversion to unified ApiSpec
  */
 
-export { createGrpcClient, type GrpcClient, type GrpcClientOptions } from './client';
+export {
+  createGrpcClient,
+  executeGrpcRequest,
+  type GrpcClient,
+  type GrpcClientOptions,
+  type GrpcRequestOptions,
+} from './client';
 
 export {
   createReflectionClient,
@@ -12,6 +18,9 @@ export {
 } from './reflection';
 
 export { convertGrpcToSpec, type ConvertOptions } from './converter';
+
+export { encodeMessage, createMessageEncoder } from './encoder';
+export { decodeMessage, createMessageDecoder } from './decoder';
 
 export {
   type GrpcEndpoint,
@@ -30,6 +39,17 @@ export {
   type ReflectionResponse,
 } from './types';
 
+import type { ApiSpec } from '../types';
+import type { GrpcEnumType, GrpcMessageType } from './types';
+
+export interface GrpcSpecResult {
+  spec: ApiSpec;
+  /** Message types from reflection (for encoding requests) */
+  messageTypes: Map<string, GrpcMessageType>;
+  /** Enum types from reflection (for encoding requests) */
+  enumTypes: Map<string, GrpcEnumType>;
+}
+
 /**
  * Load a gRPC API spec from a server using reflection
  */
@@ -40,7 +60,7 @@ export async function loadGrpcSpec(
     version?: string;
     description?: string;
   },
-) {
+): Promise<GrpcSpecResult> {
   const { createReflectionClient } = await import('./reflection');
   const { convertGrpcToSpec } = await import('./converter');
 
@@ -49,12 +69,18 @@ export async function loadGrpcSpec(
   try {
     const reflection = await client.discoverServices();
 
-    return convertGrpcToSpec(reflection, {
+    const spec = convertGrpcToSpec(reflection, {
       serverUrl,
       title: options?.title,
       version: options?.version,
       description: options?.description,
     });
+
+    return {
+      spec,
+      messageTypes: reflection.messageTypes,
+      enumTypes: reflection.enumTypes,
+    };
   } finally {
     client.close();
   }

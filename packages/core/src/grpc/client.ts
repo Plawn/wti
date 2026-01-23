@@ -367,6 +367,215 @@ export function createGrpcClient(options: GrpcClientOptions) {
 
 export type GrpcClient = ReturnType<typeof createGrpcClient>;
 
+export interface GrpcRequestOptions {
+  timeout?: number;
+  signal?: AbortSignal;
+  metadata?: Record<string, string>;
+  /** Encoder function for binary protobuf (if not provided, uses JSON) */
+  encode?: (body: unknown) => Uint8Array;
+  /** Decoder function for binary protobuf (if not provided, uses JSON) */
+  decode?: (data: Uint8Array) => unknown;
+}
+
+/**
+ * Execute a gRPC-Web request
+ * Supports both binary protobuf (when encode/decode provided) and JSON fallback
+ */
+export async function executeGrpcRequest(
+  url: string,
+  method: string,
+  body: unknown,
+  options: GrpcRequestOptions = {},
+): Promise<{
+  status: number;
+  statusText: string;
+  headers: Record<string, string>;
+  body: unknown;
+  bodyText: string;
+  grpcStatus?: { code: number; message: string };
+  timing: { startTime: number; endTime: number; duration: number };
+}> {
+  const { timeout = 30000, signal, metadata = {}, encode, decode } = options;
+
+  // Use binary protobuf if encoder is provided
+  const useBinary = encode !== undefined;
+
+  // Build full URL
+  const fullUrl = `${url.replace(/\/$/, '')}${method}`;
+
+  // Create abort controller for timeout
+  const controller = new AbortController();
+  const timeoutId = timeout > 0 ? setTimeout(() => controller.abort(), timeout) : undefined;
+
+  const combinedSignal = signal ? combineSignals(signal, controller.signal) : controller.signal;
+
+  const startTime = performance.now();
+
+  try {
+    // Encode request body
+    let bodyBytes: Uint8Array;
+    if (useBinary && encode) {
+      bodyBytes = encode(body);
+    } else {
+      const jsonBody = JSON.stringify(body);
+      bodyBytes = new TextEncoder().encode(jsonBody);
+    }
+
+    // Create gRPC-Web frame: 1 byte flag + 4 bytes length (big-endian) + message
+    const frame = new Uint8Array(5 + bodyBytes.length);
+    frame[0] = 0x00; // Data frame flag
+    const view = new DataView(frame.buffer);
+    view.setUint32(1, bodyBytes.length, false); // Big-endian length
+    frame.set(bodyBytes, 5);
+
+    const contentType = useBinary ? 'application/grpc-web+proto' : 'application/grpc-web+json';
+
+    // Filter out Content-Type and Accept from metadata - gRPC-Web requires specific values
+    const filteredMetadata = Object.fromEntries(
+      Object.entries(metadata).filter(
+        ([key]) => !['content-type', 'accept'].includes(key.toLowerCase()),
+      ),
+    );
+
+    const response = await fetch(fullUrl, {
+      method: 'POST',
+      headers: {
+        ...filteredMetadata,
+        'Content-Type': contentType,
+        Accept: contentType,
+        'X-Grpc-Web': '1',
+      },
+      body: frame,
+      signal: combinedSignal,
+    });
+
+    const endTime = performance.now();
+
+    // Get response headers
+    const headers: Record<string, string> = {};
+    response.headers.forEach((value, key) => {
+      headers[key] = value;
+    });
+
+    // Parse response
+    const responseBuffer = await response.arrayBuffer();
+    const responseData = new Uint8Array(responseBuffer);
+
+    // Parse gRPC-Web frames
+    const { messages, trailers } = parseGrpcWebFrames(responseData);
+
+    // Parse gRPC status from trailers
+    const grpcStatus = parseGrpcStatus(trailers);
+
+    // Decode response message
+    let responseBody: unknown = null;
+    let bodyText = '';
+
+    if (messages.length > 0) {
+      if (useBinary && decode) {
+        responseBody = decode(messages[0]);
+        bodyText = JSON.stringify(responseBody, null, 2);
+      } else {
+        bodyText = new TextDecoder().decode(messages[0]);
+        try {
+          responseBody = JSON.parse(bodyText);
+        } catch {
+          responseBody = bodyText;
+        }
+      }
+    }
+
+    // If gRPC status indicates error, adjust HTTP-like status
+    const httpStatus =
+      grpcStatus.code === GrpcStatusCode.OK ? response.status : grpcStatusToHttp(grpcStatus.code);
+
+    return {
+      status: httpStatus,
+      statusText: grpcStatus.code === GrpcStatusCode.OK ? response.statusText : grpcStatus.message,
+      headers,
+      body: responseBody,
+      bodyText,
+      grpcStatus: { code: grpcStatus.code, message: grpcStatus.message },
+      timing: {
+        startTime,
+        endTime,
+        duration: endTime - startTime,
+      },
+    };
+  } catch (error) {
+    const endTime = performance.now();
+
+    if (error instanceof Error && error.name === 'AbortError') {
+      return {
+        status: 504,
+        statusText: 'Request timeout',
+        headers: {},
+        body: null,
+        bodyText: '',
+        grpcStatus: { code: GrpcStatusCode.DEADLINE_EXCEEDED, message: 'Request timeout' },
+        timing: { startTime, endTime, duration: endTime - startTime },
+      };
+    }
+
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return {
+      status: 503,
+      statusText: errorMessage,
+      headers: {},
+      body: null,
+      bodyText: '',
+      grpcStatus: { code: GrpcStatusCode.UNAVAILABLE, message: errorMessage },
+      timing: { startTime, endTime, duration: endTime - startTime },
+    };
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  }
+}
+
+/**
+ * Map gRPC status codes to HTTP status codes
+ */
+function grpcStatusToHttp(code: GrpcStatusCode): number {
+  switch (code) {
+    case GrpcStatusCode.OK:
+      return 200;
+    case GrpcStatusCode.CANCELLED:
+      return 499;
+    case GrpcStatusCode.INVALID_ARGUMENT:
+      return 400;
+    case GrpcStatusCode.DEADLINE_EXCEEDED:
+      return 504;
+    case GrpcStatusCode.NOT_FOUND:
+      return 404;
+    case GrpcStatusCode.ALREADY_EXISTS:
+      return 409;
+    case GrpcStatusCode.PERMISSION_DENIED:
+      return 403;
+    case GrpcStatusCode.RESOURCE_EXHAUSTED:
+      return 429;
+    case GrpcStatusCode.FAILED_PRECONDITION:
+      return 400;
+    case GrpcStatusCode.ABORTED:
+      return 409;
+    case GrpcStatusCode.OUT_OF_RANGE:
+      return 400;
+    case GrpcStatusCode.UNIMPLEMENTED:
+      return 501;
+    case GrpcStatusCode.INTERNAL:
+      return 500;
+    case GrpcStatusCode.UNAVAILABLE:
+      return 503;
+    case GrpcStatusCode.DATA_LOSS:
+      return 500;
+    case GrpcStatusCode.UNAUTHENTICATED:
+      return 401;
+    default:
+      return 500;
+  }
+}
+
 /**
  * Map HTTP status codes to gRPC status codes
  */

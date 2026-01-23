@@ -1,9 +1,17 @@
+import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import solid from 'vite-plugin-solid';
 
+const uiPkg = JSON.parse(
+  readFileSync(resolve(__dirname, '../../packages/ui/package.json'), 'utf-8'),
+);
+
 export default defineConfig({
   plugins: [solid()],
+  define: {
+    __WTI_VERSION__: JSON.stringify(uiPkg.version),
+  },
   server: {
     port: 5173,
   },

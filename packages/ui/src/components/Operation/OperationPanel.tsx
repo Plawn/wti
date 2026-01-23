@@ -1,9 +1,16 @@
 import type { Operation, Parameter, RequestConfig, RequestValues, Server } from '@wti/core';
-import { type ResponseData, buildRequestConfig, executeRequest } from '@wti/core';
+import {
+  type ResponseData,
+  buildRequestConfig,
+  decodeMessage,
+  encodeMessage,
+  executeGrpcRequest,
+  executeRequest,
+} from '@wti/core';
 import { type Component, For, Show, createMemo, createSignal } from 'solid-js';
 import { useOperationForm } from '../../hooks';
 import { useI18n } from '../../i18n';
-import type { AuthStore, HistoryStore } from '../../stores';
+import type { AuthStore, GrpcMetadata, HistoryStore } from '../../stores';
 import {
   Button,
   ErrorDisplay,
@@ -27,6 +34,8 @@ interface OperationPanelProps {
   initialValues?: RequestValues;
   /** Callback when replay values have been consumed */
   onInitialValuesConsumed?: () => void;
+  /** gRPC reflection metadata for encoding/decoding */
+  grpcMetadata?: GrpcMetadata | null;
 }
 
 export const OperationPanel: Component<OperationPanelProps> = (props) => {
@@ -86,7 +95,59 @@ export const OperationPanel: Component<OperationPanelProps> = (props) => {
         auth,
       });
 
-      const result = await executeRequest(config);
+      let result: ResponseData;
+
+      // Use gRPC client for gRPC operations
+      if (props.operation.method === 'GRPC') {
+        // Extract input/output type names from operation
+        const inputTypeMatch =
+          props.operation.requestBody?.description?.match(/Request message: (.+)/);
+        const outputTypeMatch =
+          props.operation.responses[0]?.description?.match(/Success response: (.+)/);
+        const inputTypeName = inputTypeMatch?.[1];
+        const outputTypeName = outputTypeMatch?.[1];
+
+        // Create encoder/decoder if we have gRPC metadata and type names
+        let encode: ((body: unknown) => Uint8Array) | undefined;
+        let decode: ((data: Uint8Array) => unknown) | undefined;
+
+        if (props.grpcMetadata && inputTypeName && outputTypeName) {
+          const { messageTypes, enumTypes } = props.grpcMetadata;
+          const inputType = messageTypes.get(inputTypeName);
+          const outputType = messageTypes.get(outputTypeName);
+
+          if (inputType) {
+            encode = (body) =>
+              encodeMessage(body as Record<string, unknown>, inputType, messageTypes, enumTypes);
+          }
+          if (outputType) {
+            decode = (data) => decodeMessage(data, outputType, messageTypes, enumTypes);
+          }
+        }
+
+        const grpcResult = await executeGrpcRequest(
+          props.server.url,
+          props.operation.path,
+          config.body,
+          {
+            timeout: config.timeout,
+            metadata: config.headers,
+            encode,
+            decode,
+          },
+        );
+        result = {
+          status: grpcResult.status,
+          statusText: grpcResult.statusText,
+          headers: grpcResult.headers,
+          body: grpcResult.body,
+          bodyText: grpcResult.bodyText,
+          timing: grpcResult.timing,
+        };
+      } else {
+        result = await executeRequest(config);
+      }
+
       setResponse(result);
 
       props.historyStore?.actions.addEntry({

@@ -1,10 +1,22 @@
-import type { ApiSpec, Operation, Server, SpecInput } from '@wti/core';
+import type {
+  ApiSpec,
+  GrpcEnumType,
+  GrpcMessageType,
+  Operation,
+  Server,
+  SpecInput,
+} from '@wti/core';
 import { loadGrpcSpec, parseOpenApi } from '@wti/core';
 import type Fuse from 'fuse.js';
 import { createMemo } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { createOperationSearch, searchOperations } from '../utils/search';
 import { clearUrlParams, updateUrlWithParams } from '../utils/url';
+
+export interface GrpcMetadata {
+  messageTypes: Map<string, GrpcMessageType>;
+  enumTypes: Map<string, GrpcEnumType>;
+}
 
 export interface SpecState {
   spec: ApiSpec | null;
@@ -15,6 +27,8 @@ export interface SpecState {
   serverVariables: Record<string, string>;
   searchQuery: string;
   expandedTags: Set<string>;
+  /** gRPC reflection metadata for encoding/decoding */
+  grpcMetadata: GrpcMetadata | null;
 }
 
 const initialState: SpecState = {
@@ -26,6 +40,7 @@ const initialState: SpecState = {
   serverVariables: {},
   searchQuery: '',
   expandedTags: new Set(),
+  grpcMetadata: null,
 };
 
 /**
@@ -178,9 +193,16 @@ export function createSpecStore() {
         if (input.type === 'openapi') {
           const result = await parseOpenApi(input);
           actions.setSpec(result.spec);
+          setState({ grpcMetadata: null });
         } else if (input.type === 'grpc') {
-          const spec = await loadGrpcSpec(input.endpoint);
-          actions.setSpec(spec);
+          const result = await loadGrpcSpec(input.endpoint);
+          actions.setSpec(result.spec);
+          setState({
+            grpcMetadata: {
+              messageTypes: result.messageTypes,
+              enumTypes: result.enumTypes,
+            },
+          });
         }
       } catch (err) {
         setState({
