@@ -1,30 +1,27 @@
+import type { Schema } from 'glass-ui-solid';
+
 /**
  * Generate an example value from a JSON schema
  */
-export function generateSchemaExample(schema: {
-  type?: string;
-  properties?: Record<string, unknown>;
-  items?: unknown;
-}): unknown {
-  if (!schema.type) {
+export function generateSchemaExample(schema: Schema): unknown {
+  const type = Array.isArray(schema.type) ? schema.type[0] : schema.type;
+  if (!type) {
     return {};
   }
 
-  switch (schema.type) {
+  switch (type) {
     case 'object':
       if (schema.properties) {
         const obj: Record<string, unknown> = {};
         for (const [key, prop] of Object.entries(schema.properties)) {
-          obj[key] = generateSchemaExample(
-            prop as { type?: string; properties?: Record<string, unknown> },
-          );
+          obj[key] = generateSchemaExample(prop as Schema);
         }
         return obj;
       }
       return {};
     case 'array':
       if (schema.items) {
-        return [generateSchemaExample(schema.items as { type?: string })];
+        return [generateSchemaExample(schema.items as Schema)];
       }
       return [];
     case 'string':

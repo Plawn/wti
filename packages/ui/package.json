@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "@wti/core": "workspace:*",
-    "glass-ui-solid": "0.2.0",
+    "glass-ui-solid": "0.4.5",
     "@wti/history": "workspace:*",
     "dompurify": "3.3.1",
     "fuse.js": "7.1.0",

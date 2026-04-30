@@ -33,7 +33,7 @@
       "version": "0.3.0",
       "dependencies": {
         "ajv": "8.17.1",
-        "glass-ui-solid": "0.2.0",
+        "glass-ui-solid": "0.4.5",
         "openapi-types": "12.1.3",
         "yaml": "2.8.2",
       },
@@ -61,7 +61,7 @@
         "@wti/history": "workspace:*",
         "dompurify": "3.3.1",
         "fuse.js": "7.1.0",
-        "glass-ui-solid": "0.2.0",
+        "glass-ui-solid": "0.4.5",
         "idb": "8.0.3",
         "marked": "17.0.1",
         "prismjs": "1.30.0",
@@ -456,7 +456,7 @@
 
     "gensync": ["gensync@1.0.0-beta.2", "", {}, "sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg=="],
 
-    "glass-ui-solid": ["glass-ui-solid@0.2.0", "", { "dependencies": { "clsx": "^2.1.1", "dompurify": "^3.2.6", "marked": "^15.0.7", "prismjs": "^1.30.0" }, "peerDependencies": { "solid-js": "^1.8.0" } }, "sha512-vicLp5jjFTvWykWxN++4m5IyU1Jo2nptc6SUANXpWZXI93ENvXsWi5AaDw8IqJP8iZt1gVpLuliT84KMAJEiZQ=="],
+    "glass-ui-solid": ["glass-ui-solid@0.4.5", "", { "dependencies": { "clsx": "^2.1.1", "dompurify": "^3.2.6", "marked": "^15.0.7", "prismjs": "^1.30.0" }, "peerDependencies": { "solid-js": "^1.8.0" } }, "sha512-0w6xS88bW4W/hVb2hXmv1chuZz7cYlwqxBdHexzHsI+2zOQz3As3j4U8Ie/KR3SIZiusZLGHqj9k5oTaUpXQiA=="],
 
     "graceful-fs": ["graceful-fs@4.2.11", "", {}, "sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ=="],
 
