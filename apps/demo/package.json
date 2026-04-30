@@ -18,7 +18,7 @@
     "@tailwindcss/postcss": "4.1.18",
     "@types/bun": "^1.1.14",
     "autoprefixer": "10.4.23",
-    "postcss": "8.5.6",
+    "postcss": "8.5.10",
     "tailwindcss": "4.1.18",
     "typescript": "^5.7.2",
     "vite": "^7.0.0",
